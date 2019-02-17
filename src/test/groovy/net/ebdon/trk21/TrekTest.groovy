@@ -1,13 +1,31 @@
 package net.ebdon.trk21;
 
-import static Quadrant.*
+import static Quadrant.*;
+/**
+ * @file
+ * @author      Terry Ebdon
+ * @date        January 2019
+ * @copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 @groovy.util.logging.Log4j2('logger')
 final class TrekTest extends GroovyTestCase {
 
-  final String errShipNotInSector = 'Ship not in expected sector'
+  final String errShipNotInSector = 'Ship not in expected sector';
 
-  final String msgPositionEnemy = "Position enemy ships in quadrant %s: %03d"
+  final String msgPositionEnemy = "Position enemy ships in quadrant %s: %03d";
 
   Trek trek;
 
@@ -21,8 +39,8 @@ final class TrekTest extends GroovyTestCase {
   void testGame() {
     logger.info 'testGame'
 
+    assertFalse "No position so trek should be invalid\n$trek", trek.isValid()
     trek.with {
-      assertFalse "No position so trek should be invalid\n$trek", isValid()
       ship.position.quadrant.row  = 1
       ship.position.quadrant.col  = 2
       ship.position.sector.row    = 3
@@ -57,7 +75,7 @@ final class TrekTest extends GroovyTestCase {
   void testPositionEnterpriseInQuadrantGood() {
     logger.info 'testPositionEnterpriseInQuadrantGood'
     trek.with {
-      trek.quadrant.clear()
+      quadrant.clear()
       ship.position.quadrant = new Coords2d( row: 3, col: 4 )
       logger.info 'testPositionEnterpriseInQuadrantGood set ship quadrant ' + ship.position.quadrant
       assertEquals 'ship has wrong quadrant row', 3, ship.position.quadrant.row

@@ -1,24 +1,42 @@
 package net.ebdon.trk21;
 
-import static Quadrant.*
+import static Quadrant.*;
+/**
+ * @file
+ * @author      Terry Ebdon
+ * @date        January 2019
+ * @copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 @groovy.util.logging.Log4j2('logger')
 abstract class RepositionerTestBase extends GroovyTestCase {
 
-  abstract protected void transit( final expectedRowOffset, final expectedColOffset ) ;
+  abstract protected void transit( final expectedRowOffset, final expectedColOffset );
 
-  final String errTransitBadPos    = 'In wrong quadrant %s at q.step %2d with offsets of [%d, %d]'
-  final String msgTransitTestStart = "Transit in at most %2d steps with ShipVector: %s"
-  final String msgTransitTestEnd   = "Transit in at most %2d steps with ShipVector: %s -- OK"
-  final String msgQstep            = "q.step %2d"
-  final String msgQuad             = "Quadrant [%2d, %2d]"
-  final String msgSect             = "Sector [%2d, %2d]"
-  final String msgStartStepQuad    = "$msgQstep starting with  $msgQuad $msgSect"
-  // final String msgStepIn           = "$msgQstep starting with  $msgQuad $msgSect"
-  final String msgStepNowIn        = "$msgQstep:        now in $msgQuad $msgSect"
-  final String msgStepExpectIn     = "$msgQstep:  should be in $msgQuad"
-  final String msgEndStepQuad      = "$msgQstep: finished with $msgQuad $msgSect"
-  final String msgSetupAt          = "SetupAt $msgQuad $msgSect"
+  final String errTransitBadPos    = 'In wrong quadrant %s at q.step %2d with offsets of [%d, %d]';
+  final String msgTransitTestStart = "Transit in at most %2d steps with ShipVector: %s";
+  final String msgTransitTestEnd   = "Transit in at most %2d steps with ShipVector: %s -- OK";
+  final String msgQstep            = "q.step %2d";
+  final String msgQuad             = "Quadrant [%2d, %2d]";
+  final String msgSect             = "Sector [%2d, %2d]";
+  final String msgStartStepQuad    = "$msgQstep starting with  $msgQuad $msgSect";
+  // final String msgStepIn           = "$msgQstep starting with  $msgQuad $msgSect";
+  final String msgStepNowIn        = "$msgQstep:        now in $msgQuad $msgSect";
+  final String msgStepExpectIn     = "$msgQstep:  should be in $msgQuad";
+  final String msgEndStepQuad      = "$msgQstep: finished with $msgQuad $msgSect";
+  final String msgSetupAt          = "SetupAt $msgQuad $msgSect";
 
   TrekMock trek;
   Repositioner repositioner;
