@@ -1,7 +1,7 @@
 # Trk21
 
 A Groovy version of the 1973 BASIC-PLUS program TREK.BAS, originally written on
-a PDP-11 running RSTS/E, with user innteraction via a Teletype.
+a PDP-11 running RSTS/E, with user interaction via a Teletype.
 ```
 Command: C
   Course (1-8.99999): 1
@@ -34,7 +34,7 @@ gradlew --console=plain run
 ```
 
 Note the use of `--console=plain`. This is required to prevent Gradle from
-overwriting the games output. Without this option the game would be unplayable.
+overwriting the game's output. Without this option the game would be unplayable.
 
 ## App Status
 
