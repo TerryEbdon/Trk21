@@ -2,7 +2,30 @@
 
 A Groovy version of the 1973 BASIC-PLUS program TREK.BAS, originally written on
 a PDP-11 running RSTS/E, with user innteraction via a Teletype.
+```
+Command: C
+  Course (1-8.99999): 1
+  Warp Factor (0-12): 1
+  Repair systems are working on damage to device.S.R..SENSORS, state improved to -1
 
+Command: S
+  ---------------
+  . . . . . . . .
+  . . . . . . . .
+  B . . . . . . .
+  . . . * * . . *
+  . . . * . . E .
+  . . . . . . . .
+  . . . . . * . .
+  . . * . . K . .
+  ---------------
+  STARDATE:  2104        CONDITION: RED
+  QUADRANT: 7 - 3           SECTOR: 7 - 5
+    ENERGY:  2960  PHOTON TORPEDOS: 10
+  KLINGONS:    15
+
+Command:
+```
 ## Running the game
 
 Currently the simplest way to run the game is via Gradle:
@@ -32,6 +55,15 @@ This is a development release, the game is not fully implemented.
 - Phaser attacks - You can fire at enemy ships and see the amount of damage that
   should be caused, but the enemy ship never receives the damage.
 
+```
+Command: P
+  Number of units to fire: 100
+  Phasers locked in on target. Energy available 2960
+2019-02-18 17:40:13.544 ERROR PhaserControl ** Code incomplete **
+  Hit from Klingon at sector [8, 6] == 6 - 8
+
+Command:
+```
 ## Background
 My original intention was to document the TREK.BAS code. At some point I started
 writing it in Groovy and ended up with the code you see today.
