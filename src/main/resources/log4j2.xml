@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+@brief      Log4j2 cobfiguration for Trk21: A Groovy version of the
+            1973 BASIC-PLUS program TREK.BAS
+@author     Terry Ebdon
+@date       18-FEB-2019
+@copyright
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<Configuration status="WARN">
+    <Properties>
+        <Property name="logPath">logs</Property>
+        <Property name="Trk21Pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %c{1} %msg%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="consoleLog" target="SYSTEM_OUT">
+            <PatternLayout pattern="${Trk21Pattern}"/>
+        </Console>
+        <RollingFile name="traceLog" fileName="${logPath}/Trk21-trace.log"
+                     filePattern="${logPath}/Trk21-trace-%d{yyyy-MM-dd}.log">
+            <PatternLayout>
+                <pattern>${Trk21Pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="errorLog" fileName="${logPath}/Trk21-error.log"
+                     filePattern="${logPath}/Trk21-error-%d{yyyy-MM-dd}.log">
+            <PatternLayout>
+                <pattern>${Trk21Pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="net.ebdon.trk21" level="debug" additivity="false">
+            <appender-ref ref="traceLog"    level="debug"/>
+            <appender-ref ref="errorLog"    level="error"/>
+            <appender-ref ref="consoleLog"  level="error"/>
+        </Logger>
+        <Root level="error" additivity="false">
+            <AppenderRef ref="consoleLog"/>
+        </Root>
+    </Loggers>
+</Configuration>
