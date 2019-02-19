@@ -30,9 +30,9 @@ final class CourseOffset {
   final ShipVector shipVector;
   float x;
   float y;
-  static final int precision = 6
-  static final String format1 = "%+1.${precision}f"
-  static final String format2 = "x: $format1, y: $format1"
+  static final int precision = 6;
+  static final String format1 = "%+1.${precision}f";
+  static final String format2 = "x: $format1, y: $format1";
 
   CourseOffset( final ShipVector sv ) {
     shipVector = sv
@@ -65,8 +65,6 @@ final class CourseOffset {
    */
   private float courseAsRadians() {
     final multiplesOf45Degrees = shipVector.course - 1
-    /// @todo Use the Java function for radians convertion.
-    // multiplesOf45Degrees * numRadiansIn45degrees
     final float degrees = 45 * multiplesOf45Degrees
     log.debug  "course ${shipVector.course} is $multiplesOf45Degrees * 45 = $degrees degrees"
     Math.toRadians( degrees )
