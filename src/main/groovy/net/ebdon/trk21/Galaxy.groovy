@@ -16,7 +16,7 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 final class Galaxy extends GameSpace {
   int getCellPadding() {
     3
@@ -35,7 +35,7 @@ final class Galaxy extends GameSpace {
     assert keyCoords != null && board != null && keyCoords.isValid()
     final ArrayList key = [ keyCoords.first(), keyCoords.last() ]
     // println board.keySet()
-    println "Using key: $key"
+    // println "Using key: $key"
     board.get key
   }
 
