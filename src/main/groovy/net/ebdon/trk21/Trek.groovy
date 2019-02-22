@@ -23,7 +23,7 @@ import static ShipDevice.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /**
 @brief A Groovy version of the 1973 BASIC-PLUS program TREK.BAS
 @author Terry Ebdon
@@ -409,6 +409,7 @@ final class Trek extends LoggingBase {
 
           repositioner.repositionShip vector
           repopulateSector oldQuadrant
+          shortRangeScan()
         }
       }
     } else {
