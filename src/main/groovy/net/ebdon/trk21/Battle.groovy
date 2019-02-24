@@ -28,11 +28,13 @@ final class Battle {
   Closure         pcReporter;
   Closure         fleetAttackReporter;
 
+  PropertyResourceBundle rb;
+
   private int nextTargetIndex = 1;
 
   def getNextTarget() {
-    log.info "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
-    log.info "Getting target $nextTargetIndex"
+    log.trace "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
+    log.trace "Getting target $nextTargetIndex"
     assert nextTargetIndex >= 0
     assert nextTargetIndex <= 1 + enemyFleet.maxKlingonBCinQuad
     def rv = null
@@ -42,12 +44,13 @@ final class Battle {
         if ( enemyShip[3] > 0 ) {
           log.info "Creating target expando from $enemyShip"
           rv = new Expando(
-            name: "Enemy ship No. $nextTargetIndex",
+            id:     nextTargetIndex,
+            name:   "Enemy ship No. $nextTargetIndex",
             energy: enemyShip[3],
             sector: new Coords2d( *enemyShip[1..2] )  /// @ todo fix this.
           )
         } else {
-          log.info "Enemy ship No. $nextTargetIndex is dead, or never existed... recursing..."
+          log.trace "Enemy ship No. $nextTargetIndex is dead, or never existed... recursing..."
           ++nextTargetIndex
           rv = getNextTarget()
         }
@@ -59,11 +62,27 @@ final class Battle {
     rv
   }
 
+  /// @todo Localise Battle.hitOnFleetShip()
+  def hitOnFleetShip( final target, final int hitAmount ) {
+    pcReporter sprintf( '%d unit hit on %s at sector %d - %d',
+      hitAmount, target.name, target.sector.last(), target.sector.first() )
+
+    enemyFleet.with {
+      hitOnShip( target.id, hitAmount )
+      if (shipExists(target.id)) {
+        pcReporter sprintf( '\t(%d left)%n', energy(target.id) )
+      } else {
+        pcReporter rb.getString( 'battle.enemy.destroyed' )
+      }
+    }
+  }
+
   def phaserAttackFleet( energy ) {
     assert energy > 0
     assert enemyFleet && ship && dc && pcReporter && fleetAttackReporter
     new PhaserControl( dc, pcReporter, ship, this ).fire( energy )
     enemyFleet.with {
+      regroup()
       if ( canAttack() ) {
         attack( ship.position.sector, fleetAttackReporter )
       }

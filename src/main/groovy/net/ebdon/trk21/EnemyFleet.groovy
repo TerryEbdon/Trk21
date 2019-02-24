@@ -34,9 +34,9 @@ final class EnemyFleet /*extends LoggingBase */ {
     **/
     static final int maxKlingonEnergy = 200;
 
-    def klingons = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
-
-    final softProbs   = [
+    def klingons    = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
+    def scrapHeap   = []
+    final softProbs = [
       0,
       0.0001,
       0.01,
@@ -54,7 +54,13 @@ final class EnemyFleet /*extends LoggingBase */ {
       numKlingonBatCrInQuad >= 0 &&
       numKlingonBatCrInQuad <= numKlingonBatCrRemain &&
       numKlingonBatCrRemain <= numKlingonBatCrTotal &&
-      numKlingonBatCrTotal <= maxPossibleKlingonShips
+      numKlingonBatCrTotal <= maxPossibleKlingonShips &&
+      scrapHeap.size() <= maxKlingonBCinQuad
+    }
+
+    boolean getDefeated() {
+      assert isValid()
+      numKlingonBatCrRemain == 0
     }
 
     void setNumKlingonBatCrRemain( final int newNumKbcRemain ) {
@@ -79,22 +85,25 @@ final class EnemyFleet /*extends LoggingBase */ {
       }
     }
 
-    void resetQuadrant() { ///> Forget all Klingon position data for the quadrant.
-        log.trace "Removing all battle cruisers from quadrant."
-        1.upto(9) { klingon ->
-            1.upto(3) { j ->
-                klingons[ klingon ][j] = 0
-            }
+    void resetQuadrant() { ///> Forget all Klingon ship data for the quadrant.
+      log.trace "Removing all battle cruisers & scrap from quadrant."
+      1.upto( maxKlingonBCinQuad ) { shipNum ->
+        if ( shipExists( shipNum ) ) {
+          launchIntoStar shipNum
         }
+      }
+      scrapHeap.clear()
+    }
+
+    boolean isShipAt( key ) {
+      klingons.find {
+        key.first() == it[1] && key.last() == it[2]
+      }
     }
 
     void positionInSector( final klingonShipNo, final klingonPosition ) {
       assert klingonShipNo >= 0 && klingonShipNo <= numKlingonBatCrInQuad
-
       assert sectorIsInsideQuadrant( klingonPosition )
-      // 0.upto(1) { /// @todo positionInSector() hardcodes the sector size.
-      //   assert klingonPosition[it] >=0 && klingonPosition[it] <= 8
-      // }
 
       /// @pre Target sector must be empty
       assert null == klingons.find {
@@ -102,8 +111,9 @@ final class EnemyFleet /*extends LoggingBase */ {
       }
 
       log.debug "Klingon $klingonShipNo is at sector " +
-      GameSpace.logFmtCoords( *klingonPosition )
+        GameSpace.logFmtCoords( *klingonPosition )
       /// @todo replace array with new EnemyShip class.
+      klingons[klingonShipNo][0] = klingonShipNo
       klingons[klingonShipNo][1] = klingonPosition[0]
       klingons[klingonShipNo][2] = klingonPosition[1]
       klingons[klingonShipNo][3] = maxKlingonEnergy
@@ -113,7 +123,7 @@ final class EnemyFleet /*extends LoggingBase */ {
       "Enemy Bat C total, $numKlingonBatCrTotal, " +
       "remain: $numKlingonBatCrRemain, " +
       "in quad: $numKlingonBatCrInQuad\n" +
-      "Bat Cru: ${klingons[1..numKlingonBatCrInQuad]}"
+      "Bat Cru: ${klingons[1..maxKlingonBCinQuad]}"
     }
 
     boolean canAttack() {
@@ -126,9 +136,11 @@ final class EnemyFleet /*extends LoggingBase */ {
         klingons[ shipNo ][1..2], targetSectorCoords
       )
       log.info(
-        "Ship $shipNo in ${klingons[shipNo][1..2]} " +
-        "is $distance sectors from target in " +
-        "${targetSectorCoords}"
+        sprintf(
+          'Ship %d in %d - %d is %1.3f sectors from target %d - %d',
+          shipNo, klingons[shipNo][2..1]),distance,
+          targetSectorCoords.col, targetSectorCoords.row
+        )
       )
       distance
     }
@@ -142,6 +154,8 @@ final class EnemyFleet /*extends LoggingBase */ {
       assert distanceToTarget > 0 &&
              distanceToTarget <= maxSectorDistance
 
+      /// @todo: Same bug as was in PhaserControl - it's possible to
+      /// hit the target with more energy than was fired at it.
       def rnd = new Random().nextFloat()
       ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1
     }
@@ -171,5 +185,52 @@ final class EnemyFleet /*extends LoggingBase */ {
           log.trace "Ship $shipNo is dead or never existed."
         }
       }
+    }
+
+    def hitOnShip( final int shipNum, final int hitAmount ) {
+      log.info sprintf( 'Fleet ship %d hit by %d units of Federation phasers',
+        shipNum, hitAmount )
+
+      assert energy( shipNum ) > 0
+      final int nrg = energy( shipNum ) - hitAmount
+      klingons[ shipNum ][3] = [0,nrg].max()
+      if (!shipExists(shipNum)) {
+        scrapShip(shipNum)
+      }
+    }
+
+    void scrapShip( final shipNum ) {
+      scrapHeap << shipNum
+      log.info "Ship $shipNum destroyed."
+      log.info "There are ${scrapHeap.size()} scrapped ships in this quadrant."
+      assert scrapHeap.size() <= maxKlingonBCinQuad
+    }
+
+    void regroup() {
+      log.info "${scrapHeap.size()} dead ships will be launched into a star."
+      while ( scrapHeap.size() ) {
+        removeShip scrapHeap.pop()
+      }
+    }
+
+    private void launchIntoStar(final shipNum) {
+      log.debug "Launching ship $shipNum into a star."
+      // 1.upto(3) {
+        klingons[shipNum] = [shipNum,0,0,0]
+      // }
+    }
+    private void removeShip(final shipNum) {
+      launchIntoStar shipNum
+      --numKlingonBatCrInQuad
+      --numKlingonBatCrRemain
+    }
+
+    int energy( final int shipNum ) {
+      assert shipNum >=1 && shipNum <= 9
+      klingons[ shipNum ][3]
+    }
+
+    boolean shipExists(final int shipNum) {
+      klingons[ shipNum ][3] > 0
     }
 }

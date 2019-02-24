@@ -149,20 +149,38 @@ final class Trek extends LoggingBase {
     quadrant.dump()
   }
 
-  def positionKlingons() {
-    final int x                   = galaxy[entQuadX,entQuadY]
-    enemyFleet.numKlingonBatCrInQuad   = x / 100
-    final int numBasesInQuad      = x / 10 - 10 * enemyFleet.numKlingonBatCrInQuad
-    final int numStarsInQuad      = x - enemyFleet.numKlingonBatCrInQuad * 100 - numBasesInQuad * 10
+  private updateNumEnemyShipsInQuad() {
+    galaxy[entQuadX,entQuadY] -= 100 * numEnemyShipsInQuad()
+    galaxy[entQuadX,entQuadY] += 100 * enemyFleet.numKlingonBatCrInQuad
+  }
 
-    log.info "x: ${x}"
+  private int numEnemyShipsInQuad() {
+    galaxy[entQuadX,entQuadY] / 100
+  }
+
+  private int numBasesInQuad() {
+    galaxy[entQuadX,entQuadY] / 10 - 10 * numEnemyShipsInQuad()
+  }
+
+  private int numStarsInQuad() {
+    galaxy[entQuadX,entQuadY] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
+  }
+
+  def positionKlingons() {
+    // final int x                   = galaxy[entQuadX,entQuadY]
+    // enemyFleet.numKlingonBatCrInQuad   = x / 100
+    // final int numBasesInQuad      = x / 10 - 10 * enemyFleet.numKlingonBatCrInQuad
+    // final int numStarsInQuad      = x - enemyFleet.numKlingonBatCrInQuad * 100 - numBasesInQuad * 10
+    enemyFleet.numKlingonBatCrInQuad = numEnemyShipsInQuad()
+
+    log.info "x: ${galaxy[entQuadX,entQuadY]}"
     log.info "numKlingonBatCrInQuad: ${enemyFleet.numKlingonBatCrInQuad}"
-    log.info "numBasesInQuad: ${numBasesInQuad}"
-    log.info "numStarsInQuad: ${numStarsInQuad}"
+    // log.info "numBasesInQuad: ${numBasesInQuad()}"
+    // log.info "numStarsInQuad: ${numStarsInQuad()}"
 
     positionEnemy()
-    positionBases numBasesInQuad
-    positionStars numStarsInQuad
+    positionBases()
+    positionStars()
   }
 
   def positionEnemy() {
@@ -171,6 +189,7 @@ final class Trek extends LoggingBase {
     enemyFleet.resetQuadrant()
     log.info "Positioning $enemyFleet.numKlingonBatCrInQuad Klingons in quadrant ${currentQuadrant()}."
     for ( int klingonShipNo = 1; klingonShipNo <= enemyFleet.numKlingonBatCrInQuad; ++klingonShipNo ) {
+    // 1.upto( enemyFleet.numKlingonBatCrInQuad ) { klingonShipNo ->
       def klingonPosition = getEmptySector()
       quadrant[klingonPosition] = Thing.enemy
 
@@ -184,9 +203,10 @@ final class Trek extends LoggingBase {
     log.info '^'*16
   }
 
-  def positionStars( numStarsInQuad ) {
-    log.info "Positioning $numStarsInQuad stars."
-    for ( int star = 1; star <= numStarsInQuad; ++star ) {
+  def positionStars() {
+    log.info "Positioning ${numStarsInQuad()} stars."
+    for ( int star = 1; star <= numStarsInQuad(); ++star ) {
+    // 1.upto( numStarsInQuad() ) { star ->
       def starPos = getEmptySector()
       log.trace "... star $star is at sector ${starPos}"
       quadrant[starPos[0],starPos[1]] = Thing.star
@@ -194,14 +214,14 @@ final class Trek extends LoggingBase {
     }
   }
 
-  def positionBases( numBasesInQuad ) {
-    log.info "Positioning $numBasesInQuad bases."
-    for ( int base = 1; base <= numBasesInQuad; ++base ) {
+  def positionBases() {
+    log.info "Positioning ${numBasesInQuad()} bases."
+    for ( int base = 1; base <= numBasesInQuad(); ++base ) {
+    // 1.upto( numBasesInQuad() ) { base ->
       def basePos = getEmptySector()
       log.trace "... base $base is at sector ${basePos}"
       quadrant[basePos] = Thing.base
     }
-
   }
 
   /// @deprecated Acts as a facade for the Quadrant
@@ -401,9 +421,7 @@ final class Trek extends LoggingBase {
         final Coords2d oldQuadrant = ship.position.quadrant.clone()
         ship.move( vector ) // set course, start engines...
 
-        if ( ship.deadInSpace() || game.outOfTime() ) {
-          shipDestroyed() /// @todo How do I "end" the game?
-        } else {
+        if ( gameContinues() ) {
           log.trace "Ship has moved, but where is it?"
           // Continue from line 1840...
 
@@ -444,15 +462,6 @@ final class Trek extends LoggingBase {
   /// @deprecated
   boolean sectorIsOccupied( i, j ) {
     quadrant.isOccupied(i,j)
-  }
-
-  /// @todo Localise shipDestroyed()
-  void shipDestroyed() {
-    msgBox "It is stardate ${game.currentSolarYear}\n"
-    msgBox "Your ship has been destroyed."
-    msgBox "Your civilisation will be conquered."
-    msgBox "There are still ${enemyFleet.numKlingonBatCrRemain} enemy ships."
-    msgBox "You are dead."
   }
 
   /// @todo Test needed for getCourse()
@@ -550,14 +559,33 @@ final class Trek extends LoggingBase {
     }
   }
 
+  private void attackFleetWithPhasers( final energy ) {
+    new Battle(
+      enemyFleet, ship, damageControl,
+      this.&msgBox, this.&attackReporter, rb
+    ).phaserAttackFleet( energy )
+  }
+
+  void updateQuadrantAfterSkirmish() {
+    updateNumEnemyShipsInQuad()
+    def enemiesAtStart = quadrant.findEnemies()
+    log.info "Found ${enemiesAtStart ? enemiesAtStart.size() : 'no'} possibly dead enemies."
+    enemiesAtStart.each {
+      if ( !enemyFleet.isShipAt( it.key ) ) {
+        log.info "Removing vanquished ${it.value} from sector ${it.key}"
+        quadrant.removeEnemy( it.key )
+      }
+    }
+  }
+
   final void firePhasers() {
     log.info 'Fire phasers'
 
     int energy = getFloatInput( rb.getString( 'input.phaserEnergy' ) )
     if ( energy > 0 ) {
       if ( energy <= ship.energyNow ) {
-        new Battle( enemyFleet, ship, damageControl, this.&msgBox, this.&attackReporter ).
-            phaserAttackFleet( energy )
+        attackFleetWithPhasers energy
+        updateQuadrantAfterSkirmish()
       } else {
         log.info  "Phaser command refused; user tried to fire too many units."
         msgBox    rb.getString('phaser.refused.badEnergy')
@@ -565,5 +593,43 @@ final class Trek extends LoggingBase {
     } else {
       log.info "Command cancelled by user."
     }
-   }
+  }
+
+  void victoryDance() {
+
+    Object[] msgArgs = [
+      game.currentSolarYear,
+      enemyFleet.numKlingonBatCrTotal,
+      game.elapsed(),
+      rating()
+    ]
+    formatter.applyPattern( rb.getString( 'trek.victoryDance' ) );
+    msgBox formatter.format( msgArgs );
+  }
+
+  private int rating() {
+    enemyFleet.numKlingonBatCrTotal / game.elapsed() * 1000
+  }
+
+  void shipDestroyed() {
+    Object[] msgArgs = [
+      game.currentSolarYear,
+      enemyFleet.numKlingonBatCrRemain,
+      game.elapsed()
+    ]
+    formatter.applyPattern( rb.getString( 'trek.funeral' ) );
+    msgBox formatter.format( msgArgs );
+  }
+
+  boolean gameContinues() {
+    !gameWon() && !gameLost()
+  }
+
+  boolean gameWon() {
+    enemyFleet.defeated
+  }
+
+  boolean gameLost() {
+    ship.deadInSpace() || game.outOfTime()
+  }
 }

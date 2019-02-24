@@ -35,16 +35,19 @@ final class PhaserControl {
     battle = aBattle
   }
 
+  /// @todo Localiser PhaserControl.phasersDisabled()
   private void phasersDisabled() {
     log.info "Phaser control is disabled."
     report "Phaser control is disabled."
   }
 
+  /// @todo Localiser PhaserControl.phasersOnTarget()
   private void phasersOnTarget() {
     log.info "Phaser control is enabled. Energy available $ship.energyNow"
     report "Phasers locked in on target. Energy available $ship.energyNow"
   }
 
+  /// @todo Localiser PhaserControl.commandRefused()
   private void commandRefused() {
     log.warn "Command refused; insufficient energy available."
     report   "Command refused; insufficient energy available."
@@ -59,6 +62,10 @@ final class PhaserControl {
     distanceBetween( ship.position.sector, target.sector )
   }
 
+  private int targetDamageAmount( fired, distance ) {
+    [fired, fired / distance * phaserVariance()].min()
+  }
+
   private void fireAt( energyAmount, target ) {
     log.debug 'in fireAt()'
     assert ship.position.isValid()
@@ -67,23 +74,20 @@ final class PhaserControl {
 
     final float distance = rangeTo( target )
     log.debug sprintf(
-      "Calculating hit on %s with %d units, range %+1.6f sectors",
+      "Calculating hit on %s with %d units, range %+1.3f sectors",
       target.name, energyAmount, distance )
     assert distance > 0
-    final float energyHit = energyAmount / distance * phaserVariance()
+    // final float energyHit = energyAmount / distance * phaserVariance()
+    final int energyHit = targetDamageAmount( energyAmount, distance )
 
-    log.info sprintf( "Target %s hit with %1.6f of the %d units fired at it.",
-        target, energyHit, energyAmount )
+    log.info sprintf( "%s hit with %d of the %d units fired at it.",
+        target.name, energyHit, energyAmount )
 
-    log.error "** Code incomplete **" /// @todo More phaser stuff here.
-
-    // K%( I%,3% ) = K%( I%,3% ) - H%  !!! Decrement the target Klingon's energy.
+    battle.hitOnFleetShip target, energyHit
   }
 
   void fire( energyAmount ) {
-    log.info "Firing phasers..."
     log.info "Firing phasers with $energyAmount units."
-    // assert ship
     assert damageControl && report
     assert energyAmount > 0
 
@@ -101,13 +105,6 @@ final class PhaserControl {
         while ( target = battle.getNextTarget() ) {
           fireAt energyAmount, target //klingon
         }
-        log.info "*** Last *** target: $target"
-        // def klingons = []
-        // klingons.each { klingon ->
-        //   if ( !klingon.dead() ) {
-            // fireAt energyAmount, null //klingon
-        //   }
-        // }
       }
     }
     log.info 'Firing phasers -- complete'

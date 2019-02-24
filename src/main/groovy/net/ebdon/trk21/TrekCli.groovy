@@ -16,7 +16,7 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 class TrekCli extends UiBase {
 
   private Scanner sc = new Scanner(System.in).useDelimiter('\n');
@@ -58,6 +58,22 @@ class TrekCli extends UiBase {
         case 'd': trek.reportDamage();  break
         case 'q': outln '\nBye!\n'; finished = true; trek = null; break
         default: println 'What?'
+      }
+
+      if (!finished) {
+        trek.with {
+          if (gameWon()) {
+            finished = true
+            victoryDance()
+          } else {
+            if (gameLost()) {
+              finished = true
+              shipDestroyed()
+            } else {
+              assert gameContinues()
+            }
+          }
+        }
       }
     }
   }

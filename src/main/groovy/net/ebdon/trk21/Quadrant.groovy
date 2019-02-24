@@ -16,7 +16,7 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 @groovy.util.logging.Log4j2
 final class Quadrant extends GameSpace {
 
@@ -93,6 +93,15 @@ final class Quadrant extends GameSpace {
       }
       linePrinter( scanLine )
     }
+  }
+
+  def findEnemies() {
+    board.findAll { it.value == Thing.enemy }
+  }
+
+  def removeEnemy( key ) {
+    assert board[key] == Thing.enemy
+    board[key] = Thing.emptySpace
   }
 
   int count( Closure closure ) {
