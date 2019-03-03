@@ -12,7 +12,7 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
-    
+
     // Include resouirces in the zip file and add an install task to the build.
 //    id 'distribution'
 }
@@ -41,6 +41,7 @@ dependencies {
 
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-jcl', version: '2.4'
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.1.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.1.0")
