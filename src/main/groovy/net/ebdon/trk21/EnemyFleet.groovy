@@ -131,14 +131,14 @@ final class EnemyFleet /*extends LoggingBase */ {
     }
 
     /// Distance to target calculated via Pythagorous
-    float distanceToTarget( final shipNo, final targetSectorCoords ) {
+    float distanceToTarget( final int shipNo, final Coords2d targetSectorCoords ) {
       final float distance = distanceBetween(
         klingons[ shipNo ][1..2], targetSectorCoords
       )
       log.info(
         sprintf(
           'Ship %d in %d - %d is %1.3f sectors from target %d - %d',
-          shipNo, klingons[shipNo][2..1]),distance,
+          shipNo, *(klingons[shipNo][2..1]),distance,
           targetSectorCoords.col, targetSectorCoords.row
         )
       )
@@ -160,7 +160,7 @@ final class EnemyFleet /*extends LoggingBase */ {
       ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1
     }
 
-    void attack( targetSectorCoords, reportAttack ) {
+    void attack( final Coords2d targetSectorCoords, reportAttack ) {
       assert sectorIsInsideQuadrant( targetSectorCoords)
       assert canAttack()
       assert reportAttack != null
@@ -168,7 +168,7 @@ final class EnemyFleet /*extends LoggingBase */ {
 
       log.info "Fleet is beginning an attack with $numKlingonBatCrInQuad ships." // 1740 IF K3%>0 THEN GOSUB 2370
       log.info "Target is in sector $targetSectorCoords"
-      1.upto( maxKlingonBCinQuad ) { shipNo ->
+      1.upto( maxKlingonBCinQuad ) { int shipNo ->
         final int attackerEnergy = klingons[ shipNo ][3]
         if ( attackerEnergy > 0 ) {
           log.info "Ship $shipNo is attacking. It's energy level is: $attackerEnergy"
@@ -188,8 +188,8 @@ final class EnemyFleet /*extends LoggingBase */ {
     }
 
     def hitOnShip( final int shipNum, final int hitAmount ) {
-      log.info sprintf( 'Fleet ship %d hit by %d units of Federation phasers',
-        shipNum, hitAmount )
+      log.info 'Fleet ship {} hit by {} units of Federation phasers',
+        shipNum, hitAmount
 
       assert energy( shipNum ) > 0
       final int nrg = energy( shipNum ) - hitAmount

@@ -33,13 +33,13 @@ final class Repositioner {
   final String msgTryToEnterSect    = "$msgMovePart try to enter sector     %s";
   final String msgConstrainedToQuad = "$msgMovePart constrained to quadrant %s";
   final String msgConstrainedToSect = "$msgMovePart constrained to sector   %s";
-  final String msgArrivedInQuad     = 'Ship arrived in quadrant %s';
-  final String msgArrivedInsector   = 'Ship arrived in sector   %s';
-  final String msgReposInfo         = "Reposition from sector   %s with energy %d and offset %s";
-  final String msgJumpFrom          = "Jumping from: quadrant:  %s";
+  final String msgArrivedInQuad     = 'Ship arrived in quadrant {}';
+  final String msgArrivedInsector   = 'Ship arrived in sector   {}';
+  final String msgReposInfo         = "Reposition from sector   {} with energy {} and offset {}";
+  final String msgJumpFrom          = "Jumping from: quadrant:  {}";
   final String msgfloatQuadFormat   = "[${CourseOffset.format1}, ${CourseOffset.format1}]";
   final String msgJumpTo            = "jumping to:   quadrant: $msgfloatQuadFormat";
-  final String msgJumpOffset        = "Jumping with offset: %s";
+  final String msgJumpOffset        = "Jumping with offset: {}";
   final String msgJumpCoord         = "Jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
 
   boolean moveAborted   = false;
@@ -73,8 +73,8 @@ final class Repositioner {
     moveAborted = false
     // sv = shipVector
     offset = new CourseOffset( shipVector ) // gosub 2300 @ line 1840
-    log.info sprintf( msgReposInfo,
-        startSector.toString(), trek.ship.energyUsedByLastMove, offset )
+    log.info msgReposInfo,
+        startSector.toString(), trek.ship.energyUsedByLastMove, offset
     log.debug "Before move: $this"
     trek.with {
       quadrant[ entSectX, entSectY ] = Thing.emptySpace  // Line 1840 Stat.1
@@ -91,8 +91,8 @@ final class Repositioner {
     trek.with {
       // (entSectX, entSectY) = [newX + 0.5, newY + 0.5]  // Line 1875
       quadrant[ entSectX, entSectY ] = Thing.ship // 1875
-      log.info sprintf( msgArrivedInQuad,   logFmtCoords( entQuadX, entQuadY ) )
-      log.info sprintf( msgArrivedInsector, logFmtCoords( entSectX, entSectY ) )
+      log.info msgArrivedInQuad,   logFmtCoords( entQuadX, entQuadY )
+      log.info msgArrivedInsector, logFmtCoords( entSectX, entSectY )
       // log.info "Ship arrived in quadrant ${logFmtCoords( entQuadX, entQuadY )}"
       // log.info "Ship arrived in sector   ${logFmtCoords( entSectX, entSectY )}"
     }
@@ -180,8 +180,8 @@ final class Repositioner {
   /// Returns:
   ///  [quadrantRow,quadrantCol.sectorRow,sectorCol]
   def newCoordIfOutsideQuadrantV2() {
-    log.info sprintf( msgJumpFrom, logFmtCoords( trek.entQuadX, trek.entQuadY ) )
-    log.info sprintf( msgJumpOffset, offset )
+    log.info msgJumpFrom, logFmtCoords( trek.entQuadX, trek.entQuadY )
+    log.info msgJumpOffset, offset
     def rQuadCoords = []
     final def warpFactor = offset.shipVector.warpFactor
     // def rSectCoords = []

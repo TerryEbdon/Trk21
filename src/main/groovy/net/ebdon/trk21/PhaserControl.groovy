@@ -80,8 +80,8 @@ final class PhaserControl {
     // final float energyHit = energyAmount / distance * phaserVariance()
     final int energyHit = targetDamageAmount( energyAmount, distance )
 
-    log.info sprintf( "%s hit with %d of the %d units fired at it.",
-        target.name, energyHit, energyAmount )
+    log.info '{} hit with {} of the {} units fired at it.',
+        target.name, energyHit, energyAmount
 
     battle.hitOnFleetShip target, energyHit
   }
