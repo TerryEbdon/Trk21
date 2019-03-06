@@ -49,9 +49,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testShipConstruction() {
       logger.info 'testShipConstruction'
       ship.with {
-        shouldFail {
-          assertTrue( "$ship", isValid() )  // Position is invalid.
-        }
+        assertFalse(  "$ship", isValid() )  // Position is invalid.
         positionShip()
         assertTrue(   "$ship", isValid() )  // Position is invalid.
         assertEquals( "$ship", energyAtStart, energyNow )
@@ -74,13 +72,13 @@ final class FederationShipTest extends GroovyTestCase {
         condition = allowedConditions[0]
         assertEquals( "$ship", allowedConditions[0], condition )
 
-        shouldFail {
+        shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
           condition = "flooded"
         }
         assertEquals( "$ship", allowedConditions[0], condition )
 
         allowedConditions.each { newCond ->
-          shouldFail {
+          shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
             condition = newCond.toLowerCase()
           }
           assertEquals( "$ship", allowedConditions[0], condition )
@@ -117,12 +115,12 @@ final class FederationShipTest extends GroovyTestCase {
     void testHitFromEnemy() {
       logger.info 'testHitFromEnemy'
       ship.with {
-        shouldFail {
+        shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
           hitFromEnemy energyAtStart // fail, not in condition red.
         }
 
         condition = 'RED'
-        hitFromEnemy energyAtStart // fail, not in condition red.
+        hitFromEnemy energyAtStart // Succeed: Ship is in condition red.
         assertEquals "$ship", 0, energyNow
       }
       logger.info 'testHitFromEnemy -- OK'
@@ -300,7 +298,7 @@ final class FederationShipTest extends GroovyTestCase {
 
       galaxyStub.use {
         ship.with {
-          shouldFail {
+          shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
             move( sv ) // Fail: invalid course.
           }
           sv.course = 1
