@@ -65,7 +65,7 @@ final class EnemyFleetTest extends GroovyTestCase {
         // }
 
         positionInSector( 1, [1,1] )
-        attack( [2,2], ReporterMock.reporterMustbeCalled )
+        attack( new Coords2d(2,2), ReporterMock.reporterMustbeCalled )
         assertTrue ReporterMock.reporterCalled
         assertTrue ReporterMock.attackAmount > 0
       }
@@ -138,7 +138,7 @@ final class EnemyFleetTest extends GroovyTestCase {
         // From Pythagaras: distance from [1,1] to [2,2] is sqrt(1*^2 + 1^2)
         positionInSector( 1, [1, 1] )
         final Float root2 = Math.sqrt(2)
-        assertEquals root2, distanceToTarget( 1, [2,2] )
+        assertEquals root2, distanceToTarget( 1, new Coords2d(2,2) )
       }
     }
 
