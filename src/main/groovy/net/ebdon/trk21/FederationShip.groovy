@@ -19,7 +19,7 @@ import static Quadrant.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /// @todo consider using an enum class for #allowedConditions
 @groovy.util.logging.Log4j2
 final class FederationShip {
@@ -38,6 +38,31 @@ final class FederationShip {
       'RED',
       'DOCKED'
     ];
+
+    private void useEnergyForMove( final int energyUsedByLastMove ) {
+      energyNow -= energyUsedByLastMove
+      log.info "Ship's movement used $energyUsedByLastMove units of energy."
+      logFuelReduction()
+    }
+
+    private void energyReducedByEnemyAttack( final int damagelevel ) {
+      energyNow -= damagelevel
+      log.info "Hit with $damagelevel units of energy."
+      logFuelReduction()
+    }
+
+    void energyReducedByPhaserUse( final int phaserEnergyUsed ) {
+      energyNow -= phaserEnergyUsed
+      log.info "Firing phasers used $phaserEnergyUsed units of energy."
+      logFuelReduction()
+    }
+
+    private void logFuelReduction() {
+      log.info "Energy reserves reduced to $energyNow"
+      if ( deadInSpace() ) {
+        log.info "The ship's dead in space."
+      }
+    }
 
     boolean isValid() {
         energyNow >= 0 && energyNow <= energyAtStart &&
@@ -70,18 +95,12 @@ final class FederationShip {
       assert( sv.isValid() ) /// @pre The provided Shipvector is valid.
       log.info( "Ship moving: $sv" )
 
-       energyUsedByLastMove = sv.warpFactor * 8
+      energyUsedByLastMove = sv.warpFactor * 8
           // 1 warp factor:
           //  - uses 1 unit of energy
           //  - moves the ship by 1 quadrant.
 
-      energyNow -= energyUsedByLastMove
-      log.info "Ship's movement used $energyUsedByLastMove units of energy."
-      log.info "Energy reserves reduced to $energyNow"
-
-      if ( deadInSpace() ) {
-        log.info "The ship's dead in space."
-      }
+      useEnergyForMove energyUsedByLastMove
     }
 
     boolean deadInSpace() {
@@ -213,12 +232,8 @@ final class FederationShip {
   }
 
   void hitFromEnemy( damagelevel ) {
-      assert !isProtectedByStarBase()
-      assert 'RED' == condition
-      energyNow -= damagelevel
-      log.info "Hit with $damagelevel units of energy. Ship's energy reduced to $energyNow"
-      if ( energyNow <= 0 ) {
-        log.info 'Ship is disabled, this is bad!'
-      }
+    assert !isProtectedByStarBase()
+    assert 'RED' == condition
+    energyReducedByEnemyAttack damagelevel
   }
 }

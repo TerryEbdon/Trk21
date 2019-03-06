@@ -35,7 +35,6 @@ class BattleTest extends GroovyTestCase {
   StubFor shipStub;
 
   @Override void setUp() {
-
     dcStub = new StubFor( DamageControl )
     dcStub.use { dc = new DamageControl( new Expando() ) }
 
@@ -56,7 +55,18 @@ class BattleTest extends GroovyTestCase {
 
   }
 
-  void testBattle() {
+  def testBattleHitOnFleetShip() {
+    if ( notYetImplemented() ) return
+    assert false
+  }
+
+  def testtBattlePhaserAttackFleet() {
+    if ( notYetImplemented() ) return
+    assert false
+  }
+
+  void testBattleGetNextTarget() {
+    logger.info 'testBattleGetNextTarget'
     fleetStub.demand.with {
       getNumKlingonBatCrInQuad(1..18) {9}
       getMaxKlingonBCinQuad(1..18)    {9}
@@ -66,7 +76,7 @@ class BattleTest extends GroovyTestCase {
           final int row = BattleTest.convertToRow( shipNo )
           final int col = BattleTest.convertToCol( shipNo )
 
-          ships[shipNo] = [0,row,col,200]
+          ships[shipNo] = [shipNo,row,col,200]
           // println "ships[$shipNo] = ${ships[shipNo]}"
         }
         ships
@@ -78,7 +88,9 @@ class BattleTest extends GroovyTestCase {
       assertTrue    target.name.contains( "$targetExpected" )
       assertEquals  convertToRow( targetExpected ), target.sector.row
       assertEquals  convertToCol( targetExpected ), target.sector.col
+      assertEquals  targetExpected, target.id
     }
+    logger.info 'testBattleGetNextTarget -- OK'
   }
 
   static int convertToRow( shipNo ) {

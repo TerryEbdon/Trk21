@@ -346,7 +346,7 @@ final class Trek extends LoggingBase {
       //   msgBox message
       //   //:E% -= damageAmount // Line 2410
       // }
-      enemyFleet.attack( [entSectX, entSectY], this.&attackReporter )
+      enemyFleet.attack( ship.position.sector, this.&attackReporter )
     } else {
       msgBox "Star Base shields protect Enterprise";
     }
@@ -579,7 +579,7 @@ final class Trek extends LoggingBase {
   }
 
   final void firePhasers() {
-    log.info 'Fire phasers'
+    log.info "Fire phasers - available energy: ${ship.energyNow}"
 
     int energy = getFloatInput( rb.getString( 'input.phaserEnergy' ) )
     if ( energy > 0 ) {
@@ -593,6 +593,7 @@ final class Trek extends LoggingBase {
     } else {
       log.info "Command cancelled by user."
     }
+    log.info "Fire phasers completed - available energy: ${ship.energyNow}"
   }
 
   void victoryDance() {

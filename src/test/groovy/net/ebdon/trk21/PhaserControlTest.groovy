@@ -35,7 +35,6 @@ final class PhaserControlTest extends DeviceTestBase {
   private StubFor shipStub;
   private StubFor battleStub;
   private String reportedMsg = "";
-  private boolean energyReporterCalled;
   private newEnergy;
   private int energyAtStart;
 
@@ -53,7 +52,7 @@ final class PhaserControlTest extends DeviceTestBase {
       battle = new Battle()
     }
     pc = new PhaserControl( dc, this.&reporter, ship, battle )
-    damageReported = energyReporterCalled = false
+    damageReported = false
     newEnergy = 0
     reportedMsg = ''
   }
@@ -66,20 +65,20 @@ final class PhaserControlTest extends DeviceTestBase {
     damageReported = true
   }
 
-  void testBadEnergyValue() {
-    logger.info 'testBadEnergyValue'
-    shouldFail {
-      pc.fire( -1 )
-      pc.fire 0
+  void testEnergyValue() {
+    logger.info 'testEnergyValue'
+    [0,-1].each { energyValue ->
+      shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
+        pc.fire energyValue
+      }
     }
-    // logger.info "--- DEMANDING --- $damageReported"
     shipStub.demand.getEnergyNow(1..99) { 0 }
     shipStub.use {
       pc.fire 1 + ship.energyNow
     }
     assertTrue damageReported
     assertTrue reportedMsg.contains( 'Command refused' )
-    logger.info 'testBadEnergyValue -- OK'
+    logger.info 'testEnergyValue -- OK'
   }
 
   void testCantFire() {
@@ -98,15 +97,21 @@ final class PhaserControlTest extends DeviceTestBase {
 
   private void fireAtTargets( Closure populateTargets, fireAmount=100 ) {
     logger.info 'fireAtTargets'
-    // if ( notYetImplemented() ) return
-    setupshipForFiring()
+    setupShipForFiring()
     populateTargets()
+    battleStub.demand.hitOnFleetShip(1..99) { xp, amount ->
+      logger.trace "battleStub.hitOnFleetShip xp:$xp amount:$amount"
+    }
+    shipStub.demand.energyReducedByPhaserUse { amount ->
+      assertEquals 'Incorrect energy amount used', fireAmount, amount
+      newEnergy = energyAtStart - amount
+    }
     shipStub.use {
       pc.fire( fireAmount )
     }
 
-    assertTrue    "Ship has too much energy left\n$ship", newEnergy < energyAtStart
-    assertEquals  "Ship energy is wrong\n$ship", energyAtStart - fireAmount, newEnergy
+    assertEquals "Failed to call energyReducedByPhaserUse()",
+        energyAtStart - fireAmount, newEnergy
     logger.info 'fireAtTargets -- OK'
   }
 
@@ -114,28 +119,24 @@ final class PhaserControlTest extends DeviceTestBase {
     logger.info 'testFireAtGoodTargets'
     final int fireAmount = 100
     fireAtTargets this.&setupGoodTargets
-
-    assertTrue    "Ship has too much energy left\n$ship", newEnergy < energyAtStart
-    assertEquals  "Ship energy is wrong\n$ship", energyAtStart - fireAmount, newEnergy
     logger.info 'testFireAtGoodTargets -- OK'
   }
 
   void testFireAtBadTarget() {
     logger.info 'testFireAtBadtarget'
-    shouldFail {
+    shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
       fireAtTargets this.&setupBadTargets
     }
     logger.info 'testFireAtBadtarget -- OK' /// @todo finish this.
   }
 
-  private void setupshipForFiring() {
+  private void setupShipForFiring() {
     final Closure energyReporter = this.&newEnergyReporter
     final shipQuadrant = new Coords2d( row: 1, col: 1 )
     energyAtStart = 3000
 
     shipStub.demand.with {
       getEnergyNow(1..99) { energyAtStart }
-      setEnergyNow(1..99) { energyReporter( it ) }
 
       getPosition(1..99) {
         new Position().tap {

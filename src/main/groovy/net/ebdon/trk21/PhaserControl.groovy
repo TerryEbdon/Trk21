@@ -98,12 +98,10 @@ final class PhaserControl {
       if (energyAmount > ship.energyNow) {
         commandRefused()
       } else {
-        log.debug "Subtracting $energyAmount from ship's energy of ${ship.energyNow}"
-        ship.energyNow -= energyAmount
-        log.debug "Ship energy reduced to ${ship.energyNow}"
+        ship.energyReducedByPhaserUse energyAmount
         def target
         while ( target = battle.getNextTarget() ) {
-          fireAt energyAmount, target //klingon
+          fireAt energyAmount, target
         }
       }
     }
