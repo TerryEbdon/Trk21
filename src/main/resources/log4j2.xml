@@ -20,6 +20,8 @@ limitations under the License.
 <Configuration status="WARN">
     <Properties>
         <Property name="logPath">logs</Property>
+        <Property name="logLevel">info</Property>
+        <Property name="filePattern">Trk21-test-%d{yyyy-MM-dd}.log</Property>
         <Property name="Trk21Pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %c{1} %msg%n</Property>
     </Properties>
     <Appenders>
@@ -27,7 +29,7 @@ limitations under the License.
             <PatternLayout pattern="${Trk21Pattern}"/>
         </Console>
         <RollingFile name="traceLog" fileName="${logPath}/Trk21-trace.log"
-                     filePattern="${logPath}/Trk21-trace-%d{yyyy-MM-dd}.log">
+          filePattern="${logPath}/${filePattern}">
             <PatternLayout>
                 <pattern>${Trk21Pattern}</pattern>
             </PatternLayout>
@@ -46,8 +48,8 @@ limitations under the License.
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="net.ebdon.trk21" level="debug" additivity="false">
-            <appender-ref ref="traceLog"    level="debug"/>
+        <Logger name="net.ebdon.trk21" level="${logLevel}" additivity="false">
+            <appender-ref ref="traceLog"    level="${logLevel}"/>
             <appender-ref ref="errorLog"    level="error"/>
             <appender-ref ref="consoleLog"  level="error"/>
         </Logger>
