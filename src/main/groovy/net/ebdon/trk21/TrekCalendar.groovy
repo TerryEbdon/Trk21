@@ -16,14 +16,14 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /**
 @brief Trek's Game Calendar
 @author Terry Ebdon
 @date JAN-2019
 */
 @groovy.util.logging.Log4j2
-final class TrekCalendar extends LoggingBase {// line 1110
+final class TrekCalendar { // line 1110
     final int missionLifeInSolarYears   = 40;
     final int gameStartSolarYear        = ( new Random().nextInt(20) + 20 ) * 100; // T%, T0%
     int currentSolarYear                = gameStartSolarYear;
