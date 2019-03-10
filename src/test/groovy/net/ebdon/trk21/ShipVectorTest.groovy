@@ -19,33 +19,53 @@ package net.ebdon.trk21;
  */
 
 final class ShipVectorTest extends GroovyTestCase {
-  ShipVector sv = new ShipVector();
+  ShipVector sv;
 
-  void testGoodValues() {
+  @Override void setUp() {
+    sv = new ShipVector();
+  }
+
+  void testRandomGoodValues() {
     def rnd = new Random()
-    for ( float course = 1; course < 8; course += rnd.nextInt( 9 ) / 10  ) {
-      1.upto(12) { warp ->
+    for ( float course = 1; course < 9; course += rnd.nextInt( 9 ) / 10  ) {
+      for ( float warp = 0.125; warp <= 12; warp += rnd.nextInt( 9 ) / 10  ) {
         sv = new ShipVector( course: course, warpFactor: warp )
-        assertEquals(
-          "$sv",
-          true,
-          sv.isValid()
-        )
+        assertTrue "$sv", sv.valid
+      }
+    }
+  }
+
+  void testStandardWarpFactors() {
+    sv.with {
+      course = 1
+      0.upto(12) { baseWarp ->
+        checkGoodBaseWarp baseWarp
+        checkGoodWarpSteps()
+      }
+    }
+  }
+
+  private void checkGoodBaseWarp( baseWarp ) {
+    sv.warpFactor = baseWarp
+    if ( baseWarp ) {
+      assertTrue "$sv", sv.valid
+    } else {
+      assertFalse "$sv", sv.valid
+    }
+  }
+
+  private void checkGoodWarpSteps() {
+    1.upto(7) {
+      sv.warpFactor += 1.0 / 8.0
+      if (sv.warpFactor < 12) {
+        assertTrue "$sv", sv.valid
+      } else {
+        assertFalse "$sv", sv.valid
       }
     }
   }
 
   void testBadvalues() {
-    sv.with {
-      assertFalse "$sv", isValid()  // Fail: All zero values
-      course = 1
-      [ 0.25,   // WF 0.25 is used to move 2 sectors.
-        0.5,    // WF 0.25 is used to move 4 sectors.
-        1       // WF 0.25 is used to move 1 quadrant (8 sectors).
-      ].each { wf ->
-        warpFactor = wf
-        assertTrue "$sv", isValid()
-      }
-    }
+    assertFalse "$sv", sv.valid  // Fail: All zero values
   }
 }
