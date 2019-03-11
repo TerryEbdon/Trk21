@@ -16,9 +16,9 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 @groovy.util.logging.Log4j2
-abstract class GameSpace { //extends LoggingBase {
+abstract class GameSpace {
   static final int minCoord      = 1;
   static final int maxCoord      = 8;
   static final int boardSize     = (minCoord..maxCoord).size() ** 2;

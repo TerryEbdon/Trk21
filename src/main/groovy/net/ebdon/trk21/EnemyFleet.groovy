@@ -19,7 +19,7 @@ import static net.ebdon.trk21.GameSpace.*;
  * limitations under the License.
  */
 @groovy.util.logging.Log4j2
-final class EnemyFleet /*extends LoggingBase */ {
+final class EnemyFleet {
     int numKlingonBatCrTotal  = 0; ///< k0% in TREK.BAS
     int numKlingonBatCrRemain = 0; ///< k9% in TREK.BAS
     int numKlingonBatCrInQuad = 0; ///< K3% in TREK.BAS
