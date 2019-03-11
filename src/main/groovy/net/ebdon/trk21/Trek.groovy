@@ -38,6 +38,8 @@ final class Trek extends LoggingBase {
   /// @todo Rename Trek.game, it's a misleading name for TrekCalendar
   TrekCalendar game = new TrekCalendar();
 
+    static String logPositionPieces = 'Positioning game pieces {} in quadrant {}'
+
     Galaxy    galaxy    = new Galaxy();
     Quadrant  quadrant  = new Quadrant();
 
@@ -136,7 +138,7 @@ final class Trek extends LoggingBase {
     enemyFleet.numKlingonBatCrInQuad = 0
     quadrant.clear()
     positionShipInQuadrant()
-    positionKlingons()
+    positionGamePieces()
   }
 
   def positionShipInQuadrant() {
@@ -166,17 +168,10 @@ final class Trek extends LoggingBase {
     galaxy[entQuadX,entQuadY] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
   }
 
-  def positionKlingons() {
-    // final int x                   = galaxy[entQuadX,entQuadY]
-    // enemyFleet.numKlingonBatCrInQuad   = x / 100
-    // final int numBasesInQuad      = x / 10 - 10 * enemyFleet.numKlingonBatCrInQuad
-    // final int numStarsInQuad      = x - enemyFleet.numKlingonBatCrInQuad * 100 - numBasesInQuad * 10
-    enemyFleet.numKlingonBatCrInQuad = numEnemyShipsInQuad()
+  def positionGamePieces() {
 
-    log.info "x: ${galaxy[entQuadX,entQuadY]}"
-    log.info "numKlingonBatCrInQuad: ${enemyFleet.numKlingonBatCrInQuad}"
-    // log.info "numBasesInQuad: ${numBasesInQuad()}"
-    // log.info "numStarsInQuad: ${numStarsInQuad()}"
+    log.info( logPositionPieces,
+        galaxy.scan(ship.position.quadrant), ship.position.quadrant)
 
     positionEnemy()
     positionBases()
@@ -186,10 +181,10 @@ final class Trek extends LoggingBase {
   def positionEnemy() {
     log.info 'positionEnemy()'
     assert quadrant.isValid()
+    enemyFleet.numKlingonBatCrInQuad = numEnemyShipsInQuad()
     enemyFleet.resetQuadrant()
     log.info "Positioning $enemyFleet.numKlingonBatCrInQuad Klingons in quadrant ${currentQuadrant()}."
     for ( int klingonShipNo = 1; klingonShipNo <= enemyFleet.numKlingonBatCrInQuad; ++klingonShipNo ) {
-    // 1.upto( enemyFleet.numKlingonBatCrInQuad ) { klingonShipNo ->
       def klingonPosition = getEmptySector()
       quadrant[klingonPosition] = Thing.enemy
 
@@ -206,7 +201,6 @@ final class Trek extends LoggingBase {
   def positionStars() {
     log.info "Positioning ${numStarsInQuad()} stars."
     for ( int star = 1; star <= numStarsInQuad(); ++star ) {
-    // 1.upto( numStarsInQuad() ) { star ->
       def starPos = getEmptySector()
       log.trace "... star $star is at sector ${starPos}"
       quadrant[starPos[0],starPos[1]] = Thing.star
@@ -217,7 +211,6 @@ final class Trek extends LoggingBase {
   def positionBases() {
     log.info "Positioning ${numBasesInQuad()} bases."
     for ( int base = 1; base <= numBasesInQuad(); ++base ) {
-    // 1.upto( numBasesInQuad() ) { base ->
       def basePos = getEmptySector()
       log.trace "... base $base is at sector ${basePos}"
       quadrant[basePos] = Thing.base
@@ -263,7 +256,7 @@ final class Trek extends LoggingBase {
           enemyFleet.numKlingonBatCrInQuad * 100 +
           numBasesInQuad * 10 +
           starsInQuad //G%(I%,J%)=K3%*100%+B3%*10%+FNR%
-        log.trace sprintf('galaxy[%d,%d] = %03d', i, j, galaxy[i,j] )
+        log.trace 'galaxy[{},{}] = {}', i, j, galaxy.scan(i,j)
       }
     }
     log.info "Total number of Klingon BC: ${enemyFleet.numKlingonBatCrRemain.toString().padLeft(3)}"
@@ -500,20 +493,11 @@ final class Trek extends LoggingBase {
       ( entQuadX - 1 ).upto( entQuadX + 1 ) { i ->    // q1% -1 to q1% + 1
         String lrStatusLine = ''
         ( entQuadY - 1 ).upto( entQuadY + 1 ) { j ->  // q2% -1 to q2% + 1
-          lrStatusLine += '  '
-          if ( !insideGalaxy( i, j ) ) {
-            lrStatusLine += '000'
-          } else {
-            lrStatusLine += quadrantScan( i, j )
-          }
+          lrStatusLine += ( '  ' + galaxy.scan( i, j ) )
         }
         msgBox lrStatusLine
       }
     }
-  }
-
-  String quadrantScan( x, y ) {
-    galaxy[ x, y ].toString().padLeft(3,'0')
   }
 
   def showCondition() {

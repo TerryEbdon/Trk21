@@ -46,4 +46,12 @@ final class Galaxy extends GameSpace {
   final void clearSquare( final row, final col ) {
     board[row,col] = 0
   }
+
+  String scan( final Coords2d c2d ) {
+    scan c2d.first(), c2d.last()
+  }
+
+  String scan( final row, final col ) {
+    insideGalaxy( row, col ) ? sprintf( '%03d', board[row, col] ) : '000'
+  }
 }
