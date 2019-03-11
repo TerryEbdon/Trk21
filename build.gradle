@@ -12,8 +12,9 @@ plugins {
 
     // Apply the application plugin to add support for building an application
     id 'application'
+    id 'jacoco'
 
-    // Include resouirces in the zip file and add an install task to the build.
+    // Include resources in the zip file and add an install task to the build.
 //    id 'distribution'
 }
 
