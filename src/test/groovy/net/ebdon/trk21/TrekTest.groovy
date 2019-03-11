@@ -84,6 +84,7 @@ final class TrekTest extends GroovyTestCase {
 
       logger.info "Expecting a ship in " + logFmtCoords( [entSectX,entSectY] )
       assertEquals errShipNotInSector, Thing.ship, quadrant[entSectX,entSectY]
+      assertEquals 'Expect 1 ship', 1, quadrant.count { it.value == Thing.ship }
     }
     logger.info 'testPositionEnterpriseInQuadrantGood -- OK'
   }
@@ -102,8 +103,8 @@ final class TrekTest extends GroovyTestCase {
     logger.info 'testPositionEnterpriseInQuadrantBad -- OK'
   }
 
-  void testPositionKlingons() {
-    logger.info 'testPositionKlingons...'
+  void testPositionGamePieces() {
+    logger.info 'testPositionGamePieces...'
     setupAt( *topLeftCoords, *topLeftCoords )
     trek.with {
       enemyFleet.numKlingonBatCrTotal   = 9
@@ -114,15 +115,16 @@ final class TrekTest extends GroovyTestCase {
         msgPositionEnemy,
         logFmtCoords(entSectX,entSectY), galaxy[entQuadX,entQuadY]
       )
-      positionKlingons()
+      positionGamePieces()
       galaxy.dump()
       quadrant.dump()
 
+      assertEquals 1, quadrant.count { logger.trace "s.Checking $it : ${it.value == Thing.ship }"; it.value == Thing.ship }
       assertEquals 9, quadrant.count { logger.trace "b.Checking $it : ${it.value == Thing.base }"; it.value == Thing.base }
       assertEquals 9, quadrant.count { logger.trace "e.Checking $it : ${it.value == Thing.enemy}"; it.value == Thing.enemy }
-      assertEquals 9, quadrant.count { logger.trace "s.Checking $it : ${it.value == Thing.star }"; it.value == Thing.star }
+      assertEquals 9, quadrant.count { logger.trace "*.Checking $it : ${it.value == Thing.star }"; it.value == Thing.star }
     }
-    logger.info 'testPositionKlingons -- OK'
+    logger.info 'testPositionGamePieces -- OK'
   }
 
   private void setupAt( qRow, qCol, sRow, sCol ) {
