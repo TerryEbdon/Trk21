@@ -60,7 +60,7 @@ final class FederationShip {
     private void logFuelReduction() {
       log.info "Energy reserves reduced to $energyNow"
       if ( deadInSpace() ) {
-        log.info "The ship's dead in space."
+        log.info "The ship is dead in space."
       }
     }
 
@@ -121,37 +121,35 @@ final class FederationShip {
   /// @pre the current sector is inside the quadrant
   /// @note It's not possible to dock with a @ref StarBase
   ///       in an adjacent quadrant.
-  /// @todo Remove commented out lines.
   def attemptDocking( final quadrant ) {
-  // def attemptDocking( final quadrant, final entSectX, final entSectY ) {
+    final String logCheckForStarBase = 'Checking for star base in {}, value is {}'
+    final String logNowDocked = 'Now docked in sector {} to star base in sector {}'
+    final String logDockCheck = 'Checking if I can dock from sector {}'
+    final String logAtEdge = 'Ship at board edge, sector {} is outside quadrant.'
     log.debug 'attemptDocking'
-    // logException {
-      // assert inQuadrant( entSectX, entSectY )
-      position.sector.with {
-        assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
-        assert quadrant.contains( [row, col] )
-        assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
-        log.debug "Checking if I can dock from sector ${logFmtCoords(row,col)}" /// @bug fixme!
-        for ( int i = row - 1; i <= row + 1 && condition != "DOCKED"; i++) { // 1530
-          for ( int j = col - 1; j <= col + 1 && condition != "DOCKED"; j++) { // 1530
-            if ( quadrant.contains(i,j) ) {
-              log.trace "checking for star base in ${logFmtCoords(i,j)}, value is" +
-                "${quadrant[i,j]}"
-              if ( quadrant[i,j] == Thing.base ) {   /// @todo attemptDocking() hard-codes 3 for starbase
-                condition       = 'DOCKED'
-                numTorpedoes    = maxTorpedoes
-                energyNow       = energyAtStart
-                log.info "Now docked in sector ${logFmtCoords(row,col)} " +
-                         "to star base in sector ${logFmtCoords(i,j)}."
-              }
-            } else {
-              log.debug "Ship is at edge of board; sector ${logFmtCoords(i,j)} " +
-                "is outside the quadrant."
+
+    position.sector.with {
+      assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
+      assert quadrant.contains( [row, col] )
+      assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
+      log.debug logDockCheck, logFmtCoords(row,col) /// @bug fixme!
+      for ( int i = row - 1; i <= row + 1 && condition != "DOCKED"; i++) { // 1530
+        for ( int j = col - 1; j <= col + 1 && condition != "DOCKED"; j++) { // 1530
+          if ( quadrant.contains(i,j) ) {
+            log.trace logCheckForStarBase, logFmtCoords(i,j), quadrant[i,j]
+            if ( quadrant[i,j] == Thing.base ) {
+              condition       = 'DOCKED'
+              numTorpedoes    = maxTorpedoes
+              energyNow       = energyAtStart
+              log.info logNowDocked,
+                logFmtCoords(row,col), logFmtCoords(i,j)
             }
+          } else {
+            log.debug logAtEdge, logFmtCoords(i,j)
           }
         }
       }
-  //}
+    }
   }
 
   private void battleStations( final numEnemyShipsHere ) {
