@@ -27,7 +27,7 @@ final class ShipVector {
   float warpFactor    = 0;
 
   static final float minCourse = 1;
-  static final float maxCourse = 8.99999;
+  static final float maxCourse = 8.999999;
   static final float minWarpFactor = 0.125;
   static final float maxWarpFactor = 12;
 
