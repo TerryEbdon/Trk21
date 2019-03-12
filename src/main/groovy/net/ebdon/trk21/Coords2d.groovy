@@ -18,7 +18,7 @@ import groovy.transform.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@ToString(includePackage=false,includeNames=true)
+@ToString(includePackage=false,includeNames=true,excludes='valid')
 @AutoClone
 @Canonical
 final class Coords2d {
