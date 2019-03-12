@@ -23,13 +23,4 @@
       message   = ['monospaced', java.awt.Font.BOLD, 24]
     }
   }
-
-  Quadrant {
-    displayOn       = true  /// @depecated
-    getEmptySector  = true  /// @depecated
-  }
-
-  Repositioner {
-    move = true
-  }
 }
