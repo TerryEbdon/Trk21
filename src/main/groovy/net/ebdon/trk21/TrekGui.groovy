@@ -115,7 +115,7 @@ final class TrekGui extends UiBase {
             button( text: btnText('Set Course'), actionPerformed: { trek.setCourse() } )
             button( text: btnText('Damage Control'), actionPerformed: { trek.reportDamage() } )
 
-            button( text: btnText('Fire torpedo'), actionPerformed: { log.info 'Fire torpedo'} )
+            button( text: btnText('Fire torpedo'), actionPerformed: { trek.fireTorpedo() } )
             button( text: btnText('Fire phasers'), actionPerformed: { trek.firePhasers() } )
 
             button( id:'condition', text: displayableCondition() )

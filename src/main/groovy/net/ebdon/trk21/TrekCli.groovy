@@ -53,7 +53,7 @@ class TrekCli extends UiBase {
         case 's': trek.shortRangeScan(); break
         case 'l': trek.longRangeScan(); break
         case 'c': trek.setCourse(); break
-        case 't': outln 'Fire torpedo'; break
+        case 't': trek.fireTorpedo(); break
         case 'p': trek.firePhasers(); break
         case 'd': trek.reportDamage();  break
         case 'q': outln '\nBye!\n'; finished = true; trek = null; break

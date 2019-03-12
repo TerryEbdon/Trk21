@@ -88,4 +88,9 @@ final class Battle {
       }
     }
   }
+
+  /// @todo implement battle.fireTorpedo()
+  def fireTorpedo( course ) {
+    pcReporter "Battle#fireTorpedo is not yet implemented"
+  }
 }

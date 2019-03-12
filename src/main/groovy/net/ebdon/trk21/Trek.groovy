@@ -397,7 +397,7 @@ final class Trek extends LoggingBase {
 
   /// @todo Localise setCourse()
   def setCourse() {
-    ShipVector vector = getCourse()
+    ShipVector vector = getShipCourse()
     if ( vector && vector.isValid() ) {
       log.info "Got a good vector: $vector"
 
@@ -457,15 +457,19 @@ final class Trek extends LoggingBase {
     quadrant.isOccupied(i,j)
   }
 
-  /// @todo Test needed for getCourse()
-  ShipVector getCourse() {
+  float getCourse() {
+    getFloatInput( rb.getString( 'input.course' ) ) // C1
+  }
+
+  /// @todo Test needed for getShipCourse()
+  ShipVector getShipCourse() {
     float course        = 0
     float warpFactor    = 0
     ShipVector sv = new ShipVector()
 
-    log.trace 'Getting course'
+    log.trace '''Getting ship's course'''
 
-    course = getFloatInput( rb.getString( 'input.course' ) ) // C1
+    course = getCourse()
     if ( ShipVector.isValidCourse( course ) ) {
       sv.course = course
       warpFactor = getFloatInput( rb.getString( 'input.speed' ) ) // W1
@@ -560,6 +564,19 @@ final class Trek extends LoggingBase {
         quadrant.removeEnemy( it.key )
       }
     }
+  }
+
+  final void fireTorpedo() {
+    log.info "Fire torpedo - available: ${ship.numTorpedoes}"
+
+    float course = getCourse()
+    if ( course ) {
+      new Battle(
+        enemyFleet, ship, damageControl,
+        this.&msgBox, this.&attackReporter, rb
+      ).fireTorpedo( course )
+    }
+    log.info "Fire torpedo completed - available: ${ship.numTorpedoes}"
   }
 
   final void firePhasers() {

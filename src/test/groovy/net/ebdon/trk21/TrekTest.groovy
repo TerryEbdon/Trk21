@@ -165,16 +165,17 @@ final class TrekTest extends GroovyTestCase {
     logger.info 'testRepositionTransitGalaxy -- OK'
   }
 
-  private def getCourseFrom( expectedRowOffset, expectedColOffset ) {
-
-    final def course = [
-      [0,1]: 1,   // "East"
-      [1,0]: 7,   // "South"
-      [1,1]: 7.5  // "South-East"
-    ]
-
-    def rv = course[ expectedRowOffset, expectedColOffset ]
-    logger.info "Expected course is $rv"
-    rv
-  }
+  /// @deprecated getCourseFrom() is never called.
+  // private def getCourseFrom( expectedRowOffset, expectedColOffset ) {
+  //
+  //   final def course = [
+  //     [0,1]: 1,   // "East"
+  //     [1,0]: 7,   // "South"
+  //     [1,1]: 7.5  // "South-East"
+  //   ]
+  //
+  //   def rv = course[ expectedRowOffset, expectedColOffset ]
+  //   logger.info "Expected course is $rv"
+  //   rv
+  // }
 }

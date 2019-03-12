@@ -60,6 +60,12 @@ class BattleTest extends GroovyTestCase {
     assert false
   }
 
+  /// @todo implement testBattleFireTorpedo()
+  def testBattleFireTorpedo() {
+    if ( notYetImplemented() ) return
+    assert false
+  }
+
   def testtBattlePhaserAttackFleet() {
     if ( notYetImplemented() ) return
     assert false
