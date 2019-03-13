@@ -9,7 +9,7 @@
 plugins {
   id 'groovy'
   id 'application'   // Add support for building an application
-//id 'distribution'  // Include resources in the zip file & add an install task
+  id 'jacoco'        // Instrument build & add coverage reporting tasks
 }
 
 distributions {
