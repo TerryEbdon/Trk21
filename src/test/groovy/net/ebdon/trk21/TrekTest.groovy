@@ -39,7 +39,7 @@ final class TrekTest extends GroovyTestCase {
   void testGame() {
     logger.info 'testGame'
 
-    assertFalse "No position so trek should be invalid\n$trek", trek.isValid()
+    assertFalse "No position so trek should be invalid\n$trek", trek.valid
     trek.with {
       ship.position.quadrant.row  = 1
       ship.position.quadrant.col  = 2
@@ -67,7 +67,7 @@ final class TrekTest extends GroovyTestCase {
 
       entQuadX = entQuadY = entSectX = entSectY = 1
       assertTrue "position should be valid", ship.position.isValid()
-      assertTrue "trek should be valid\n$trek", isValid()
+      assertTrue "trek should be valid\n$trek", valid
     }
     logger.info 'testGame -- OK'
   }

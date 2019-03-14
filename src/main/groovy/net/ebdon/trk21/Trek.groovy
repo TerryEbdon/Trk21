@@ -91,10 +91,7 @@ final class Trek extends LoggingBase {
      ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
 
   boolean isValid() {
-    ship != null && ship.isValid() &&
-      // position != null && position.isValid() &&
-      game != null && game.isValid() &&
-      enemyFleet != null && enemyFleet.isValid()
+    ship?.valid && game?.valid && enemyFleet?.valid
   }
 
   String toString() {
