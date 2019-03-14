@@ -49,9 +49,9 @@ final class FederationShipTest extends GroovyTestCase {
     void testShipConstruction() {
       logger.info 'testShipConstruction'
       ship.with {
-        assertFalse(  "$ship", isValid() )  // Position is invalid.
+        assertFalse(  "$ship", valid )  // Position is invalid.
         positionShip()
-        assertTrue(   "$ship", isValid() )  // Position is invalid.
+        assertTrue(   "$ship", valid )  // Position is valid.
         assertEquals( "$ship", energyAtStart, energyNow )
         assertEquals( "$ship", maxTorpedoes, numTorpedoes )
         assertEquals( "$ship", 'GREEN', condition )

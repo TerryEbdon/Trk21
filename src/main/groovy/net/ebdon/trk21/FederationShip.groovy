@@ -6,7 +6,7 @@ import static Quadrant.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,10 +65,19 @@ final class FederationShip {
     }
 
     boolean isValid() {
-        energyNow >= 0 && energyNow <= energyAtStart &&
-        numTorpedoes >= 0 && numTorpedoes <= maxTorpedoes &&
-        allowedConditions.contains( condition ) &&
-        position.isValid()
+      energyValid && armouryValid && conditionValid && position.valid
+    }
+
+    private boolean isEnergyValid() {
+      energyNow >= 0 && energyNow <= energyAtStart
+    }
+
+    private boolean isArmouryValid() {
+      numTorpedoes >= 0 && numTorpedoes <= maxTorpedoes
+    }
+
+    private boolean isConditionValid() {
+      allowedConditions.contains( condition )
     }
 
     String toString() {
@@ -77,7 +86,6 @@ final class FederationShip {
         "energyUsedByLastMove: $energyUsedByLastMove, " +
         "energyAtStart: $energyAtStart, $position"
     }
-
 
     /// There's a design flaw here. The ship doesn't have enough information to
     /// move, and it has no access to the current sector or the galaxy.
@@ -92,7 +100,7 @@ final class FederationShip {
     /// @arg The desired course as a ShipVector.
     ///
     void move( final ShipVector sv ) {
-      assert( sv.isValid() ) /// @pre The provided Shipvector is valid.
+      assert( sv.valid ) /// @pre The provided Shipvector is valid.
       log.info( "Ship moving: $sv" )
 
       energyUsedByLastMove = sv.warpFactor * 8
