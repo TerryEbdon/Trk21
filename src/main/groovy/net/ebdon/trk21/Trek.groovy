@@ -10,7 +10,7 @@ import static ShipDevice.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,7 +31,8 @@ import static ShipDevice.*;
 */
 @groovy.util.logging.Log4j2
 final class Trek extends LoggingBase {
-  UiBase ui;
+  def ui;
+  // UiBase ui;
   PropertyResourceBundle rb;
   MessageFormat formatter;
 
@@ -108,18 +109,19 @@ final class Trek extends LoggingBase {
     formatter.setLocale( Locale.getDefault() );
 
     ClasspathResourceManager resourceManager = new ClasspathResourceManager()
-    InputStream is = resourceManager.getInputStream('Language.properties')
+    InputStream inStream = resourceManager.getInputStream('Language.properties')
 
-    if ( is ) {
-      rb = new PropertyResourceBundle( is )
+    if ( inStream ) {
+      rb = new PropertyResourceBundle( inStream )
       repositioner = new Repositioner( this )
       damageControl = new DamageControl( damage )
     } else {
         log.fatal "Can't load Language.poperties"
-        system.exit(1)
+        assert inStream
     }
   }
 
+  @groovy.transform.TypeChecked
   def setupGalaxy() {
     setEntStartPosition()
     distributeKlingons()
@@ -131,6 +133,7 @@ final class Trek extends LoggingBase {
     ship.position.quadrant = new Coords2d( *(galaxy.randomCoords) )
   }
 
+  @groovy.transform.TypeChecked
   def setupQuadrant() {
     enemyFleet.numKlingonBatCrInQuad = 0
     quadrant.clear()
@@ -138,7 +141,7 @@ final class Trek extends LoggingBase {
     positionGamePieces()
   }
 
-  def positionShipInQuadrant() {
+  void positionShipInQuadrant() {
     log.info "Position ship within quadrant ${ship.position.quadrant}"
     assert ship.position.quadrant.isValid()
     ship.position.sector = new Coords2d( *(quadrant.randomCoords) )
@@ -148,25 +151,29 @@ final class Trek extends LoggingBase {
     quadrant.dump()
   }
 
+  @groovy.transform.TypeChecked
   private updateNumEnemyShipsInQuad() {
     galaxy[entQuadX,entQuadY] -= 100 * numEnemyShipsInQuad()
     galaxy[entQuadX,entQuadY] += 100 * enemyFleet.numKlingonBatCrInQuad
   }
 
+  @groovy.transform.TypeChecked
   private int numEnemyShipsInQuad() {
-    galaxy[entQuadX,entQuadY] / 100
+    ( galaxy[entQuadX,entQuadY] / 100 ).toInteger()
   }
 
+  @groovy.transform.TypeChecked
   private int numBasesInQuad() {
-    galaxy[entQuadX,entQuadY] / 10 - 10 * numEnemyShipsInQuad()
+    ( galaxy[entQuadX,entQuadY] / 10 - 10 * numEnemyShipsInQuad() ).toInteger()
   }
 
+  @groovy.transform.TypeChecked
   private int numStarsInQuad() {
     galaxy[entQuadX,entQuadY] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
   }
 
-  def positionGamePieces() {
-
+  @groovy.transform.TypeChecked
+  void positionGamePieces() {
     log.info( logPositionPieces,
         galaxy.scan(ship.position.quadrant), ship.position.quadrant)
 
@@ -175,7 +182,7 @@ final class Trek extends LoggingBase {
     positionStars()
   }
 
-  def positionEnemy() {
+  void positionEnemy() {
     log.info 'positionEnemy()'
     assert quadrant.isValid()
     enemyFleet.numKlingonBatCrInQuad = numEnemyShipsInQuad()
@@ -195,7 +202,7 @@ final class Trek extends LoggingBase {
     log.info '^'*16
   }
 
-  def positionStars() {
+  void positionStars() {
     log.info "Positioning ${numStarsInQuad()} stars."
     for ( int star = 1; star <= numStarsInQuad(); ++star ) {
       def starPos = getEmptySector()
@@ -205,7 +212,7 @@ final class Trek extends LoggingBase {
     }
   }
 
-  def positionBases() {
+  void positionBases() {
     log.info "Positioning ${numBasesInQuad()} bases."
     for ( int base = 1; base <= numBasesInQuad(); ++base ) {
       def basePos = getEmptySector()
@@ -490,7 +497,6 @@ final class Trek extends LoggingBase {
       formatter.applyPattern( rb.getString( 'sensors.longRange.scanQuadrant') );
       msgBox formatter.format( msgArgs );
 
-      // msgBox "Long range sensor scan for quadrant ${currentQuadrant()}\n"
       ( entQuadX - 1 ).upto( entQuadX + 1 ) { i ->    // q1% -1 to q1% + 1
         String lrStatusLine = ''
         ( entQuadY - 1 ).upto( entQuadY + 1 ) { j ->  // q2% -1 to q2% + 1
