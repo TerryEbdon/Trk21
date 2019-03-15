@@ -5,7 +5,7 @@ import groovy.transform.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import groovy.transform.*;
  */
 @ToString(includePackage=false,includeNames=true,excludes='valid')
 @AutoClone
-@Canonical
+@Canonical @TypeChecked
 final class Coords2d {
   int row; // = -1
   int col; // = -1
@@ -31,8 +31,4 @@ final class Coords2d {
 
   final int first() { row } /// @todo work-around for GameSpace.distanceBetween()
   final int last()  { col } /// @todo work-around for GameSpace.distanceBetween()
-
-  // String toString() {
-  //   "row: $row, col: $col"
-  // }
 }

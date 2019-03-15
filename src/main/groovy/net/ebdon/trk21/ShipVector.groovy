@@ -1,9 +1,10 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +23,7 @@ package net.ebdon.trk21;
 @author Terry Ebdon
 @date   JAN-2019
 */
+@groovy.transform.TypeChecked
 final class ShipVector {
   float course        = 0;
   float warpFactor    = 0;

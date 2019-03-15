@@ -3,7 +3,7 @@ package net.ebdon.trk21;
  * @file
  * @author      Terry Ebdon
  * @date        March 2019
- * @copyright (c) Terry Ebdon
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,12 @@ final class GalaxyTest extends GroovyTestCase {
     galaxy = new Galaxy();
   }
 
+  void testScanBadGalaxy() {
+    shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
+      galaxy.scan( new Coords2d( 4,4 ) ) // should fail, empty galaxy
+    }
+  }
+
   void testOutsideScan() {
     final def badCoords = [-1,0,9]
     for ( row in badCoords ) {
@@ -39,7 +45,7 @@ final class GalaxyTest extends GroovyTestCase {
     for (scanValue in 0..999) {
       galaxy[4,4] = scanValue
       assertEquals "$scanValue".padLeft(3,'0'),
-          galaxy.scan( new Coords2d( 4,4) )
+          galaxy.scan( new Coords2d( 4,4 ) )
     }
   }
 }

@@ -1,9 +1,11 @@
 package net.ebdon.trk21;
+
+import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,13 +27,13 @@ abstract class GameSpace {
   static final topLeftCoords     = [minCoord,minCoord];
   static final bottomRightCoords = [maxCoord,maxCoord];
 
-  def board    = [:];
+  LinkedHashMap board = [:];
 
   static final float maxSectorDistance =
     distanceBetween( topLeftCoords, bottomRightCoords ); /// Sector diagonal
 
   def size() {
-    assert board.size() == boardSize
+    assert validBoardSize
     boardSize
   }
 
@@ -41,6 +43,16 @@ abstract class GameSpace {
       rnd.nextInt(maxCoord) + 1,
       rnd.nextInt(maxCoord) + 1
     ]
+  }
+
+  @TypeChecked
+  private boolean isValidBoardSize() {
+    board.size() == boardSize
+  }
+
+  @TypeChecked
+  boolean isValidKey( final int row, final int col ) {
+    board.keySet().contains( [row, col] )
   }
 
   boolean isValid() {

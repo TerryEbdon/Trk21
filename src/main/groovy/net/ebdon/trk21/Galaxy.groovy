@@ -1,9 +1,11 @@
 package net.ebdon.trk21;
+
+import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,11 +49,15 @@ final class Galaxy extends GameSpace {
     board[row,col] = 0
   }
 
+  @TypeChecked
   String scan( final Coords2d c2d ) {
     scan c2d.first(), c2d.last()
   }
 
-  String scan( final row, final col ) {
-    insideGalaxy( row, col ) ? sprintf( '%03d', board[row, col] ) : '000'
+  @TypeChecked
+  String scan( final int row, final int col ) {
+    boolean inside = insideGalaxy( row, col )
+    assert !inside || isValidKey( row, col )
+    inside ? sprintf( '%03d', board[row, col] ) : '000'
   }
 }
