@@ -22,25 +22,13 @@ import groovy.transform.TypeChecked;
  */
 
 @groovy.util.logging.Log4j2('logger')
-final class TrekLongRangeScanTest extends GroovyTestCase {
+final class TrekLongRangeScanTest extends TrekTestBase {
 
-  @TypeChecked
-  @groovy.transform.ToString(includePackage=false)
-  class TestUi {
-    List<String> msgLog = []
-    void outln( String str ) {
-      msgLog << str
-    }
-  }
-
-  private Trek    trek;
-  private TestUi  ui;
   private StubFor shipStub;
 
   @TypeChecked
   @Override void setUp() {
     super.setUp()
-    ui = new TestUi()
     trek = new Trek( ui )
   }
 

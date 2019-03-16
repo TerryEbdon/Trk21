@@ -5,7 +5,7 @@ import static Quadrant.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,18 +164,4 @@ final class TrekTest extends GroovyTestCase {
     }
     logger.info 'testRepositionTransitGalaxy -- OK'
   }
-
-  /// @deprecated getCourseFrom() is never called.
-  // private def getCourseFrom( expectedRowOffset, expectedColOffset ) {
-  //
-  //   final def course = [
-  //     [0,1]: 1,   // "East"
-  //     [1,0]: 7,   // "South"
-  //     [1,1]: 7.5  // "South-East"
-  //   ]
-  //
-  //   def rv = course[ expectedRowOffset, expectedColOffset ]
-  //   logger.info "Expected course is $rv"
-  //   rv
-  // }
 }
