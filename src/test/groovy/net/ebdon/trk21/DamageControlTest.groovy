@@ -33,31 +33,29 @@ final class DamageControlTest extends DeviceTestBase {
   void testDamageControl() {
     dc.with {
       def damaged = damage[ findDamagedDeviceKey() ]
-      assertEquals  toString(), '222', damaged.id
-      assertEquals  toString(), -3, damaged.state
-      assertTrue    toString(), damaged.isDamaged()
+      assert '222' == damaged.id
+      assert -3 == damaged.state
+      assert damaged.isDamaged()
     }
   }
 
   void testFindDamagedWithNoDamage() {
     damage[2].state = 0
-    assertEquals null, dc.findDamagedDeviceKey()
+    assert dc.findDamagedDeviceKey() == null
   }
 
   void testRandomlyRepair() {
     def oldState = damage[2].state
     dc.randomlyRepair 2
-    assertTrue "oldState:$oldState\n$dc", damage[2].state > oldState
+    assert damage[2].state > oldState
   }
 
   void testDamageControlRepair() {
-    // if ( notYetImplemented() ) return
-    def oldState = damage[2].state
-    dc.repair  DamageControlRepairCallBackMock.&callBack
-    assertTrue DamageControlRepairCallBackMock.called
-    assertTrue DamageControlRepairCallBackMock.calledWith.size() > 0
-    assertTrue "oldState:$oldState\n$dc", damage[2].state > oldState
-    // assert false
+    final int oldState = damage[2].state
+    dc.repair DamageControlRepairCallBackMock.&callBack
+    assert DamageControlRepairCallBackMock.called
+    assert DamageControlRepairCallBackMock.calledWith.size() > 0
+    assert damage[2].state > oldState
   }
 
   void testDamageControlReport() {

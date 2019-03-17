@@ -1,5 +1,7 @@
 package net.ebdon.trk21;
 
+import groovy.transform.TypeChecked;
+
 import static ShipDevice.*;
 /**
  * @file
@@ -20,10 +22,10 @@ import static ShipDevice.*;
  */
 final class DamageControl {
 
-  def devices;
+  Map<Integer, ShipDevice> devices;
 
   DamageControl( damage ) {
-    assert damage
+    // assert damage
     devices = damage
   }
 
@@ -58,10 +60,17 @@ final class DamageControl {
     damagedDevice ? damagedDevice.key : null
   }
 
-  final boolean isDamaged( keyWanted ) {
-    devices.find { key, device ->
-      key == keyWanted
-    }
+  @TypeChecked
+  final boolean isDamaged( final int keyWanted ) {
+    assert devices.keySet().contains( keyWanted )
+    devices[keyWanted].state
+  }
+
+  @TypeChecked
+  final boolean isDamaged( DeviceType deviceTypeWanted ) {
+    devices.find { int key, ShipDevice shipDevice ->
+      shipDevice.id == deviceTypeWanted.id
+    }?.value.state
   }
 
   void randomlyRepair( final key ) {

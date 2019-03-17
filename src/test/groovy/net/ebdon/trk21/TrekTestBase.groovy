@@ -23,9 +23,16 @@ abstract class TrekTestBase extends GroovyTestCase {
 
   @groovy.transform.ToString(includePackage=false)
   class TestUi {
-    List<String> msgLog = []
+    List<Float>  inputValues = [];
+    List<String> msgLog = [];
+    String conditionText;
+
     void outln( String str ) {
       msgLog << str
+    }
+
+    float getFloatInput( final String prompt ) {
+      inputValues.pop()
     }
   }
 

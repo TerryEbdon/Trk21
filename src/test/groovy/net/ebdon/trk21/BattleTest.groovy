@@ -33,10 +33,12 @@ class BattleTest extends GroovyTestCase {
   StubFor fleetStub;
   StubFor dcStub;
   StubFor shipStub;
+  Map<Integer, ShipDevice> devices = [:]
 
   @Override void setUp() {
     dcStub = new StubFor( DamageControl )
-    dcStub.use { dc = new DamageControl( new Expando() ) }
+    // dcStub.use { dc = new DamageControl( new Expando() ) }
+    dcStub.use { dc = new DamageControl( devices ) }
 
     shipStub = new StubFor( FederationShip )
     shipStub.use { ship = new FederationShip() }
@@ -91,10 +93,10 @@ class BattleTest extends GroovyTestCase {
 
     1.upto(9) { targetExpected ->
       def target = battle.getNextTarget()
-      assertTrue    target.name.contains( "$targetExpected" )
-      assertEquals  convertToRow( targetExpected ), target.sector.row
-      assertEquals  convertToCol( targetExpected ), target.sector.col
-      assertEquals  targetExpected, target.id
+      assert target.name.contains( "$targetExpected" )
+      assert convertToRow( targetExpected ) == target.sector.row
+      assert convertToCol( targetExpected ) == target.sector.col
+      assert targetExpected == target.id
     }
     logger.info 'testBattleGetNextTarget -- OK'
   }

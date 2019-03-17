@@ -2,6 +2,7 @@ package net.ebdon.trk21;
 
 import java.text.MessageFormat;
 import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
+import groovy.transform.TypeChecked;
 
 import static GameSpace.*;
 import static Quadrant.*;
@@ -51,39 +52,47 @@ final class Trek extends LoggingBase {
     FederationShip ship;
     int numStarBasesTotal = 0; ///< b9% in TREK.BAS
 
+  @TypeChecked
   int getEntQuadX() {
     ship.position.quadrant.row
   }
 
-  def setEntQuadX( newPos ) {
+  @TypeChecked
+  void setEntQuadX( final int newPos ) {
     ship.position.quadrant.row = newPos
   }
 
+  @TypeChecked
   int getEntSectX() {
     ship.position.sector.row
   }
 
-  def setEntSectX( newPos ) {
+  @TypeChecked
+  void setEntSectX( final int newPos ) {
     ship.position.sector.row = newPos
   }
 
+  @TypeChecked
   int getEntQuadY() {
     ship.position.quadrant.col
   }
 
-  def setEntQuadY( newPos ) {
+  @TypeChecked
+  void setEntQuadY( final int newPos ) {
     ship.position.quadrant.col = newPos
   }
 
+  @TypeChecked
   int getEntSectY() {
     ship.position.sector.col
   }
 
-  def setEntSectY( newPos ) {
+  @TypeChecked
+  void setEntSectY( final int newPos ) {
     ship.position.sector.col = newPos
   }
 
-  def damage = [
+  Map damage = [
     1: new ShipDevice('device.WARP.ENGINES'), 2: new ShipDevice('device.S.R..SENSORS'),
     3: new ShipDevice('device.L.R..SENSORS'), 4: new ShipDevice('device.PHASER.CNTRL'),
     5: new ShipDevice('device.PHOTON.TUBES'), 6: new ShipDevice('device.DAMAGE.CNTRL')
@@ -91,6 +100,7 @@ final class Trek extends LoggingBase {
      ///< @todo Move damage[] into FederationShip.
      ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
 
+  @TypeChecked
   boolean isValid() {
     ship?.valid && game?.valid && enemyFleet?.valid
   }
@@ -230,7 +240,7 @@ final class Trek extends LoggingBase {
      new java.util.Random().nextFloat() * 8 + 1
   }
 
-  def distributeKlingons() {
+  void distributeKlingons() {
     int totalStars = 0
     int starsInQuad = 0
     // int numBasesInQuad = 0 //b3%
@@ -269,19 +279,22 @@ final class Trek extends LoggingBase {
     log.info enemyFleet.toString()
   }
 
-  def dumpGalaxy() {
+  @TypeChecked
+  void dumpGalaxy() {
     galaxy.dump()
     reportEntPosition()
   }
 
-  def reportEntPosition() {
+  void reportEntPosition() {
     log.info "Enterprise is in quadrant ${currentQuadrant()}"
   }
 
+  @TypeChecked
   String currentQuadrant() {
     "${entQuadY} - ${entQuadX}"
   }
 
+  @TypeChecked
   void setupGame() {
     assert damage
 
@@ -298,17 +311,23 @@ final class Trek extends LoggingBase {
     // }
   }
 
+  @TypeChecked
   void startGame() {
     shortRangeScan()
   }
 
   /// @deprecated Not needed with new font config.
+  @TypeChecked
   String btnText( final String text ) {
     // "<html><font size=+3>$text</font></html>"
     text
   }
 
-  def msgBox( msg, boolean logIt = true ) {
+  def localMsg( final String msgId, args ) {
+    /// @todo implement localMsg()
+  }
+
+  void msgBox( msg, boolean logIt = true ) {
     ui.outln "$msg"
     if ( logIt ) {
       log.info msg
@@ -316,33 +335,29 @@ final class Trek extends LoggingBase {
   }
 
   /// @deprecated Switch the code to use the UI version.
-  Float getFloatInput( final String prompt ) {
-    ui. getFloatInput( prompt )
-  }
+  // Float getFloatInput( final String prompt ) {
+  //   ui.getFloatInput( prompt )
+  // }
 
-  def reportDamage() {
+  @TypeChecked
+  void reportDamage() {
     damageControl.report( rb, this.&msgBox, formatter )
   }
 
-  def damageRepair() {
+  void damageRepair() {
     log.info "Repairing damage"
     damageControl.repair( this.&msgBox )
   }
 
-  def attackReporter( damageAmount, message ) {
+  void attackReporter( damageAmount, message ) {
     log.info "Ship under attack, $damageAmount units of damage sustained."
     msgBox message
     //:E% -= damageAmount // Line 2410
   }
 
   ///@ todo: Localise klingonAttack() messages.
-  def klingonAttack() {
+  void klingonAttack() {
     if ( !ship.isProtectedByStarBase() ) {
-      // def attackReporter = { damageAmount, message ->
-      //   log.info "Ship under attack, $damageAmount units of damage sustained."
-      //   msgBox message
-      //   //:E% -= damageAmount // Line 2410
-      // }
       enemyFleet.attack( ship.position.sector, this.&attackReporter )
     } else {
       msgBox "Star Base shields protect Enterprise";
@@ -350,7 +365,7 @@ final class Trek extends LoggingBase {
   }
 
   ///@ todo: Localise spaceStorm() messages.
-  def spaceStorm() {
+  void spaceStorm() {
     final int systemToDamage      = new Random().nextInt( damage.size() ) + 1
     final int damageAmount        = new Random().nextInt(5) + 1
     damage[systemToDamage].state -= damageAmount
@@ -359,14 +374,6 @@ final class Trek extends LoggingBase {
     log.info "   new status: ${damage[systemToDamage].state} units"
     msgBox( "*** Space Storm, ${damage[systemToDamage].name} damaged ***")
   }
-
-  // def randomlyRepairDamage( final deviceKey ) {
-  //   assert deviceKey
-  //   damage[devicekey].state -=
-  //     Math.floor( new Random().nextFloat() *
-  //     damage[deviceKey].state -1 )
-  //       // inflict damage on device -- see line 1810
-  // }
 
   void deviceStatusLottery() {
     assert damage
@@ -380,14 +387,12 @@ final class Trek extends LoggingBase {
       // def dc = new DamageControl( damage )
       final def firstDamagedDeviceKey = damageControl.findDamagedDeviceKey()
       if ( firstDamagedDeviceKey ) {
-          damageControl.randomlyRepair( firstDamagedDeviceKey )
-        // randomlyRepairDamage( firstDamagedDevice.key )
+        damageControl.randomlyRepair( firstDamagedDeviceKey )
         final def damagedDeviceId = damage[firstDamagedDeviceKey].id
 
         Object[] msgArgs = [ "device.DAMAGE.$damagedDeviceId" ]
         formatter.applyPattern( rb.getString( 'truce' ) );
         msgBox formatter.format( msgArgs );
-        // msgBox( "*** TRUCE ${damagedDeviceName} state of repair improved ***")
       }
     }
   }
@@ -400,13 +405,13 @@ final class Trek extends LoggingBase {
   }
 
   /// @todo Localise setCourse()
-  def setCourse() {
+  void setCourse() {
     ShipVector vector = getShipCourse()
     if ( vector && vector.isValid() ) {
       log.info "Got a good vector: $vector"
 
       if ( vector.warpFactor > 0.2 && damage[1].isDamaged() ) {
-        msgBox( "Warp engines are damaged.\nMaximum speed is .2")
+        msgBox( 'Warp engines are damaged.\nMaximum speed is .2' )
       } else {
         enemyAttacksBeforeShipCanMove()
         damageRepair() /// @todo Is damageRepair() called at the correct point?
@@ -452,17 +457,18 @@ final class Trek extends LoggingBase {
     msgBox "Ship blocked by ${quadrant[row,column]} at sector ${logFmtCoords( row, column )}"
   }
 
-  def logFmtCoords( x, y ) {
+  String logFmtCoords( x, y ) {
     "${[x,y]} == $y - $x"
   }
   /// @todo Reverse the coordinates? i.e. i,j or j,i?
   /// @deprecated
-  boolean sectorIsOccupied( i, j ) {
+  @TypeChecked
+  boolean sectorIsOccupied( final int i, final int j ) {
     quadrant.isOccupied(i,j)
   }
 
   float getCourse() {
-    getFloatInput( rb.getString( 'input.course' ) ) // C1
+    ui.getFloatInput( rb.getString( 'input.course' ) ) // C1
   }
 
   /// @todo Test needed for getShipCourse()
@@ -476,7 +482,7 @@ final class Trek extends LoggingBase {
     course = getCourse()
     if ( ShipVector.isValidCourse( course ) ) {
       sv.course = course
-      warpFactor = getFloatInput( rb.getString( 'input.speed' ) ) // W1
+      warpFactor = ui.getFloatInput( rb.getString( 'input.speed' ) ) // W1
       if ( ShipVector.isValidWarpFactor( warpFactor ) ) {
         sv.warpFactor = warpFactor
       } else {
@@ -489,25 +495,37 @@ final class Trek extends LoggingBase {
   }
 
   /// Perform a @ref TrekLongRangeSensors "long-range sensor scan"
-  def longRangeScan() {
-    if ( damage[3].isDamaged() ) {
+  // @groovy.transform.TypeChecked
+  void longRangeScan() {
+    // if ( damage[3].isDamaged() ) { /// @todo replace with ~ damageControl.isDamaged( DeviceType.lrSensor )
+    if ( damageControl.isDamaged( DeviceType.lrSensor ) ) {
       msgBox rb.getString( 'sensors.longRange.offline' )
     } else {
       Object[] msgArgs = [ currentQuadrant() ]
       formatter.applyPattern( rb.getString( 'sensors.longRange.scanQuadrant') );
       msgBox formatter.format( msgArgs );
 
-      ( entQuadX - 1 ).upto( entQuadX + 1 ) { i ->    // q1% -1 to q1% + 1
-        String lrStatusLine = ''
-        ( entQuadY - 1 ).upto( entQuadY + 1 ) { j ->  // q2% -1 to q2% + 1
-          lrStatusLine += ( '  ' + galaxy.scan( i, j ) )
-        }
-        msgBox lrStatusLine
+      ( entQuadX - 1 ).upto( entQuadX + 1 ) { int i ->    // q1% -1 to q1% + 1
+        // String lrStatusLine = ''
+        // ( entQuadY - 1 ).upto( entQuadY + 1 ) { int j ->  // q2% -1 to q2% + 1
+        //   lrStatusLine += ( '  ' + galaxy.scan( i, j ) )
+        // }
+        // msgBox lrStatusLine
+        msgBox longRangeScanRow( i )
       }
     }
   }
 
-  def showCondition() {
+  // @groovy.transform.TypeChecked
+  private String longRangeScanRow( final int row ) {
+    String rowStatus = ''
+    ( entQuadY - 1 ).upto( entQuadY + 1 ) { int col ->  // q2% -1 to q2% + 1
+      rowStatus += ( '  ' + galaxy.scan( row, col ) )
+    }
+    rowStatus
+  }
+
+  void showCondition() {
     ui.conditionText = displayableCondition()
   }
 
@@ -528,7 +546,7 @@ final class Trek extends LoggingBase {
   }
 
   /// Perform a @ref TrekShortRangeSensors "short-range sensor scan"
-  def shortRangeScan() {
+  void shortRangeScan() {
     logException {
       ship.shortRangeScan( galaxy )
       ship.attemptDocking( quadrant )
@@ -585,7 +603,7 @@ final class Trek extends LoggingBase {
   final void firePhasers() {
     log.info "Fire phasers - available energy: ${ship.energyNow}"
 
-    int energy = getFloatInput( rb.getString( 'input.phaserEnergy' ) )
+    int energy = ui.getFloatInput( rb.getString( 'input.phaserEnergy' ) )
     if ( energy > 0 ) {
       if ( energy <= ship.energyNow ) {
         attackFleetWithPhasers energy
