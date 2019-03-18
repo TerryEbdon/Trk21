@@ -41,9 +41,10 @@ final class DamageControl {
   }
 
   ///@ todo: Localise repair() messages.
+  // @TypeChecked
   void repair( Closure msgBox ) {
     assert devices
-    1.upto( devices.size() ) { deviceId ->
+    1.upto( devices.size() ) { int deviceId ->
       if ( devices[deviceId].isDamaged() ) {
         ++devices[deviceId].state
         msgBox "Repair systems are working on damage to " +
@@ -53,11 +54,11 @@ final class DamageControl {
     }
   }
 
-  final def findDamagedDeviceKey() {
-    def damagedDevice = devices.find { key, device ->
+  @TypeChecked
+  final int findDamagedDeviceKey() {
+    devices.find { int key, ShipDevice device ->
       device.isDamaged()
-    }
-    damagedDevice ? damagedDevice.key : null
+    }?.key ?: 0
   }
 
   @TypeChecked

@@ -21,6 +21,7 @@ import groovy.transform.TypeChecked;
  * limitations under the License.
  */
 
+/// @todo Consider renaming this to DeviceStatusLotteryTest
 @groovy.util.logging.Log4j2('logger')
 final class SpaceStormTest extends TrekTestBase {
 
@@ -52,5 +53,20 @@ final class SpaceStormTest extends TrekTestBase {
   @TypeChecked
   private boolean getDevicesAreDamaged() {
     trek.damageControl.findDamagedDeviceKey()
+  }
+
+  @TypeChecked
+  void testRandomDeviceRepairNoDamage() {
+    trek.randomDeviceRepair()
+    assert ui.msgLog.size() == 0
+  }
+
+  @TypeChecked
+  void testRandomDeviceRepairWithDamage() {
+    trek.damageControl.devices[1].state = -1
+    trek.randomDeviceRepair()
+    assert trek.damageControl.devices[1].state == 0
+    assert ui.msgLog.size() >= 1
+    assert ui.msgLog.last().contains( 'state of repair improved' )
   }
 }

@@ -41,7 +41,7 @@ final class DamageControlTest extends DeviceTestBase {
 
   void testFindDamagedWithNoDamage() {
     damage[2].state = 0
-    assert dc.findDamagedDeviceKey() == null
+    assert dc.findDamagedDeviceKey() == 0
   }
 
   void testRandomlyRepair() {

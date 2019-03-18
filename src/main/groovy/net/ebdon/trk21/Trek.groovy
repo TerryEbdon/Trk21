@@ -92,7 +92,7 @@ final class Trek extends LoggingBase {
     ship.position.sector.col = newPos
   }
 
-  Map damage = [
+  Map<Integer,ShipDevice> damage = [
     1: new ShipDevice('device.WARP.ENGINES'), 2: new ShipDevice('device.S.R..SENSORS'),
     3: new ShipDevice('device.L.R..SENSORS'), 4: new ShipDevice('device.PHASER.CNTRL'),
     5: new ShipDevice('device.PHOTON.TUBES'), 6: new ShipDevice('device.DAMAGE.CNTRL')
@@ -323,8 +323,15 @@ final class Trek extends LoggingBase {
     text
   }
 
-  def localMsg( final String msgId, args ) {
-    /// @todo implement localMsg()
+  @TypeChecked
+  void localMsg( final String msgId ) {
+    msgBox rb.getString( msgId )
+  }
+
+  @TypeChecked
+  void localMsg( final String msgId, Object[] msgArgs ) {
+    formatter.applyPattern( rb.getString( msgId ) )
+    msgBox formatter.format( msgArgs )
   }
 
   void msgBox( msg, boolean logIt = true ) {
@@ -355,16 +362,16 @@ final class Trek extends LoggingBase {
     //:E% -= damageAmount // Line 2410
   }
 
-  ///@ todo: Localise klingonAttack() messages.
+  @TypeChecked
   void klingonAttack() {
     if ( !ship.isProtectedByStarBase() ) {
       enemyFleet.attack( ship.position.sector, this.&attackReporter )
     } else {
-      msgBox "Star Base shields protect Enterprise";
+      localMsg 'starbase.shields'
     }
   }
 
-  ///@ todo: Localise spaceStorm() messages.
+  @TypeChecked
   void spaceStorm() {
     final int systemToDamage      = new Random().nextInt( damage.size() ) + 1
     final int damageAmount        = new Random().nextInt(5) + 1
@@ -372,31 +379,36 @@ final class Trek extends LoggingBase {
     log.info "Space storm has damaged device No. $systemToDamage"
     log.info "   damage of $damageAmount units"
     log.info "   new status: ${damage[systemToDamage].state} units"
-    msgBox( "*** Space Storm, ${damage[systemToDamage].name} damaged ***")
+    localMsg 'deviceStatusLottery.spaceStorm', [ damage[systemToDamage].name ]
   }
 
+  @TypeChecked
   void deviceStatusLottery() {
     assert damage
     log.debug 'deviceStatusLottery()'
     if ( new Random().nextFloat() <= 0.5 ) { // 1760
       spaceStorm()
     } else { // 1790 - Not a space storm
-      log.info "MORE TO DO... see lines 1790 onwards..."
-      /// @todo MORE TO DO... see lines 1790 onwards...
-
-      // def dc = new DamageControl( damage )
-      final def firstDamagedDeviceKey = damageControl.findDamagedDeviceKey()
-      if ( firstDamagedDeviceKey ) {
-        damageControl.randomlyRepair( firstDamagedDeviceKey )
-        final def damagedDeviceId = damage[firstDamagedDeviceKey].id
-
-        Object[] msgArgs = [ "device.DAMAGE.$damagedDeviceId" ]
-        formatter.applyPattern( rb.getString( 'truce' ) );
-        msgBox formatter.format( msgArgs );
-      }
+      randomDeviceRepair()
     }
   }
 
+  @TypeChecked
+  void randomDeviceRepair() {
+    final int firstDamagedDeviceKey = damageControl.findDamagedDeviceKey()
+    if ( firstDamagedDeviceKey ) {
+      damageControl.randomlyRepair( firstDamagedDeviceKey )
+      final String damagedDeviceId = damage[firstDamagedDeviceKey].id
+
+      localMsg 'truce', [ "device.DAMAGE.$damagedDeviceId" ]
+
+      // Object[] msgArgs = [ "device.DAMAGE.$damagedDeviceId" ]
+      // formatter.applyPattern( rb.getString( 'truce' ) );
+      // msgBox formatter.format( msgArgs );
+    }
+  }
+
+  @TypeChecked
   void enemyAttacksBeforeShipCanMove() {
     if ( enemyFleet.canAttack() ) {
       log.info 'Klingons attack before the ship can move away.'
@@ -405,6 +417,7 @@ final class Trek extends LoggingBase {
   }
 
   /// @todo Localise setCourse()
+  @TypeChecked
   void setCourse() {
     ShipVector vector = getShipCourse()
     if ( vector && vector.isValid() ) {
