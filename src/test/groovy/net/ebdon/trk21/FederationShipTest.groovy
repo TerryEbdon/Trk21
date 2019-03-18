@@ -101,15 +101,16 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info "testGoodConditionChanges -- OK"
     }
 
-    void testProtectedBystarBase() {
-      logger.info 'testProtectedBystarBase'
+    @groovy.transform.TypeChecked
+    void testProtectedByStarBase() {
+      logger.info 'testProtectedByStarBase'
       ship.with {
-        assertEquals 'GREEN', condition
-        assertFalse "$ship", isProtectedByStarBase()
+        assert 'GREEN' == condition
+        assert !isProtectedByStarBase()
         condition = 'DOCKED'
-        assertTrue "$ship", isProtectedByStarBase()
+        assert isProtectedByStarBase()
       }
-      logger.info 'testProtectedBystarBase -- OK'
+      logger.info 'testProtectedByStarBase -- OK'
     }
 
     void testHitFromEnemy() {
