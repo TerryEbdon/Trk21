@@ -23,8 +23,6 @@ import static Quadrant.*;
 @groovy.util.logging.Log4j2('logger')
 final class TrekTest extends GroovyTestCase {
 
-  final String errShipNotInSector = 'Ship not in expected sector';
-
   final String msgPositionEnemy = "Position enemy ships in quadrant %s: %03d";
 
   Trek trek;
@@ -48,10 +46,10 @@ final class TrekTest extends GroovyTestCase {
 
       logger.info "Set $ship.position"
 
-      assertEquals "Wrong position: $ship.position", 1, ship.position.quadrant.row
-      assertEquals "Wrong position: $ship.position", 2, ship.position.quadrant.col
-      assertEquals "Wrong position: $ship.position", 3, ship.position.sector.row
-      assertEquals "Wrong position: $ship.position", 4, ship.position.sector.col
+      assert 1 == ship.position.quadrant.row
+      assert 2 == ship.position.quadrant.col
+      assert 3 == ship.position.sector.row
+      assert 4 == ship.position.sector.col
 
       entQuadX = 1
       entQuadY = 2
@@ -60,14 +58,14 @@ final class TrekTest extends GroovyTestCase {
 
       logger.info "Set $ship.position"
 
-      assertEquals "Wrong position: $ship.position", 1, ship.position.quadrant.row
-      assertEquals "Wrong position: $ship.position", 2, ship.position.quadrant.col
-      assertEquals "Wrong position: $ship.position", 3, ship.position.sector.row
-      assertEquals "Wrong position: $ship.position", 4, ship.position.sector.col
+      assert 1 == ship.position.quadrant.row
+      assert 2 == ship.position.quadrant.col
+      assert 3 == ship.position.sector.row
+      assert 4 == ship.position.sector.col
 
       entQuadX = entQuadY = entSectX = entSectY = 1
-      assertTrue "position should be valid", ship.position.isValid()
-      assertTrue "trek should be valid\n$trek", valid
+      assert ship.position.valid
+      assert valid
     }
     logger.info 'testGame -- OK'
   }
@@ -78,13 +76,13 @@ final class TrekTest extends GroovyTestCase {
       quadrant.clear()
       ship.position.quadrant = new Coords2d( row: 3, col: 4 )
       logger.info 'testPositionEnterpriseInQuadrantGood set ship quadrant ' + ship.position.quadrant
-      assertEquals 'ship has wrong quadrant row', 3, ship.position.quadrant.row
-      assertEquals 'ship has wrong quadrant col', 4, ship.position.quadrant.col
+      assert ship.position.quadrant.row == 3
+      assert ship.position.quadrant.col == 4
       positionShipInQuadrant()
 
       logger.info "Expecting a ship in " + logFmtCoords( [entSectX,entSectY] )
-      assertEquals errShipNotInSector, Thing.ship, quadrant[entSectX,entSectY]
-      assertEquals 'Expect 1 ship', 1, quadrant.count { it.value == Thing.ship }
+      assert quadrant[entSectX,entSectY] == Thing.ship
+      assert 1 == quadrant.count { it.value == Thing.ship }
     }
     logger.info 'testPositionEnterpriseInQuadrantGood -- OK'
   }
@@ -95,7 +93,6 @@ final class TrekTest extends GroovyTestCase {
         logger.info 'testPositionEnterpriseInQuadrantBad' + logFmtCoords( [entSectX,entSectY] )
         positionShipInQuadrant()
         ship.position.quadrant = new Coords2d( row:1, col:1 )
-        // logger.info 'testPositionEnterpriseInQuadrant' + logFmtCoords( [entSectX,entSectY] )
         logger.info 'testPositionEnterpriseInQuadrant' + ship.position.quadrant
         positionShipInQuadrant() // fail: empty board.
       }
@@ -119,10 +116,10 @@ final class TrekTest extends GroovyTestCase {
       galaxy.dump()
       quadrant.dump()
 
-      assertEquals 1, quadrant.count { logger.trace "s.Checking $it : ${it.value == Thing.ship }"; it.value == Thing.ship }
-      assertEquals 9, quadrant.count { logger.trace "b.Checking $it : ${it.value == Thing.base }"; it.value == Thing.base }
-      assertEquals 9, quadrant.count { logger.trace "e.Checking $it : ${it.value == Thing.enemy}"; it.value == Thing.enemy }
-      assertEquals 9, quadrant.count { logger.trace "*.Checking $it : ${it.value == Thing.star }"; it.value == Thing.star }
+      assert 1 == quadrant.count { logger.trace "s.Checking $it : ${it.value == Thing.ship }"; it.value == Thing.ship }
+      assert 9 == quadrant.count { logger.trace "b.Checking $it : ${it.value == Thing.base }"; it.value == Thing.base }
+      assert 9 == quadrant.count { logger.trace "e.Checking $it : ${it.value == Thing.enemy}"; it.value == Thing.enemy }
+      assert 9 == quadrant.count { logger.trace "*.Checking $it : ${it.value == Thing.star }"; it.value == Thing.star }
     }
     logger.info 'testPositionGamePieces -- OK'
   }

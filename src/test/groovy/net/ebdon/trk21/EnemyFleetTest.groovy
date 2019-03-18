@@ -3,7 +3,7 @@ package net.ebdon.trk21;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,21 +24,19 @@ final class EnemyFleetTest extends GroovyTestCase {
 
     void testFleet() {
       logger.info 'testFleet'
-      enemyFleet.with {
-        assertTrue( "$enemyFleet", isValid())
-      }
+      assert enemyFleet.valid
     }
 
     void testFleetCanAttack() {
       logger.info 'testFleetCanAttack'
       enemyFleet.with {
-        assertFalse "$enemyFleet", canAttack()
+        assert !canAttack()
         numKlingonBatCrTotal  = 1
         numKlingonBatCrRemain = 1
         numKlingonBatCrInQuad = 0
-        assertFalse "$enemyFleet", canAttack()
+        assert !canAttack()
         numKlingonBatCrInQuad = 1
-        assertTrue "$enemyFleet", canAttack()
+        assert canAttack()
       }
     }
 
@@ -66,8 +64,8 @@ final class EnemyFleetTest extends GroovyTestCase {
 
         positionInSector( 1, [1,1] )
         attack( new Coords2d(2,2), ReporterMock.reporterMustbeCalled )
-        assertTrue ReporterMock.reporterCalled
-        assertTrue ReporterMock.attackAmount > 0
+        assert ReporterMock.reporterCalled
+        assert ReporterMock.attackAmount > 0
       }
     }
 
@@ -100,11 +98,11 @@ final class EnemyFleetTest extends GroovyTestCase {
             }
             numKlingonBatCrTotal = 9
             numKlingonBatCrRemain = 9
-            assertEquals( "$enemyFleet", true, isValid() )
+            assert valid
             0.upto(9) {
                 numKlingonBatCrInQuad = it
-                assertEquals( "$enemyFleet", it, numKlingonBatCrInQuad )
-                assertTrue( "$enemyFleet", isValid() )
+                assert it == numKlingonBatCrInQuad
+                assert valid
             }
         }
     }
@@ -117,13 +115,13 @@ final class EnemyFleetTest extends GroovyTestCase {
         shouldFail {
             numKlingonBatCrRemain = 9 // Fail: 9 remain out of zero total.
         }
-        assertEquals( "$enemyFleet", true, isValid() )
+        assert valid
         [ -1, 10 ].each {
             shouldFail {
                 numKlingonBatCrInQuad = it
             }
         }
-        assertTrue( "$enemyFleet", isValid() )
+        assert valid
       }
     }
 
@@ -138,7 +136,7 @@ final class EnemyFleetTest extends GroovyTestCase {
         // From Pythagaras: distance from [1,1] to [2,2] is sqrt(1*^2 + 1^2)
         positionInSector( 1, [1, 1] )
         final Float root2 = Math.sqrt(2)
-        assertEquals root2, distanceToTarget( 1, new Coords2d(2,2) )
+        assert root2 == distanceToTarget( 1, new Coords2d(2,2) )
       }
     }
 
@@ -156,7 +154,7 @@ final class EnemyFleetTest extends GroovyTestCase {
             numKlingonBatCrInQuad   = maxKlingonBCinQuad
 
             positionInSector 1, [1,1]
-            assertEquals maxKlingonEnergy, klingons[1][3]
+            assert maxKlingonEnergy == klingons[1][3]
 
             1.upto( numKlingonBatCrInQuad ) {
                 shouldFail { // sector is already occupied.
@@ -165,21 +163,17 @@ final class EnemyFleetTest extends GroovyTestCase {
             }
 
             2.upto( numKlingonBatCrInQuad ) {
-                positionInSector it, [2,it - 1]
-                assertEquals maxKlingonEnergy, klingons[it][3]
+              positionInSector it, [2,it - 1]
+              assert maxKlingonEnergy == klingons[it][3]
             }
 
-            assertEquals(
-                "$enemyFleet",
-                numKlingonBatCrInQuad,
-                klingons.count { it[1] !=0 && it[2] !=0 }
-            )
+            assert numKlingonBatCrInQuad == klingons.count {
+              it[1] !=0 && it[2] !=0
+            }
 
-            assertEquals(
-                "$enemyFleet",
-                maxKlingonEnergy * numKlingonBatCrInQuad,
-                klingons.sum { it[3] }
-            )
+            assert maxKlingonEnergy * numKlingonBatCrInQuad == klingons.sum {
+              it[3]
+            }
         }
     }
 }

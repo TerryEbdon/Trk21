@@ -8,7 +8,7 @@ import groovy.mock.interceptor.StubFor;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ final class PhaserControlTest extends DeviceTestBase {
     shipStub.use {
       pc.fire 1 + ship.energyNow
     }
-    assertTrue damageReported
-    assertTrue reportedMsg.contains( 'Command refused' )
+    assert damageReported
+    assert reportedMsg.contains( 'Command refused' )
     logger.info 'testEnergyValue -- OK'
   }
 
@@ -103,15 +103,14 @@ final class PhaserControlTest extends DeviceTestBase {
       logger.trace "battleStub.hitOnFleetShip xp:$xp amount:$amount"
     }
     shipStub.demand.energyReducedByPhaserUse { amount ->
-      assertEquals 'Incorrect energy amount used', fireAmount, amount
+      assert amount == fireAmount
       newEnergy = energyAtStart - amount
     }
     shipStub.use {
       pc.fire( fireAmount )
     }
 
-    assertEquals "Failed to call energyReducedByPhaserUse()",
-        energyAtStart - fireAmount, newEnergy
+    assert newEnergy == energyAtStart - fireAmount
     logger.info 'fireAtTargets -- OK'
   }
 

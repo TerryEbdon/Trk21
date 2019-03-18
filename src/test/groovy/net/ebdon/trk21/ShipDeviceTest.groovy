@@ -5,7 +5,7 @@ import static ShipDevice.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,27 +31,27 @@ final class ShipDeviceTest extends GroovyTestCase {
 
   void testShipDeviceEnum() {
     sd = new ShipDevice( DeviceType.engine )
-    assertEquals  DeviceType.engine.id, sd.id
-    assertTrue    "Wrong device ID", sd.id.contains( 'ENGINE')
-    assertTrue    "Wrong device state", sd.state == 0
+    assert sd.id == DeviceType.engine.id
+    assert sd.id.contains( 'ENGINE')
+    assert sd.state == 0
   }
 
   void testShipDevice() {
     assertEquals "$sd", 0, sd.state
     assertEquals "$sd", "", sd.name
-    assertEquals "$sd", sd[1], sd.state
-    assertEquals "$sd", sd[0], sd.name
+    assert sd.state == sd[1]
+    assert sd.name == sd[0]
 
     sd.name = "Neutron Blaster"
-    assertEquals "$sd", "Neutron Blaster", sd.name
-    assertEquals "$sd", sd[0],             sd.name
+    assert sd.name == "Neutron Blaster"
+    assert sd.name == sd[0]
 
     --sd.state
-    assertEquals "$sd", sd[1], sd.state
-    assertEquals("$sd",  -1,  sd.state)
+    assert sd.state == sd[1]
+    assert sd.state == -1
 
     -- sd[1]
-    assertEquals "$sd", sd[1], sd.state
-    assertEquals("$sd",  -2,   sd.state )
+    assert sd.state == sd[1]
+    assert sd.state == -2
   }
 }

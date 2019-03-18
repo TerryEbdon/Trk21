@@ -4,7 +4,7 @@ package net.ebdon.trk21;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,26 +32,22 @@ final class TrekCalendarTest extends GroovyTestCase {
 
     void testConstruction() {
       logger.info 'testConstruction'
-      assertTrue( "$trekCalendar", trekCalendar.isValid() )
+      assert trekCalendar.valid
     }
 
     void testTick() { /// Test the calendar's clock tick.
         logger.info 'testTick'
-        assertFalse( "trekCalendar shouldn't be null", trekCalendar == null )
-        assertEquals(
-            "$trekCalendar",
-            trekCalendar.currentSolarYear + 1,
-            trekCalendar.tick()
-        )
+        assert trekCalendar
+        assert trekCalendar.currentSolarYear + 1 == trekCalendar.tick()
     }
 
     void testOutOfTime() {
       trekCalendar.with {
-        assertFalse "$trekCalendar", outOfTime()
+        assert !outOfTime()
         currentSolarYear += missionLifeInSolarYears
-        assertTrue "$trekCalendar", outOfTime()
+        assert outOfTime()
         --currentSolarYear
-        assertFalse "$trekCalendar", outOfTime()
+        assert !outOfTime()
       }
     }
 }

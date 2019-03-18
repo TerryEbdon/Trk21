@@ -5,7 +5,7 @@ import static GameSpace.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ final class GameSpaceTest extends GroovyTestCase {
 
     minCoord.upto(maxCoord) {
       minCoord.upto(maxCoord) { jt ->
-        assertTrue sectorIsInsideQuadrant( [ it, jt ] ) // Good coords
+        assert sectorIsInsideQuadrant( [ it, jt ] ) // Good coords
       }
     }
   }
@@ -39,18 +39,18 @@ final class GameSpaceTest extends GroovyTestCase {
 
     minCoord.upto(maxCoord) {
       minCoord.upto(maxCoord) { jt ->
-        assertFalse sectorIsInsideQuadrant( [-it,-jt ] ) // fail
-        assertFalse sectorIsInsideQuadrant( [-it, jt ] ) // fail
-        assertFalse sectorIsInsideQuadrant( [ it,-jt ] ) // fail
+        assert !sectorIsInsideQuadrant( [-it,-jt ] ) // fail
+        assert !sectorIsInsideQuadrant( [-it, jt ] ) // fail
+        assert !sectorIsInsideQuadrant( [ it,-jt ] ) // fail
       }
 
       [-it,0].permutations {
-        assertFalse sectorIsInsideQuadrant( it )
+        assert !sectorIsInsideQuadrant( it )
       }
     }
 
     [-9,0].permutations().eachCombination {
-      assertFalse sectorIsInsideQuadrant( it )
+      assert !sectorIsInsideQuadrant( it )
     }
   }
 

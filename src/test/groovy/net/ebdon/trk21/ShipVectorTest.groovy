@@ -3,7 +3,7 @@ package net.ebdon.trk21;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ final class ShipVectorTest extends GroovyTestCase {
     for ( float course = 1; course < 9; course += rnd.nextInt( 9 ) / 10  ) {
       for ( float warp = 0.125; warp <= 12; warp += rnd.nextInt( 9 ) / 10  ) {
         sv = new ShipVector( course: course, warpFactor: warp )
-        assertTrue "$sv", sv.valid
+        assert sv.valid
       }
     }
   }
@@ -48,9 +48,9 @@ final class ShipVectorTest extends GroovyTestCase {
   private void checkGoodBaseWarp( baseWarp ) {
     sv.warpFactor = baseWarp
     if ( baseWarp ) {
-      assertTrue "$sv", sv.valid
+      assert sv.valid
     } else {
-      assertFalse "$sv", sv.valid
+      assert !sv.valid
     }
   }
 
@@ -58,14 +58,14 @@ final class ShipVectorTest extends GroovyTestCase {
     1.upto(7) {
       sv.warpFactor += 1.0 / 8.0
       if (sv.warpFactor < 12) {
-        assertTrue "$sv", sv.valid
+        assert sv.valid
       } else {
-        assertFalse "$sv", sv.valid
+        assert !sv.valid
       }
     }
   }
 
   void testBadvalues() {
-    assertFalse "$sv", sv.valid  // Fail: All zero values
+    assert !sv.valid  // Fail: All zero values
   }
 }

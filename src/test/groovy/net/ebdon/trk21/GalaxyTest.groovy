@@ -35,8 +35,7 @@ final class GalaxyTest extends GroovyTestCase {
     final def badCoords = [-1,0,9]
     for ( row in badCoords ) {
       for ( col in badCoords ) {
-        assertEquals "Quadrant outside galaxy should be 000",
-            '000', galaxy.scan( new Coords2d( row, col ) )
+        assert galaxy.scan( new Coords2d( row, col ) ) == '000'
       }
     }
   }
@@ -44,8 +43,7 @@ final class GalaxyTest extends GroovyTestCase {
   void testInsideScan() {
     for (scanValue in 0..999) {
       galaxy[4,4] = scanValue
-      assertEquals "$scanValue".padLeft(3,'0'),
-          galaxy.scan( new Coords2d( 4,4 ) )
+      assert galaxy.scan( new Coords2d( 4,4 ) ) == "$scanValue".padLeft(3,'0')
     }
   }
 }

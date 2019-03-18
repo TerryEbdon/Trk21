@@ -6,7 +6,7 @@ import static Quadrant.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,11 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     ShipVector sv = shipWarpOne(1)
     repositioner.repositionShip sv
     trek.with {
-      assertTrue moveBlocked
-      assertTrue 'Ship in wrong quadrant', [entQuadX, entQuadY] == topLeftCoords
-      assertTrue 'Ship in wrong sector',   [entSectX, entSectY] == topLeftCoords
+      assert moveBlocked
+      assert [entQuadX, entQuadY] == topLeftCoords
+      assert [entSectX, entSectY] == topLeftCoords
       quadrant.dump()
-      assertTrue 'Ship doesn\'t occupy sector', quadrant[topLeftCoords] == Thing.ship
+      assert quadrant[topLeftCoords] == Thing.ship
     }
     logger.info 'testBlocked OK'
   }
@@ -65,9 +65,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     trek.with {
       ship.energyUsedByLastMove = 2
       repositioner.repositionShip sv
-      assertEquals "In wrong quadrant", [4,4], [entQuadX,entQuadY]
-      assertEquals "In wrong sector",   [4,6], [entSectX,entSectY]
-      assertEquals Thing.ship, quadrant[4,6]
+      assert [entQuadX,entQuadY] == [4,4]
+      assert [entSectX,entSectY] == [4,6]
+      assert quadrant[4,6] == Thing.ship
     }
     logger.info 'intraQuadrantTest OK'
   }
@@ -92,10 +92,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     repositioner.repositionShip sv
 
     trek.with {
-      assertEquals "In wrong quadrant", targetQuadrant, [entQuadX,entQuadY]
-
-      assertEquals "In wrong sector",     targetSector, [entSectX,entSectY]
-      assertEquals "Ship not in sector",  Thing.ship,   quadrant[targetSector]
+      assert [entQuadX,entQuadY] == targetQuadrant
+      assert [entSectX,entSectY] == targetSector
+      assert quadrant[targetSector] == Thing.ship
     }
     logger.info 'testSlowBoundaryTransition -- OK'
   }
@@ -109,10 +108,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       final def targetSector = [entSectX, entSectY]
       repositioner.repositionShip sv
       quadrant.dump()
-      assertEquals "In wrong quadrant",   [4,5],        [entQuadX,entQuadY]
-
-      assertEquals "In wrong sector",     targetSector, [entSectX,entSectY]
-      assertEquals "Ship not in sector",  Thing.ship,   quadrant[targetSector]
+      assert [entQuadX,entQuadY] == [4,5]
+      assert [entSectX,entSectY] == targetSector
+      assert quadrant[targetSector] == Thing.ship
     }
     logger.info 'extraQuadrantTest -- OK'
   }
