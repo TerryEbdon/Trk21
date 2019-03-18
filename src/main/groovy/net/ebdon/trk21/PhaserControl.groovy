@@ -66,7 +66,7 @@ final class PhaserControl {
     [fired, fired / distance * phaserVariance()].min()
   }
 
-  private void fireAt( energyAmount, target ) {
+  private void fireAt( final int energyAmount, final Expando target ) {
     log.debug 'in fireAt()'
     assert ship.position.isValid()
     assert target.sector.isValid()
@@ -86,7 +86,7 @@ final class PhaserControl {
     battle.hitOnFleetShip target, energyHit
   }
 
-  void fire( energyAmount ) {
+  void fire( final int energyAmount ) {
     log.info "Firing phasers with $energyAmount units."
     assert damageControl && report
     assert energyAmount > 0
@@ -99,7 +99,7 @@ final class PhaserControl {
         commandRefused()
       } else {
         ship.energyReducedByPhaserUse energyAmount
-        def target
+        Expando target
         while ( target = battle.getNextTarget() ) {
           fireAt energyAmount, target
         }

@@ -1,6 +1,5 @@
 package net.ebdon.trk21;
 
-import groovy.util.logging.Log4j;
 import static GameSpace.*;
 import static ShipDevice.*;
 import groovy.mock.interceptor.StubFor;
@@ -25,19 +24,19 @@ import groovy.mock.interceptor.StubFor;
 
 @groovy.util.logging.Log4j2('logger')
 class BattleTest extends GroovyTestCase {
-  Battle battle;
-  def enemyFleet;
-  def ship;
-  def dc;
+  private Battle battle;
+  private EnemyFleet enemyFleet;
+  private FederationShip ship;
+  private DamageControl dc;
 
-  StubFor fleetStub;
-  StubFor dcStub;
-  StubFor shipStub;
-  Map<Integer, ShipDevice> devices = [:]
+  private StubFor fleetStub;
+  private StubFor dcStub;
+  private StubFor shipStub;
+  private final Map<Integer, ShipDevice> devices = [:]
 
   @Override void setUp() {
+    super.setUp()
     dcStub = new StubFor( DamageControl )
-    // dcStub.use { dc = new DamageControl( new Expando() ) }
     dcStub.use { dc = new DamageControl( devices ) }
 
     shipStub = new StubFor( FederationShip )
@@ -49,26 +48,21 @@ class BattleTest extends GroovyTestCase {
     battle = new Battle( enemyFleet, ship, dc, this.&reporter, this.&attackReporter )
   }
 
-  def reporter() {
+  private void reporter() { }
+  private void attackReporter() { }
 
-  }
-
-  def attackReporter() {
-
-  }
-
-  def testBattleHitOnFleetShip() {
+  void testBattleHitOnFleetShip() {
     if ( notYetImplemented() ) return
     assert false
   }
 
   /// @todo implement testBattleFireTorpedo()
-  def testBattleFireTorpedo() {
+  void testBattleFireTorpedo() {
     if ( notYetImplemented() ) return
     assert false
   }
 
-  def testtBattlePhaserAttackFleet() {
+  void testBattlePhaserAttackFleet() {
     if ( notYetImplemented() ) return
     assert false
   }
@@ -76,16 +70,16 @@ class BattleTest extends GroovyTestCase {
   void testBattleGetNextTarget() {
     logger.info 'testBattleGetNextTarget'
     fleetStub.demand.with {
-      getNumKlingonBatCrInQuad(1..18) {9}
-      getMaxKlingonBCinQuad(1..18)    {9}
+      getNumKlingonBatCrInQuad(1..18) { 9 }
+      getMaxKlingonBCinQuad(1..18)    { 9 }
       getKlingons(9..10) {
-        def ships = new int[10][4]
+        int[][] ships = new int[10][4]
         1.upto(9) { shipNo ->
           final int row = BattleTest.convertToRow( shipNo )
           final int col = BattleTest.convertToCol( shipNo )
 
           ships[shipNo] = [shipNo,row,col,200]
-          // println "ships[$shipNo] = ${ships[shipNo]}"
+          logger.trace "ships[$shipNo] = ${ships[shipNo]}"
         }
         ships
       }
@@ -93,6 +87,7 @@ class BattleTest extends GroovyTestCase {
 
     1.upto(9) { targetExpected ->
       def target = battle.getNextTarget()
+
       assert target.name.contains( "$targetExpected" )
       assert convertToRow( targetExpected ) == target.sector.row
       assert convertToCol( targetExpected ) == target.sector.col
@@ -101,11 +96,11 @@ class BattleTest extends GroovyTestCase {
     logger.info 'testBattleGetNextTarget -- OK'
   }
 
-  static int convertToRow( shipNo ) {
+  private static int convertToRow( final int shipNo ) {
     1 + (shipNo / 8).toInteger()
   }
 
-  static int convertToCol( shipNo ) {
+  private static int convertToCol( final int shipNo ) {
     1 + shipNo % 8
   }
 }

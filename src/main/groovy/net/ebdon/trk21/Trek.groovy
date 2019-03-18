@@ -581,7 +581,8 @@ final class Trek extends LoggingBase {
     }
   }
 
-  private void attackFleetWithPhasers( final energy ) {
+  @TypeChecked
+  private void attackFleetWithPhasers( final int energy ) {
     new Battle(
       enemyFleet, ship, damageControl,
       this.&msgBox, this.&attackReporter, rb
@@ -613,20 +614,21 @@ final class Trek extends LoggingBase {
     log.info "Fire torpedo completed - available: ${ship.numTorpedoes}"
   }
 
+  // @TypeChecked
   final void firePhasers() {
     log.info "Fire phasers - available energy: ${ship.energyNow}"
 
-    int energy = ui.getFloatInput( rb.getString( 'input.phaserEnergy' ) )
+    final int energy = ui.getFloatInput( rb.getString( 'input.phaserEnergy' ) ).toInteger()
     if ( energy > 0 ) {
       if ( energy <= ship.energyNow ) {
         attackFleetWithPhasers energy
         updateQuadrantAfterSkirmish()
       } else {
-        log.info  "Phaser command refused; user tried to fire too many units."
-        msgBox    rb.getString('phaser.refused.badEnergy')
+        log.info 'Phaser command refused; user tried to fire too many units.'
+        localMsg 'phaser.refused.badEnergy'
       }
     } else {
-      log.info "Command cancelled by user."
+      log.info 'Command cancelled by user.'
     }
     log.info "Fire phasers completed - available energy: ${ship.energyNow}"
   }

@@ -5,7 +5,7 @@ import groovy.transform.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,12 +32,12 @@ final class Battle {
 
   private int nextTargetIndex = 1;
 
-  def getNextTarget() {
+  Expando getNextTarget() {
     log.trace "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
     log.trace "Getting target $nextTargetIndex"
     assert nextTargetIndex >= 0
     assert nextTargetIndex <= 1 + enemyFleet.maxKlingonBCinQuad
-    def rv = null
+    Expando rv = null
     if ( enemyFleet.numKlingonBatCrInQuad > 0 ) {
       if ( nextTargetIndex <= enemyFleet.maxKlingonBCinQuad ) {
         final def enemyShip = enemyFleet.klingons[ nextTargetIndex ]
@@ -77,20 +77,30 @@ final class Battle {
     }
   }
 
-  def phaserAttackFleet( energy ) {
+  void phaserAttackFleet( final int energy ) {
     assert energy > 0
     assert enemyFleet && ship && dc && pcReporter && fleetAttackReporter
     new PhaserControl( dc, pcReporter, ship, this ).fire( energy )
-    enemyFleet.with {
-      regroup()
-      if ( canAttack() ) {
-        attack( ship.position.sector, fleetAttackReporter )
+    enemyRespondsToAttack()
+  }
+
+  @TypeChecked
+  void enemyRespondsToAttack() {
+    enemyFleet.regroup()
+    if ( enemyFleet.canAttack() ) {
+      if ( ship.isProtectedByStarBase() ) {
+        /// @todo localise this with 'starbase.shields'
+        fleetAttackReporter 'Star Base shields protect the Enterprise.'
+      } else {
+        enemyFleet.attack( ship.position.sector, fleetAttackReporter )
       }
     }
   }
 
   /// @todo implement battle.fireTorpedo()
-  def fireTorpedo( course ) {
+  @TypeChecked
+  void fireTorpedo( course ) {
     pcReporter "Battle#fireTorpedo is not yet implemented"
+    enemyRespondsToAttack()
   }
 }

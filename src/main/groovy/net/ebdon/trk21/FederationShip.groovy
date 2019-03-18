@@ -1,5 +1,7 @@
 package net.ebdon.trk21;
 
+import groovy.transform.TypeChecked;
+
 import static GameSpace.*;
 import static Quadrant.*;
 /**
@@ -233,6 +235,7 @@ final class FederationShip {
     insideGalaxy(x,y)
   }
 
+  @TypeChecked
   boolean isProtectedByStarBase() {
     'DOCKED' == condition
   }
