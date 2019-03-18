@@ -39,22 +39,22 @@ final class FederationShipTest extends GroovyTestCase {
 
     void testDeadInSpace() {
       ship.with {
-        assertFalse "Ship should NOT be dead:\n$ship", deadInSpace()
+        assert !deadInSpace()
 
         energyNow = 0
-        assertTrue  "Ship SHOULD be dead:\n$ship", deadInSpace()
+        assert deadInSpace()
       }
     }
 
     void testShipConstruction() {
       logger.info 'testShipConstruction'
       ship.with {
-        assertFalse(  "$ship", valid )  // Position is invalid.
+        assert !valid   // Position is invalid.
         positionShip()
-        assertTrue(   "$ship", valid )  // Position is valid.
-        assertEquals( "$ship", energyAtStart, energyNow )
-        assertEquals( "$ship", maxTorpedoes, numTorpedoes )
-        assertEquals( "$ship", 'GREEN', condition )
+        assert valid    // Position is valid.
+        assert energyNow == energyAtStart
+        assert numTorpedoes == maxTorpedoes
+        assert condition == 'GREEN'
       }
       logger.info 'testShipConstruction -- OK'
     }
@@ -70,18 +70,18 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info "testBadConditionChanges"
       ship.with {
         condition = allowedConditions[0]
-        assertEquals( "$ship", allowedConditions[0], condition )
+        assert condition == allowedConditions[0]
 
         shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
           condition = "flooded"
         }
-        assertEquals( "$ship", allowedConditions[0], condition )
+        assert condition == allowedConditions[0]
 
         allowedConditions.each { newCond ->
           shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
             condition = newCond.toLowerCase()
           }
-          assertEquals( "$ship", allowedConditions[0], condition )
+          assert condition == allowedConditions[0]
         }
       }
       logger.info "testBadConditionChanges -- OK"
@@ -91,11 +91,11 @@ final class FederationShipTest extends GroovyTestCase {
       ship.with {
       logger.info "testGoodConditionChanges"
         positionShip()
-        assertEquals( "$ship", true, isValid() )
+        assert valid
         allowedConditions.each { newCond ->
           condition = newCond
-          assertEquals( "$ship", newCond, condition )
-          assertEquals( "$ship", true, isValid() )
+          assert newCond, condition
+          assert valid
         }
       }
       logger.info "testGoodConditionChanges -- OK"
@@ -122,7 +122,7 @@ final class FederationShipTest extends GroovyTestCase {
 
         condition = 'RED'
         hitFromEnemy energyAtStart // Succeed: Ship is in condition red.
-        assertEquals "$ship", 0, energyNow
+        assert energyNow == 0
       }
       logger.info 'testHitFromEnemy -- OK'
     }
@@ -206,8 +206,8 @@ final class FederationShipTest extends GroovyTestCase {
     void testShortRangeScanYellowLowEnergy() {
       logger.info "testShortRangeScanYellowLowEnergy"
       ship.with {
-        assertEquals 'GREEN', condition
-        assertEquals energyAtStart, energyNow
+        assert condition == 'GREEN'
+        assert energyNow == energyAtStart
         energyNow = lowEnergyThreshold
         galaxyStub.demand.getAt { 4 } // 4 stars
         scan new Coords2d( row: 1, col: 1 ), "YELLOW"
@@ -243,7 +243,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testDockingBad() {
       logger.info 'testDockingBad'
       ship.with {
-        assertEquals "$ship", 'GREEN', condition
+        assert condition == 'GREEN'
         def quadrant = new Quadrant() //galaxy
 
         (-1).upto(0) { i->
@@ -266,7 +266,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testDockingGood() {
       logger.info 'testDockingGood'
       ship.with {
-        assertEquals "$ship", 'GREEN', condition
+        assert condition == 'GREEN'
         def quadrant = new Quadrant()
 
         quadrant[4,4] = Thing.base
@@ -277,7 +277,7 @@ final class FederationShipTest extends GroovyTestCase {
               position.sector = new Coords2d( row: i, col: j )
               attemptDocking quadrant
               // attemptDocking( quadrant, i, j )
-              assertEquals "$ship", 'DOCKED', condition
+              assert condition == 'DOCKED'
             }
           }
         }
@@ -305,13 +305,13 @@ final class FederationShipTest extends GroovyTestCase {
           sv.course = 1
           sv.warpFactor = 1
           move( sv )
-          assertFalse deadInSpace() // Should succeed.
+          assert !deadInSpace() // Should succeed.
 
           energyNow = 1
           sv.course = 1
           sv.warpFactor = 1
           move( sv )
-          assertTrue deadInSpace()
+          assert deadInSpace()
         }
       }
       logger.info 'testMove -- OK'
@@ -331,7 +331,7 @@ final class FederationShipTest extends GroovyTestCase {
             shortRangeScan galaxy
           }
           // shortRangeScan( galaxy, *ourPosition )
-          assertEquals "$ship", expectCondition, condition
+          assert condition == expectCondition
       }
     }
 
