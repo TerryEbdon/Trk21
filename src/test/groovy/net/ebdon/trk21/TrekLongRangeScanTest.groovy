@@ -3,6 +3,8 @@ package net.ebdon.trk21;
 import groovy.mock.interceptor.StubFor;
 import groovy.transform.TypeChecked;
 
+import static ShipDevice.DeviceType;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -50,7 +52,7 @@ final class TrekLongRangeScanTest extends TrekTestBase {
     logger.info 'testLongRangeScan'
 
     resetShip 10
-    scanGoodBoard()
+    scanGoodGalaxy()
     logger.debug ui
 
     assert ui.msgLog.size() == 4
@@ -74,17 +76,25 @@ final class TrekLongRangeScanTest extends TrekTestBase {
   }
 
   @TypeChecked
-  private void scanGoodBoard() {
-    trek.with {
-      galaxy.board = [ [1,1]: 111, [1,2]: 121, [2,1]: 211, [2,2]: 221 ]
-      longRangeScan()
-    }
+  private void setupGalaxy() {
+    trek.galaxy.board = [ [1,1]: 111, [1,2]: 121, [2,1]: 211, [2,2]: 221 ]
+  }
+
+  @TypeChecked
+  private void scanGoodGalaxy() {
+    setupGalaxy()
+    trek.longRangeScan()
   }
 
   void testScanDamaged() {
     logger.info 'testScanDamaged'
+    resetShip 10  // Only needed if test fails & scans when it shouldn't.
+    setupGalaxy()  // Only needed if test fails & scans when it shouldn't.
     trek.with {
       damage[3].state = -9 // 9 units of damage
+      assert damageControl.devices[3].damaged
+
+      assert damageControl.isDamaged( DeviceType.lrSensor )
       trek.longRangeScan()
     }
     logger.debug ui
