@@ -414,7 +414,7 @@ final class Trek extends LoggingBase {
   @TypeChecked
   boolean tooFastForDamagedEngine( final ShipVector sv ) {
     log.trace "tooFastForDamagedEngine called with $sv"
-    sv.warpFactor > 0.2 && damageControl.isDamaged( ShipDevice.DeviceType.engine )
+    sv.warpFactor > 0.2F && damageControl.isDamaged( ShipDevice.DeviceType.engine )
   }
 
   /// @todo Localise setCourse()
