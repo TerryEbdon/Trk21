@@ -199,7 +199,7 @@ final class Trek extends LoggingBase {
     enemyFleet.resetQuadrant()
     log.info "Positioning $enemyFleet.numKlingonBatCrInQuad Klingons in quadrant ${currentQuadrant()}."
     for ( int klingonShipNo = 1; klingonShipNo <= enemyFleet.numKlingonBatCrInQuad; ++klingonShipNo ) {
-      def klingonPosition = getEmptySector()
+      def klingonPosition = quadrant.emptySector
       quadrant[klingonPosition] = Thing.enemy
 
       enemyFleet.positionInSector klingonShipNo, klingonPosition
@@ -215,7 +215,7 @@ final class Trek extends LoggingBase {
   void positionStars() {
     log.info "Positioning ${numStarsInQuad()} stars."
     for ( int star = 1; star <= numStarsInQuad(); ++star ) {
-      def starPos = getEmptySector()
+      def starPos = quadrant.emptySector
       log.trace "... star $star is at sector ${starPos}"
       quadrant[starPos[0],starPos[1]] = Thing.star
       log.trace "V*: ${quadrant[starPos[0],starPos[1]]}"
@@ -225,15 +225,10 @@ final class Trek extends LoggingBase {
   void positionBases() {
     log.info "Positioning ${numBasesInQuad()} bases."
     for ( int base = 1; base <= numBasesInQuad(); ++base ) {
-      def basePos = getEmptySector()
+      def basePos = quadrant.emptySector
       log.trace "... base $base is at sector ${basePos}"
       quadrant[basePos] = Thing.base
     }
-  }
-
-  /// @deprecated Acts as a facade for the Quadrant
-  def getEmptySector() {
-    quadrant.getEmptySector()
   }
 
   int rand1to9() { // fnr%() -- Used a lot, as there are most 9 bases / Klingons / stars in each quadrant.
