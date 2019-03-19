@@ -1,12 +1,14 @@
 package net.ebdon.trk21;
 
 import groovy.mock.interceptor.StubFor;
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
+
 import static Quadrant.Thing;
 /**
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +27,17 @@ import static Quadrant.Thing;
 /// @warning 'logger' not 'log' as the latter conflicts with the base class
 final class FederationShipTest extends GroovyTestCase {
 
-    FederationShip ship = new FederationShip();
-    final int galaxyLength = 8;
-    def galaxy;
-    StubFor galaxyStub;
+    private FederationShip ship = new FederationShip();
+    private final int galaxyLength = 8;
+    private def galaxy;
+    private StubFor galaxyStub;
 
-    void setUp() {
-      logger.info "setUp"
+    @Override void setUp() {
+      super.setUp()
+      logger.info 'setUp'
       galaxyStub = new StubFor( Galaxy )
       galaxyStub.use { galaxy = new Galaxy() }
-      logger.info "setUp -- OK"
+      logger.info 'setUp -- OK'
     }
 
     void testDeadInSpace() {
@@ -67,29 +70,29 @@ final class FederationShipTest extends GroovyTestCase {
     }
 
     void testBadConditionChanges() {
-      logger.info "testBadConditionChanges"
+      logger.info 'testBadConditionChanges'
       ship.with {
         condition = allowedConditions[0]
         assert condition == allowedConditions[0]
 
-        shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
-          condition = "flooded"
+        shouldFail( PowerAssertionError ) {
+          condition = 'flooded'
         }
         assert condition == allowedConditions[0]
 
         allowedConditions.each { newCond ->
-          shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
+          shouldFail( PowerAssertionError ) {
             condition = newCond.toLowerCase()
           }
           assert condition == allowedConditions[0]
         }
       }
-      logger.info "testBadConditionChanges -- OK"
+      logger.info 'testBadConditionChanges -- OK'
     }
 
     void testGoodConditionChanges() {
       ship.with {
-      logger.info "testGoodConditionChanges"
+      logger.info 'testGoodConditionChanges'
         positionShip()
         assert valid
         allowedConditions.each { newCond ->
@@ -98,14 +101,14 @@ final class FederationShipTest extends GroovyTestCase {
           assert valid
         }
       }
-      logger.info "testGoodConditionChanges -- OK"
+      logger.info 'testGoodConditionChanges -- OK'
     }
 
     @groovy.transform.TypeChecked
     void testProtectedByStarBase() {
       logger.info 'testProtectedByStarBase'
       ship.with {
-        assert 'GREEN' == condition
+        assert condition == 'GREEN'
         assert !isProtectedByStarBase()
         condition = 'DOCKED'
         assert isProtectedByStarBase()
@@ -116,7 +119,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testHitFromEnemy() {
       logger.info 'testHitFromEnemy'
       ship.with {
-        shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
+        shouldFail( PowerAssertionError ) {
           hitFromEnemy energyAtStart // fail, not in condition red.
         }
 
@@ -139,7 +142,7 @@ final class FederationShipTest extends GroovyTestCase {
     }
 
     void testShortRangeScanBadEverything() {
-      logger.info "testShortRangeScanBadEverything"
+      logger.info 'testShortRangeScanBadEverything'
       // galaxy    = [:];
 
       galaxyStub.demand.size {0}
@@ -152,11 +155,11 @@ final class FederationShipTest extends GroovyTestCase {
           }
         }
       }
-      logger.info "testShortRangeScanBadEverything -- OK"
+      logger.info 'testShortRangeScanBadEverything -- OK'
     }
 
     void testShortRangeScanBad() {
-      logger.info "testShortRangeScanBad"
+      logger.info 'testShortRangeScanBad'
       // int quadX, quadY    = 0; ///< Q1% and Q2% in TREK.BAS
       ship.with {
         position.quadrant = new Coords2d( row: 0, col: 0 )
@@ -175,11 +178,11 @@ final class FederationShipTest extends GroovyTestCase {
           shortRangeScan( galaxy ) // fail: galaxy smaller than expected
         }
       }
-      logger.info "testShortRangeScanBad -- OK"
+      logger.info 'testShortRangeScanBad -- OK'
     }
 
     void testShortRangeScanGoodGreen() {
-      logger.info "testShortRangeScanGoodGreen"
+      logger.info 'testShortRangeScanGoodGreen'
 
       // galaxy.keySet().each {
       galaxyStub.demand.getAt(1..548) {
@@ -187,14 +190,14 @@ final class FederationShipTest extends GroovyTestCase {
         000
         /// @todo 64 should be more than enough... but isn't
       }
-      getGalaxyKeySet().each {
-        scan it, "GREEN"
+      galaxyKeySet.each {
+        scan it, 'GREEN'
       }
-      logger.info "testShortRangeScanGoodGreen -- OK"
+      logger.info 'testShortRangeScanGoodGreen -- OK'
     }
 
-    private def getGalaxyKeySet() {
-      def ks = []
+    private List getGalaxyKeySet() {
+      List ks = []
       1.upto( 8 ) { i ->
         1.upto(8) { j ->
           ks << [i,j]
@@ -203,20 +206,21 @@ final class FederationShipTest extends GroovyTestCase {
 
       ks
     }
+
     void testShortRangeScanYellowLowEnergy() {
-      logger.info "testShortRangeScanYellowLowEnergy"
+      logger.info 'testShortRangeScanYellowLowEnergy'
       ship.with {
         assert condition == 'GREEN'
         assert energyNow == energyAtStart
         energyNow = lowEnergyThreshold
         galaxyStub.demand.getAt { 4 } // 4 stars
-        scan new Coords2d( row: 1, col: 1 ), "YELLOW"
+        scan new Coords2d( row: 1, col: 1 ), 'YELLOW'
       }
-      logger.info "testShortRangeScanYellowLowEnergy -- OK"
+      logger.info 'testShortRangeScanYellowLowEnergy -- OK'
     }
 
     void testShortRangeScanGoodYellow() {
-      logger.info "testShortRangeScanGoodYellow"
+      logger.info 'testShortRangeScanGoodYellow'
 
       // getGalaxyKeySet().each {
         ship.position = new Position().tap {
@@ -224,30 +228,30 @@ final class FederationShipTest extends GroovyTestCase {
           sector   = new Coords2d(row: 1, col: 1)
         }
         makeYellow()
-        scan ship.position.quadrant, "YELLOW"
+        scan ship.position.quadrant, 'YELLOW'
       // }
-      logger.info "testShortRangeScanGoodYellow -- OK"
+      logger.info 'testShortRangeScanGoodYellow -- OK'
     }
 
     void testShortRangeScanGoodRed() {
-      logger.info "testShortRangeScanGoodRed"
+      logger.info 'testShortRangeScanGoodRed'
 
       makeRed()
-      getGalaxyKeySet().each {
+      galaxyKeySet.each {
           // makeRed it
-        scan it, "RED"
+        scan it, 'RED'
       }
-      logger.info "testShortRangeScanGoodRed -- OK"
+      logger.info 'testShortRangeScanGoodRed -- OK'
     }
 
     void testDockingBad() {
       logger.info 'testDockingBad'
       ship.with {
         assert condition == 'GREEN'
-        def quadrant = new Quadrant() //galaxy
+        Quadrant quadrant = new Quadrant() //galaxy
 
-        (-1).upto(0) { i->
-          (-1).upto(0) { j->
+        (-1).upto(0) { i ->
+          (-1).upto(0) { j ->
             shouldFail {
               logger.debug "Testing $i - $j against empty quadrant."
               attemptDocking( quadrant, i, -j ) // fail, invalid coords
@@ -255,7 +259,7 @@ final class FederationShipTest extends GroovyTestCase {
           }
         }
         shouldFail {
-          logger.debug "Try to dock while in same sector as a star base."
+          logger.debug 'Try to dock while in same sector as a star base.'
           quadrant[4,4] = 3  /// @todo testDockingBad() hard-codes 3 for starbase
           attemptDocking( quadrant, 4, 4 ) // fail, in same sector as @ref StarBase
         }
@@ -267,7 +271,7 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info 'testDockingGood'
       ship.with {
         assert condition == 'GREEN'
-        def quadrant = new Quadrant()
+        Quadrant quadrant = new Quadrant()
 
         quadrant[4,4] = Thing.base
 
@@ -299,7 +303,7 @@ final class FederationShipTest extends GroovyTestCase {
 
       galaxyStub.use {
         ship.with {
-          shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
+          shouldFail( PowerAssertionError ) {
             move( sv ) // Fail: invalid course.
           }
           sv.course = 1
@@ -335,12 +339,12 @@ final class FederationShipTest extends GroovyTestCase {
       }
     }
 
-    private makeRed() { //( final ourPosition ) { /// @todo Move ourPosition() into a MockGalaxy class.
+    private void makeRed() { //( final ourPosition ) { /// @todo Move ourPosition() into a MockGalaxy class.
       // galaxy[ ourPosition ] = 900
       galaxyStub.demand.getAt(1..64) {900}
   }
 
-    private makeYellow() { /// @todo Move makeYellow() into a MockGalaxy class.
+    private void makeYellow() { /// @todo Move makeYellow() into a MockGalaxy class.
       // getGalaxyKeySet().each { pos ->
         // galaxy[ pos ] =
       galaxyStub.demand.with {
