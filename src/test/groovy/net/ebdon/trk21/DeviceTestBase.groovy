@@ -5,7 +5,7 @@ import static ShipDevice.*
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@ import static ShipDevice.*
  * limitations under the License.
  */
 
- abstract class DeviceTestBase extends GroovyTestCase {
-  def damage = [
+@groovy.transform.TypeChecked
+abstract class DeviceTestBase extends GroovyTestCase {
+  Map<Integer, ShipDevice> damage = [
     1:new ShipDevice('111'),
     2:new ShipDevice('222'),
     3:new ShipDevice('333'),

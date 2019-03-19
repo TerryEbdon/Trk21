@@ -1,12 +1,14 @@
 package net.ebdon.trk21;
 
-import static ShipDevice.*;
 import groovy.mock.interceptor.MockFor;
+import groovy.transform.TypeChecked;
+
+import static ShipDevice.*;
 /**
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,30 +28,35 @@ final class DamageControlTest extends DeviceTestBase {
   private DamageControl dc;
 
   @Override void setUp() {
+    super.setUp()
     damage[2].state = -3
     dc = new DamageControl( damage )
   }
 
+  @TypeChecked
   void testDamageControl() {
     dc.with {
-      def damaged = damage[ findDamagedDeviceKey() ]
+      final ShipDevice damaged = damage[ findDamagedDeviceKey() ]
       assert '222' == damaged.id
       assert -3 == damaged.state
       assert damaged.isDamaged()
     }
   }
 
+  @TypeChecked
   void testFindDamagedWithNoDamage() {
     damage[2].state = 0
     assert dc.findDamagedDeviceKey() == 0
   }
 
+  @TypeChecked
   void testRandomlyRepair() {
-    def oldState = damage[2].state
+    final int oldState = damage[2].state
     dc.randomlyRepair 2
     assert damage[2].state > oldState
   }
 
+  @TypeChecked
   void testDamageControlRepair() {
     final int oldState = damage[2].state
     dc.repair DamageControlRepairCallBackMock.&callBack
@@ -61,6 +68,12 @@ final class DamageControlTest extends DeviceTestBase {
   void testDamageControlReport() {
     if ( notYetImplemented() ) return
 
+    MockFor damageReporterMock = new MockFor( DamageReporter )
+    damageReporterMock.demand.report { formatter -> }
+
+    // damageReporterMock.use {
+    //   dc.report( rb, Closure closure, formatter )
+    // }
     // dc.report( rb, Closure closure, formatter )
     // MockFor drMock = new MockFor( DamageReporter )
     // drMock.demand.report { rb, Closure closure, formatter ->
@@ -75,7 +88,7 @@ final class DamageControlTest extends DeviceTestBase {
   class DamageControlRepairCallBackMock {
 
     static boolean called = false;
-    static String calledWith = ""
+    static String calledWith = ''
 
     static void callBack( msg ) {
       called = true

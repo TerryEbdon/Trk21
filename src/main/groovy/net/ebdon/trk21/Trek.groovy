@@ -411,15 +411,22 @@ final class Trek extends LoggingBase {
     }
   }
 
+  @TypeChecked
+  boolean tooFastForDamagedEngine( final ShipVector sv ) {
+    log.trace "tooFastForDamagedEngine called with $sv"
+    sv.warpFactor > 0.2 && damageControl.isDamaged( ShipDevice.DeviceType.engine )
+  }
+
   /// @todo Localise setCourse()
   @TypeChecked
   void setCourse() {
     ShipVector vector = getShipCourse()
-    if ( vector && vector.isValid() ) {
+    if ( vector && vector.valid ) {
       log.info "Got a good vector: $vector"
 
-      if ( vector.warpFactor > 0.2 && damage[1].isDamaged() ) {
-        msgBox( 'Warp engines are damaged.\nMaximum speed is .2' )
+      if ( tooFastForDamagedEngine( vector ) ) {
+        localMsg 'engine.damaged'
+        localMsg 'engine.damaged.max'
       } else {
         enemyAttacksBeforeShipCanMove()
         damageRepair() /// @todo Is damageRepair() called at the correct point?
@@ -505,7 +512,6 @@ final class Trek extends LoggingBase {
   /// Perform a @ref TrekLongRangeSensors "long-range sensor scan"
   // @groovy.transform.TypeChecked
   void longRangeScan() {
-    // if ( damage[3].isDamaged() ) { /// @todo replace with ~ damageControl.isDamaged( DeviceType.lrSensor )
     if ( damageControl.isDamaged( DeviceType.lrSensor ) ) {
       msgBox rb.getString( 'sensors.longRange.offline' )
     } else {

@@ -20,6 +20,7 @@ import static ShipDevice.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@groovy.util.logging.Log4j2
 final class DamageControl {
 
   Map<Integer, ShipDevice> devices;
@@ -43,6 +44,7 @@ final class DamageControl {
   ///@ todo: Localise repair() messages.
   // @TypeChecked
   void repair( Closure msgBox ) {
+    log.trace 'repair()'
     assert devices
     1.upto( devices.size() ) { int deviceId ->
       if ( devices[deviceId].isDamaged() ) {
@@ -52,6 +54,7 @@ final class DamageControl {
           ", state improved to ${devices[deviceId].state}"
       }
     }
+    log.trace 'repair() -- OK'
   }
 
   @TypeChecked
@@ -63,12 +66,14 @@ final class DamageControl {
 
   @TypeChecked
   final boolean isDamaged( final int keyWanted ) {
+    log.trace "Checking for damage to DeviceType key: $keyWanted"
     assert devices.keySet().contains( keyWanted )
     devices[keyWanted].state
   }
 
   @TypeChecked
   final boolean isDamaged( DeviceType deviceTypeWanted ) {
+    log.trace "Checking for damage to DeviceType $deviceTypeWanted"
     devices.find { int key, ShipDevice shipDevice ->
       shipDevice.id == deviceTypeWanted.id
     }?.value.state

@@ -1,4 +1,6 @@
 package net.ebdon.trk21;
+
+import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
@@ -16,9 +18,10 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 final class ShipDevice {
 
+  @TypeChecked
   enum DeviceType {
     none('device.NONE'),
     engine('device.WARP.ENGINES'),
@@ -38,21 +41,25 @@ final class ShipDevice {
   String id = "";
   String name = "";
 
+  @TypeChecked
   ShipDevice() {
     state = 0;
     id = name = ""
   }
 
+  @TypeChecked
   ShipDevice( DeviceType dt ) {
     state = 0
     id = dt.id
   }
 
+  @TypeChecked
   ShipDevice( anId ) {
     id    = anId
     name  = id
   }
 
+  @TypeChecked
   boolean isDamaged() {
     state
   }
