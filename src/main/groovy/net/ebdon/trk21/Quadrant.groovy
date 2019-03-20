@@ -63,7 +63,7 @@ final class Quadrant extends GameSpace {
 
   /// @bug Infinite loop is possible.
   /// @todo add a time-out.
-  def getEmptySector() {
+  List<Integer> getEmptySector() {
     int r1
     int r2
     (r1,r2) = getRandomCoords()

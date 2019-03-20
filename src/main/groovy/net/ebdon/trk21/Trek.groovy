@@ -167,17 +167,17 @@ final class Trek extends LoggingBase {
     galaxy[entQuadX,entQuadY] += 100 * enemyFleet.numKlingonBatCrInQuad
   }
 
-  @groovy.transform.TypeChecked
+  @TypeChecked
   private int numEnemyShipsInQuad() {
     ( galaxy[entQuadX,entQuadY] / 100 ).toInteger()
   }
 
-  @groovy.transform.TypeChecked
+  @TypeChecked
   private int numBasesInQuad() {
     ( galaxy[entQuadX,entQuadY] / 10 - 10 * numEnemyShipsInQuad() ).toInteger()
   }
 
-  @groovy.transform.TypeChecked
+  @TypeChecked
   private int numStarsInQuad() {
     galaxy[entQuadX,entQuadY] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
   }
@@ -212,14 +212,18 @@ final class Trek extends LoggingBase {
     log.info '^'*16
   }
 
+  @TypeChecked
   void positionStars() {
-    log.info "Positioning ${numStarsInQuad()} stars."
-    for ( int star = 1; star <= numStarsInQuad(); ++star ) {
-      def starPos = quadrant.emptySector
+    final int numStars = numStarsInQuad()
+    assert numStars > 0
+    log.debug "Positioning $numStars stars."
+    for ( int star in 1..numStars ) {
+      final List<Integer> starPos = quadrant.emptySector
       log.trace "... star $star is at sector ${starPos}"
       quadrant[starPos[0],starPos[1]] = Thing.star
       log.trace "V*: ${quadrant[starPos[0],starPos[1]]}"
     }
+    log.trace "Positioned $numStars stars."
   }
 
   void positionBases() {
@@ -231,8 +235,9 @@ final class Trek extends LoggingBase {
     }
   }
 
-  int rand1to9() { // fnr%() -- Used a lot, as there are most 9 bases / Klingons / stars in each quadrant.
-     new java.util.Random().nextFloat() * 8 + 1
+  @TypeChecked
+  private int numberOfStarsToBirth() { // fnr%()
+    new Random().nextInt(8) + 1
   }
 
   void distributeKlingons() {
@@ -259,7 +264,7 @@ final class Trek extends LoggingBase {
 
         final int numBasesInQuad = new java.util.Random().nextFloat() > 0.9 ? 1 : 0 // b3%
         numStarBasesTotal += numBasesInQuad // 1210 B9%=B9%+B3%
-        starsInQuad = rand1to9()
+        starsInQuad = numberOfStarsToBirth()
         totalStars += starsInQuad
         galaxy[i,j] =
           enemyFleet.numKlingonBatCrInQuad * 100 +

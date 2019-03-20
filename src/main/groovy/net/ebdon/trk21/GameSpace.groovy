@@ -37,8 +37,8 @@ abstract class GameSpace {
     boardSize
   }
 
-  final def getRandomCoords() {
-    def rnd = new Random()
+  List<Integer> getRandomCoords() {
+    Random rnd = new Random()
     [
       rnd.nextInt(maxCoord) + 1,
       rnd.nextInt(maxCoord) + 1
