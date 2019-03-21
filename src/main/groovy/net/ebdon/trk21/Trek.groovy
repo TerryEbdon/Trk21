@@ -148,20 +148,28 @@ final class Trek extends LoggingBase {
     enemyFleet.numKlingonBatCrInQuad = 0
     quadrant.clear()
     positionShipInQuadrant()
-    positionGamePieces()
+    positionGamePieces( 0 )
   }
 
+  /// The ship has a arrived in a new quadrant, and already knows this.
+  /// Now it needs to be allocated a sector in it's new quadrant.
+  /// @todo A random sector is allocated. Should the sector instead be
+  /// based on the staring sector and course vector?
+  /// @todo Quadrant.randomCoords() should return a Coords2d, not a list. This
+  /// would remove the need for the spread operator, and allow the
+  /// positionShipInQuadrant() method to be type-checked.
   void positionShipInQuadrant() {
-    log.info "Position ship within quadrant ${ship.position.quadrant}"
-    assert ship.position.quadrant.isValid()
-    ship.position.sector = new Coords2d( *(quadrant.randomCoords) )
-    quadrant[ship.position.sector] = Thing.ship
-    log.debug "Ship positioned at sector ${ship.position.sector}"
-    assert quadrant.isValid()
+    log.info 'Position ship within quadrant {}', ship.position.quadrant
+    assert ship.position.quadrant.valid
+    final Coords2d shipSector = new Coords2d( *(quadrant.randomCoords) )
+    ship.position.sector = shipSector
+    quadrant[shipSector] = Thing.ship
+    log.debug 'Ship positioned at sector {}', shipSector
+    assert quadrant.valid
     quadrant.dump()
   }
 
-  @groovy.transform.TypeChecked
+  @TypeChecked
   private updateNumEnemyShipsInQuad() {
     galaxy[entQuadX,entQuadY] -= 100 * numEnemyShipsInQuad()
     galaxy[entQuadX,entQuadY] += 100 * enemyFleet.numKlingonBatCrInQuad
@@ -183,39 +191,43 @@ final class Trek extends LoggingBase {
   }
 
   @groovy.transform.TypeChecked
-  void positionGamePieces() {
-    log.info( logPositionPieces,
+  void positionGamePieces( Object dummy ) {
+    log.debug( logPositionPieces,
         galaxy.scan(ship.position.quadrant), ship.position.quadrant)
 
-    positionEnemy()
-    positionBases()
-    positionStars()
+    positionEnemy numEnemyShipsInQuad()
+    positionBases numBasesInQuad()
+    positionStars numStarsInQuad()
   }
 
-  void positionEnemy() {
+  @TypeChecked
+  void positionEnemy( final int numEnemyShips ) {
     log.info 'positionEnemy()'
-    assert quadrant.isValid()
-    enemyFleet.numKlingonBatCrInQuad = numEnemyShipsInQuad()
+    assert quadrant.valid
+    enemyFleet.numKlingonBatCrInQuad = numEnemyShips
     enemyFleet.resetQuadrant()
-    log.info "Positioning $enemyFleet.numKlingonBatCrInQuad Klingons in quadrant ${currentQuadrant()}."
-    for ( int klingonShipNo = 1; klingonShipNo <= enemyFleet.numKlingonBatCrInQuad; ++klingonShipNo ) {
-      def klingonPosition = quadrant.emptySector
+    log.info "Positioning $numEnemyShips Klingons in quadrant ${currentQuadrant()}."
+    for ( int klingonShipNo = 1; klingonShipNo <= numEnemyShips; ++klingonShipNo ) {
+      final List<Integer> klingonPosition = quadrant.emptySector
       quadrant[klingonPosition] = Thing.enemy
 
       enemyFleet.positionInSector klingonShipNo, klingonPosition
     }
 
-    log.info 'v'*16
-    log.info "quad with Klingons"
-    quadrant.displayOn( {log.info it} )
-    log.info "quad with Klingons"
-    log.info '^'*16
+    if ( log.debugEnabled ) {
+      log.debug 'v'*16
+      log.debug "quad with Klingons"
+      quadrant.displayOn( {log.debug it} )
+      log.debug "quad with Klingons"
+      log.debug '^'*16
+    }
   }
 
   @TypeChecked
-  void positionStars() {
-    final int numStars = numStarsInQuad()
+  void positionStars( final int numStars ) {
+    // final int numStars = numStarsInQuad()
     assert numStars > 0
+    assert quadrant.valid
     log.debug "Positioning $numStars stars."
     for ( int star in 1..numStars ) {
       final List<Integer> starPos = quadrant.emptySector
@@ -226,13 +238,16 @@ final class Trek extends LoggingBase {
     log.trace "Positioned $numStars stars."
   }
 
-  void positionBases() {
-    log.info "Positioning ${numBasesInQuad()} bases."
-    for ( int base = 1; base <= numBasesInQuad(); ++base ) {
-      def basePos = quadrant.emptySector
+  @TypeChecked
+  void positionBases( final int numBases ) {
+    assert quadrant.valid
+    log.info "Positioning $numBases bases."
+    for ( int base = 1; base <= numBases; ++base ) {
+      final List<Integer> basePos = quadrant.emptySector
       log.trace "... base $base is at sector ${basePos}"
       quadrant[basePos] = Thing.base
     }
+    log.info "Positioned $numBases bases."
   }
 
   @TypeChecked
