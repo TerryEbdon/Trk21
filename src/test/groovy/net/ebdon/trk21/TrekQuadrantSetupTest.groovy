@@ -27,108 +27,56 @@ import groovy.mock.interceptor.MockFor;
 final class TrekQuadrantSetupTest extends GroovyTestCase {
 
   private Trek trek;
-  private final int numEnemy    = 1;
-  private final int numBases    = 2;
-  private final int numStars    = 3;
-  private final int lrScanValue = numEnemy * 100 + numBases * 10 + numStars;
-
-  private final int starRow        = 4;
+  private final int lrScanValue = 123;
   private final int currentQuadRow = 1;
   private final int currentQuadCol = 2;
 
   private MockFor ship;
   private MockFor galaxy;
-  private MockFor quadrant;
-  private MockFor enemyFleet;
 
   @Newify(MockFor)
   @Override void setUp() {
     super.setUp()
     ship       = MockFor( FederationShip )
     galaxy     = MockFor( Galaxy )
-    quadrant   = MockFor( Quadrant )
-    enemyFleet = MockFor( EnemyFleet )
   }
 
   @Newify([Coords2d,Position])
   private void shipSetup() {
-    ship.demand.getPosition(2) {
+    ship.demand.getPosition(7) {
       logger.debug 'Mocked ship.getPosition() called'
       Position( Coords2d(currentQuadRow,currentQuadCol), Coords2d(3,4) )
     }
   }
 
   private void galaxySetup() {
-    galaxy.demand.getAt(4) { int row, int col ->
-      logger.debug "Mock Galaxy.getAt called with [$row,$col]"
-      assert row == currentQuadRow && col == currentQuadCol
+    galaxy.demand.getAt(7) { Coords2d c2d ->
+      logger.debug "Mock Galaxy.getAt called with [$c2d.row,$c2d.col]"
+      assert c2d.row == currentQuadRow && c2d.col == currentQuadCol
       lrScanValue
     }
   }
 
-  private void quadrantSetup( int numThings, Quadrant.Thing thingTypeToDeploy ) {
-    quadrant.demand.getValid { true }
-    1.upto(numThings) { thingNo ->
-      quadrant.demand.getEmptySector {
-        logger.debug "Getting empty sector for star $thingNo"
-        [starRow, thingNo]
-      }
-      quadrant.demand.putAt { List<Integer> coords, Quadrant.Thing thing ->
-        logger.debug "putAt[$coords] called with star $thingNo"
-        assert coords == [starRow,thingNo]
-        assert thing == thingTypeToDeploy
-      }
-    }
-  }
+  void testPositionGamePieces() {
+    logger.debug 'testPositionGamePieces'
+    MockFor quadrantSetup = new MockFor( QuadrantSetup )
+    quadrantSetup.demand.positionEnemy { int numThings -> }
+    quadrantSetup.demand.positionBases { int numThings -> }
+    quadrantSetup.demand.positionStars { int numThings -> }
 
-  private void enemySetup() {
-    enemyFleet.with {
-      enemyFleet.demand.setNumKlingonBatCrInQuad { int newNumEnemy ->
-        assert newNumEnemy == numEnemy
-      }
-      enemyFleet.demand.resetQuadrant { }
-      for ( int enemyNum in 1..numEnemy ) {
-        demand.positionInSector { int enemyShipNo, List<Integer> enemyPos ->
-          assert enemyShipNo == enemyNum
+    shipSetup()
+    galaxySetup()
+
+    quadrantSetup.use {
+      trek = new Trek()
+      ship.use {
+        trek.ship = new FederationShip()
+        galaxy.use {
+          trek.galaxy = new Galaxy()
+          trek.positionGamePieces()
         }
       }
     }
-  }
-
-  private void runTest( Closure methodTotest, arg ) {
-    ship.use {
-      trek.ship = new FederationShip()
-      quadrant.use {
-        trek.quadrant = new Quadrant()
-        methodTotest arg
-      }
-    }
-  }
-
-  void testPositionStars() {
-    logger.info 'testPositionStars'
-    quadrantSetup numStars, Quadrant.Thing.star
-    trek = new Trek()
-    runTest trek.&positionStars, numStars
-    logger.info 'testPositionStars -- OK'
-  }
-
-  void testPositionBases() {
-    logger.debug 'testPositionBases'
-    quadrantSetup numBases, Quadrant.Thing.base
-    trek = new Trek()
-    runTest trek.&positionBases, numBases
-    logger.debug 'testPositionBases -- OK'
-  }
-
-  void testPositionEnemy() {
-    logger.debug 'testPositionEnemy'
-    quadrantSetup numEnemy, Quadrant.Thing.enemy
-    enemySetup()
-    enemyFleet.use {
-      trek = new Trek()
-      runTest trek.&positionEnemy, numEnemy
-    }
-    logger.debug 'testPositionEnemy -- OK'
+    logger.debug 'testPositionGamePieces -- OK'
   }
 }

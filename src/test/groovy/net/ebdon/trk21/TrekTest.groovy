@@ -106,7 +106,7 @@ final class TrekTest extends GroovyTestCase {
     trek.with {
       enemyFleet.numKlingonBatCrTotal   = 9
       enemyFleet.numKlingonBatCrRemain  = 9
-      galaxy[ *topLeftCoords ] = 999
+      galaxy[ *topLeftCoords ] = 919
 
       logger.info sprintf(
         msgPositionEnemy,
@@ -117,7 +117,7 @@ final class TrekTest extends GroovyTestCase {
       quadrant.dump()
 
       assert 1 == quadrant.count { logger.trace "s.Checking $it : ${it.value == Thing.ship }"; it.value == Thing.ship }
-      assert 9 == quadrant.count { logger.trace "b.Checking $it : ${it.value == Thing.base }"; it.value == Thing.base }
+      assert 1 == quadrant.count { logger.trace "b.Checking $it : ${it.value == Thing.base }"; it.value == Thing.base }
       assert 9 == quadrant.count { logger.trace "e.Checking $it : ${it.value == Thing.enemy}"; it.value == Thing.enemy }
       assert 9 == quadrant.count { logger.trace "*.Checking $it : ${it.value == Thing.star }"; it.value == Thing.star }
     }

@@ -177,77 +177,28 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   private int numEnemyShipsInQuad() {
-    ( galaxy[entQuadX,entQuadY] / 100 ).toInteger()
+    ( galaxy[ship.position.quadrant] / 100 ).toInteger()
   }
 
   @TypeChecked
   private int numBasesInQuad() {
-    ( galaxy[entQuadX,entQuadY] / 10 - 10 * numEnemyShipsInQuad() ).toInteger()
+    ( galaxy[ship.position.quadrant] / 10 - 10 * numEnemyShipsInQuad() ).toInteger()
   }
 
   @TypeChecked
   private int numStarsInQuad() {
-    galaxy[entQuadX,entQuadY] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
+    galaxy[ship.position.quadrant] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
   }
 
   @groovy.transform.TypeChecked
   void positionGamePieces( Object dummy ) {
-    log.debug( logPositionPieces,
+    log.trace( logPositionPieces,
         galaxy.scan(ship.position.quadrant), ship.position.quadrant)
 
-    positionEnemy numEnemyShipsInQuad()
-    positionBases numBasesInQuad()
-    positionStars numStarsInQuad()
-  }
-
-  @TypeChecked
-  void positionEnemy( final int numEnemyShips ) {
-    log.info 'positionEnemy()'
-    assert quadrant.valid
-    enemyFleet.numKlingonBatCrInQuad = numEnemyShips
-    enemyFleet.resetQuadrant()
-    log.info "Positioning $numEnemyShips Klingons in quadrant ${currentQuadrant()}."
-    for ( int klingonShipNo = 1; klingonShipNo <= numEnemyShips; ++klingonShipNo ) {
-      final List<Integer> klingonPosition = quadrant.emptySector
-      quadrant[klingonPosition] = Thing.enemy
-
-      enemyFleet.positionInSector klingonShipNo, klingonPosition
-    }
-
-    if ( log.debugEnabled ) {
-      log.debug 'v'*16
-      log.debug "quad with Klingons"
-      quadrant.displayOn( {log.debug it} )
-      log.debug "quad with Klingons"
-      log.debug '^'*16
-    }
-  }
-
-  @TypeChecked
-  void positionStars( final int numStars ) {
-    // final int numStars = numStarsInQuad()
-    assert numStars > 0
-    assert quadrant.valid
-    log.debug "Positioning $numStars stars."
-    for ( int star in 1..numStars ) {
-      final List<Integer> starPos = quadrant.emptySector
-      log.trace "... star $star is at sector ${starPos}"
-      quadrant[starPos[0],starPos[1]] = Thing.star
-      log.trace "V*: ${quadrant[starPos[0],starPos[1]]}"
-    }
-    log.trace "Positioned $numStars stars."
-  }
-
-  @TypeChecked
-  void positionBases( final int numBases ) {
-    assert quadrant.valid
-    log.info "Positioning $numBases bases."
-    for ( int base = 1; base <= numBases; ++base ) {
-      final List<Integer> basePos = quadrant.emptySector
-      log.trace "... base $base is at sector ${basePos}"
-      quadrant[basePos] = Thing.base
-    }
-    log.info "Positioned $numBases bases."
+    QuadrantSetup quadrantSetup = new QuadrantSetup( quadrant, enemyFleet )
+      quadrantSetup.positionEnemy numEnemyShipsInQuad()
+      quadrantSetup.positionBases numBasesInQuad()
+      quadrantSetup.positionStars numStarsInQuad()
   }
 
   @TypeChecked

@@ -29,6 +29,8 @@ final class Coords2d {
     row > 0 && col > 0
   }
 
+  @Deprecated
   final int first() { row } /// @todo work-around for GameSpace.distanceBetween()
+  @Deprecated
   final int last()  { col } /// @todo work-around for GameSpace.distanceBetween()
 }
