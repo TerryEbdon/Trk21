@@ -28,21 +28,32 @@ final class Galaxy extends GameSpace {
     board[key]
   }
 
+  @TypeChecked
   final int getAt( key ) {
     board.get key
   }
 
   final int getAt( final Coords2d keyCoords) {
     assert size()
-    assert keyCoords != null && board != null && keyCoords.isValid()
+    assert board != null && keyCoords?.valid
     final ArrayList key = [ keyCoords.first(), keyCoords.last() ]
     // println board.keySet()
     // println "Using key: $key"
     board.get key
   }
 
-  final def putAt( key, int value ) {
+  @TypeChecked
+  final List<Integer>putAt( Coords2d c2dKey, value ) {
+    final List<Integer> key = [c2dKey.row,c2dKey.col]
     board[key] = value
+    key
+  }
+
+  @TypeChecked
+  final List<Integer> putAt( List<Integer>key, int value ) {
+    assert key.size() == 2
+    board[key] = value
+    key
   }
 
   final void clearSquare( final row, final col ) {

@@ -43,14 +43,14 @@ final class TrekQuadrantSetupTest extends GroovyTestCase {
 
   @Newify([Coords2d,Position])
   private void shipSetup() {
-    ship.demand.getPosition(7) {
+    ship.demand.getPosition(1) {
       logger.debug 'Mocked ship.getPosition() called'
       Position( Coords2d(currentQuadRow,currentQuadCol), Coords2d(3,4) )
     }
   }
 
   private void galaxySetup() {
-    galaxy.demand.getAt(7) { Coords2d c2d ->
+    galaxy.demand.getAt(1) { Coords2d c2d ->
       logger.debug "Mock Galaxy.getAt called with [$c2d.row,$c2d.col]"
       assert c2d.row == currentQuadRow && c2d.col == currentQuadCol
       lrScanValue

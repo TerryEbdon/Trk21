@@ -95,7 +95,7 @@ final class Quadrant extends GameSpace {
     }
   }
 
-  def findEnemies() {
+  Map<List<Integer>,Thing> findEnemies() {
     board.findAll { it.value == Thing.enemy }
   }
 

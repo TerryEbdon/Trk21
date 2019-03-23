@@ -46,4 +46,18 @@ final class GalaxyTest extends GroovyTestCase {
       assert galaxy.scan( new Coords2d( 4,4 ) ) == "$scanValue".padLeft(3,'0')
     }
   }
+
+  void testGalaxyvalidafterUpdate() {
+    galaxy.with {
+      Coords2d coords = new Coords2d(1,1)
+      clear()
+      assert valid && galaxy[coords] == 0
+      galaxy[coords] = 321
+      assert valid && galaxy[coords] == 321
+      galaxy[coords] -= 100
+      assert valid && galaxy[coords] == 221
+      galaxy[coords] += 200
+      assert valid && galaxy[coords] == 421
+    }
+  }
 }

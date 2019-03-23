@@ -131,20 +131,20 @@ final class Trek extends LoggingBase {
     }
   }
 
-  @groovy.transform.TypeChecked
-  def setupGalaxy() {
+  @TypeChecked
+  void setupGalaxy() {
     setEntStartPosition()
     distributeKlingons()
     dumpGalaxy()
     setupQuadrant()
   }
 
-  def setEntStartPosition() {
+  void setEntStartPosition() {
     ship.position.quadrant = new Coords2d( *(galaxy.randomCoords) )
   }
 
-  @groovy.transform.TypeChecked
-  def setupQuadrant() {
+  @TypeChecked
+  void setupQuadrant() {
     enemyFleet.numKlingonBatCrInQuad = 0
     quadrant.clear()
     positionShipInQuadrant()
@@ -171,34 +171,23 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   private updateNumEnemyShipsInQuad() {
-    galaxy[entQuadX,entQuadY] -= 100 * numEnemyShipsInQuad()
-    galaxy[entQuadX,entQuadY] += 100 * enemyFleet.numKlingonBatCrInQuad
+    final Coords2d shipQuadrant = ship.position.quadrant
+    final QuadrantValue qv = new QuadrantValue( galaxy[shipQuadrant] )
+    galaxy[shipQuadrant] -= 100 * qv.enemy
+    galaxy[shipQuadrant] += 100 * enemyFleet.numKlingonBatCrInQuad
   }
 
   @TypeChecked
-  private int numEnemyShipsInQuad() {
-    ( galaxy[ship.position.quadrant] / 100 ).toInteger()
-  }
-
-  @TypeChecked
-  private int numBasesInQuad() {
-    ( galaxy[ship.position.quadrant] / 10 - 10 * numEnemyShipsInQuad() ).toInteger()
-  }
-
-  @TypeChecked
-  private int numStarsInQuad() {
-    galaxy[ship.position.quadrant] - numEnemyShipsInQuad() * 100 - numBasesInQuad() * 10
-  }
-
-  @groovy.transform.TypeChecked
+  @Newify(QuadrantValue)
   void positionGamePieces( Object dummy ) {
     log.trace( logPositionPieces,
         galaxy.scan(ship.position.quadrant), ship.position.quadrant)
 
+    final QuadrantValue qVal = QuadrantValue( galaxy[ship.position.quadrant] )
     QuadrantSetup quadrantSetup = new QuadrantSetup( quadrant, enemyFleet )
-      quadrantSetup.positionEnemy numEnemyShipsInQuad()
-      quadrantSetup.positionBases numBasesInQuad()
-      quadrantSetup.positionStars numStarsInQuad()
+    quadrantSetup.positionEnemy qVal.enemy
+    quadrantSetup.positionBases qVal.bases
+    quadrantSetup.positionStars qVal.stars
   }
 
   @TypeChecked
@@ -563,14 +552,7 @@ final class Trek extends LoggingBase {
 
   void updateQuadrantAfterSkirmish() {
     updateNumEnemyShipsInQuad()
-    def enemiesAtStart = quadrant.findEnemies()
-    log.info "Found ${enemiesAtStart ? enemiesAtStart.size() : 'no'} possibly dead enemies."
-    enemiesAtStart.each {
-      if ( !enemyFleet.isShipAt( it.key ) ) {
-        log.info "Removing vanquished ${it.value} from sector ${it.key}"
-        quadrant.removeEnemy( it.key )
-      }
-    }
+    new QuadrantSetup( quadrant, enemyFleet ).updateAfterSkirmish()
   }
 
   final void fireTorpedo() {
@@ -586,11 +568,16 @@ final class Trek extends LoggingBase {
     log.info "Fire torpedo completed - available: ${ship.numTorpedoes}"
   }
 
-  // @TypeChecked
+  final int uiIntegerInput( final String propertyKey ) {
+    ui.getFloatInput( rb.getString( propertyKey ) ).toInteger()
+  }
+
+  @TypeChecked
   final void firePhasers() {
     log.info "Fire phasers - available energy: ${ship.energyNow}"
 
-    final int energy = ui.getFloatInput( rb.getString( 'input.phaserEnergy' ) ).toInteger()
+    final int energy = uiIntegerInput( 'input.phaserEnergy' )
+
     if ( energy > 0 ) {
       if ( energy <= ship.energyNow ) {
         attackFleetWithPhasers energy
@@ -605,8 +592,8 @@ final class Trek extends LoggingBase {
     log.info "Fire phasers completed - available energy: ${ship.energyNow}"
   }
 
+  @TypeChecked
   void victoryDance() {
-
     Object[] msgArgs = [
       game.currentSolarYear,
       enemyFleet.numKlingonBatCrTotal,
@@ -617,10 +604,12 @@ final class Trek extends LoggingBase {
     msgBox formatter.format( msgArgs );
   }
 
+  @TypeChecked
   private int rating() {
-    enemyFleet.numKlingonBatCrTotal / game.elapsed() * 1000
+    (enemyFleet.numKlingonBatCrTotal / game.elapsed() * 1000).toInteger()
   }
 
+  @TypeChecked
   void shipDestroyed() {
     Object[] msgArgs = [
       game.currentSolarYear,
@@ -631,14 +620,17 @@ final class Trek extends LoggingBase {
     msgBox formatter.format( msgArgs );
   }
 
+  @TypeChecked
   boolean gameContinues() {
     !gameWon() && !gameLost()
   }
 
+  @TypeChecked
   boolean gameWon() {
     enemyFleet.defeated
   }
 
+  @TypeChecked
   boolean gameLost() {
     ship.deadInSpace() || game.outOfTime()
   }
