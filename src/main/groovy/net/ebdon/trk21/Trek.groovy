@@ -109,8 +109,8 @@ final class Trek extends LoggingBase {
     "Calendar   : $game\n" +
     "Ship       : $ship\n" +
     "EnemyFleet : $enemyFleet\n" +
-    "Quadrant   : [$entQuadX, $entQuadY]\n" +
-    "Sector     : [$entSectX, $entSectY]"
+    "Quadrant   : $ship.position.quadrant\n" +
+    "Sector     : $ship.position.sector"
   }
 
   Trek( theUi = null ) {
@@ -246,7 +246,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   String currentQuadrant() {
-    "${entQuadY} - ${entQuadX}"
+    "${ship.position.quadrant.col} - ${ship.position.quadrant.row}"
   }
 
   @TypeChecked
@@ -295,11 +295,6 @@ final class Trek extends LoggingBase {
       log.info msg
     }
   }
-
-  /// @deprecated Switch the code to use the UI version.
-  // Float getFloatInput( final String prompt ) {
-  //   ui.getFloatInput( prompt )
-  // }
 
   @TypeChecked
   void reportDamage() {
@@ -356,10 +351,6 @@ final class Trek extends LoggingBase {
       final String damagedDeviceId = damage[firstDamagedDeviceKey].id
 
       localMsg 'truce', [ "device.DAMAGE.$damagedDeviceId" ]
-
-      // Object[] msgArgs = [ "device.DAMAGE.$damagedDeviceId" ]
-      // formatter.applyPattern( rb.getString( 'truce' ) );
-      // msgBox formatter.format( msgArgs );
     }
   }
 
@@ -377,7 +368,6 @@ final class Trek extends LoggingBase {
     sv.warpFactor > 0.2F && damageControl.isDamaged( ShipDevice.DeviceType.engine )
   }
 
-  /// @todo Localise setCourse()
   @TypeChecked
   void setCourse() {
     ShipVector vector = getShipCourse()
@@ -410,7 +400,7 @@ final class Trek extends LoggingBase {
     } else {
       log.info "vector is not so good: $vector"
       if (vector.course * vector.warpFactor != 0 ) { // User didn't hit cancel
-        msgBox "That's not a valid course / warp factor. Command refused."
+        localMsg 'input.vector.bad'
       }
     }
   }
@@ -427,9 +417,9 @@ final class Trek extends LoggingBase {
     }
   }
 
-  /// @todo localise blockedAtSector( row, column )
   void blockedAtSector( row, column ) {
-    msgBox "Ship blocked by ${quadrant[row,column]} at sector ${logFmtCoords( row, column )}"
+    localMsg 'blockedAtSector',
+      [ quadrant[row,column], column, row ] as Object[]
   }
 
   String logFmtCoords( x, y ) {
@@ -473,18 +463,12 @@ final class Trek extends LoggingBase {
   // @groovy.transform.TypeChecked
   void longRangeScan() {
     if ( damageControl.isDamaged( DeviceType.lrSensor ) ) {
-      msgBox rb.getString( 'sensors.longRange.offline' )
+      localMsg 'sensors.longRange.offline'
     } else {
-      Object[] msgArgs = [ currentQuadrant() ]
-      formatter.applyPattern( rb.getString( 'sensors.longRange.scanQuadrant') );
-      msgBox formatter.format( msgArgs );
+      localMsg 'sensors.longRange.scanQuadrant',
+          [ship.position.quadrant.col, ship.position.quadrant.row] as Object[]
 
       ( entQuadX - 1 ).upto( entQuadX + 1 ) { int i ->    // q1% -1 to q1% + 1
-        // String lrStatusLine = ''
-        // ( entQuadY - 1 ).upto( entQuadY + 1 ) { int j ->  // q2% -1 to q2% + 1
-        //   lrStatusLine += ( '  ' + galaxy.scan( i, j ) )
-        // }
-        // msgBox lrStatusLine
         msgBox longRangeScanRow( i )
       }
     }
@@ -534,7 +518,8 @@ final class Trek extends LoggingBase {
       msgBox( '---------------', false )
       showCondition()
       msgBox( sprintf("%8s: %5d  %15s: %s", rb.getString('starDate'), game.currentSolarYear, rb.getString('condition'),ship.condition ) )
-      msgBox( sprintf('%8s: %5s  %15s: %d - %d', rb.getString('quadrant'),currentQuadrant(), rb.getString('sector'),entSectY, entSectX ) )
+      msgBox( sprintf('%8s: %5s  %15s: %d - %d', rb.getString('quadrant'),currentQuadrant(), rb.getString('sector'),
+          ship.position.sector.col, ship.position.sector.row ) )
       msgBox( sprintf('%8s: %5d  %15s: %2d', rb.getString('energy'),ship.energyNow, rb.getString('missiles'),ship.numTorpedoes ) )
       msgBox( sprintf('%8s: %5d', rb.getString('enemy'), enemyFleet.numKlingonBatCrRemain ) )
 
