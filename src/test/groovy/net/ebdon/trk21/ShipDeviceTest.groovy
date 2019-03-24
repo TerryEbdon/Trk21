@@ -22,9 +22,10 @@ import static ShipDevice.*;
 
 //@groovy.util.logging.Log4j2('logger')
 final class ShipDeviceTest extends GroovyTestCase {
-  ShipDevice sd;
+  private ShipDevice sd;
 
   @Override void setUp() {
+    super.setUp()
     sd = new ShipDevice()
     // sd.state=-99
   }
@@ -37,13 +38,13 @@ final class ShipDeviceTest extends GroovyTestCase {
   }
 
   void testShipDevice() {
-    assertEquals "$sd", 0, sd.state
-    assertEquals "$sd", "", sd.name
+    assert sd.state == 0
+    assert sd.name == ''
     assert sd.state == sd[1]
     assert sd.name == sd[0]
 
-    sd.name = "Neutron Blaster"
-    assert sd.name == "Neutron Blaster"
+    sd.name = 'Neutron Blaster'
+    assert sd.name == 'Neutron Blaster'
     assert sd.name == sd[0]
 
     --sd.state
