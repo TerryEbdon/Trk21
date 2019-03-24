@@ -23,7 +23,7 @@ import groovy.transform.TypeChecked;
 
 /// @todo Consider renaming this to DeviceStatusLotteryTest
 @groovy.util.logging.Log4j2('logger')
-final class SpaceStormTest extends TrekTestBase {
+final class DeviceStatusLotteryTest extends TrekTestBase {
 
   private MockFor damageControl;
 
