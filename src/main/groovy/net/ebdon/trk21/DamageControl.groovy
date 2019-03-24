@@ -31,7 +31,7 @@ final class DamageControl {
   }
 
   @Override final String toString() {
-    String str = ""
+    String str = ''
     devices.each { key, device ->
         str << "$key: $device\n"
     }
@@ -49,7 +49,7 @@ final class DamageControl {
     1.upto( devices.size() ) { int deviceId ->
       if ( devices[deviceId].isDamaged() ) {
         ++devices[deviceId].state
-        msgBox "Repair systems are working on damage to " +
+        msgBox 'Repair systems are working on damage to ' +
           devices[deviceId].name +
           ", state improved to ${devices[deviceId].state}"
       }
@@ -62,6 +62,26 @@ final class DamageControl {
     devices.find { int key, ShipDevice device ->
       device.isDamaged()
     }?.key ?: 0
+  }
+
+  @TypeChecked
+  String deviceId( final int key ) {
+    devices[key].id
+  }
+
+  @TypeChecked
+  String deviceState( final int key ) {
+    devices[key].state
+  }
+
+  @TypeChecked
+  String deviceName( final int key ) {
+    devices[key].name
+  }
+
+  @TypeChecked
+  int getRandomDeviceKey() {
+    new Random().nextInt( devices.size() ) + 1
   }
 
   @TypeChecked
@@ -79,23 +99,30 @@ final class DamageControl {
     }?.value.state
   }
 
-  void randomlyRepair( final key ) {
+  @TypeChecked
+  void randomlyRepair( final int key ) {
     assert key
     assert devices[key].isDamaged()
-    final def oldState = devices[key].state
-    devices[key].state += randomRepairAmount( key )
-        // inflict damage on device -- see line 1810
-    //devices[key].state = [0,devices[key].state].min()
+    final int oldState = devices[key].state
+    devices[key].state += randomRepairAmount( key ) // inflict damage; see line 1810
     assert devices[key].state <= 0
     assert devices[key].state >= oldState
   }
 
-  private def randomRepairAmount( final key ) {
-    def offset = new Random().nextInt(
+  @TypeChecked
+  private int randomRepairAmount( final int key ) {
+    final int offset = new Random().nextInt(
         devices[key].state.abs() ) + 1
     assert offset > 0
     assert offset <= devices[key].state.abs()
     offset
+  }
+
+  @TypeChecked
+  void inflictDamage( final int key, final int amount ) {
+    assert key > 0 && key < devices.size()
+    assert amount > 0
+    devices[key].state -= amount
   }
 
   void report( rb, Closure closure, formatter ) {

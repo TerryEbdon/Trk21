@@ -1,7 +1,6 @@
 package net.ebdon.trk21;
 
 import groovy.mock.interceptor.MockFor;
-import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
@@ -21,52 +20,74 @@ import groovy.transform.TypeChecked;
  * limitations under the License.
  */
 
-/// @todo Consider renaming this to DeviceStatusLotteryTest
 @groovy.util.logging.Log4j2('logger')
 final class DeviceStatusLotteryTest extends TrekTestBase {
 
   private MockFor damageControl;
 
-  @TypeChecked
-  @Override void setUp() {
-    super.setUp()
-    setupDamageControl()
-    // damageControl.use {
-      trek = new Trek( ui )
-    // }
-  }
-
-  private void setupDamageControl() {
-    damageControl = new MockFor( DamageControl )
-    // dcMock.demand...
-  }
-
-  @TypeChecked
   void testSpaceStorm() {
-    assert !devicesAreDamaged
-    trek.spaceStorm()
-    assert ui.msgLog.size() == 1
-    assert ui.msgLog.first().contains( '*** Space Storm, ' )
-    assert devicesAreDamaged
+    damageControl = new MockFor( DamageControl ).tap {
+      demand.getRandomDeviceKey { 1 }
+      demand.inflictDamage { int systemToDamage, int damageAmount ->
+        assert systemToDamage == 1
+        assert (1..6).contains( damageAmount )
+      }
+      demand.deviceName { key ->
+        assert key == 1
+        'Some.device.name'
+      }
+    }
+    damageControl.use {
+      DeviceStatusLottery lottery = new DeviceStatusLottery()
+      lottery.damageControl = new DamageControl()
+      lottery.localMsg = ui.&localMsg
+
+      lottery.spaceStorm()
+
+      assert ui.msgLog.empty
+      assert ui.localMsgLog.size() == 1
+      assert ui.localMsgLog.first() == 'deviceStatusLottery.spaceStorm'
+    }
   }
 
-  @TypeChecked
-  private boolean getDevicesAreDamaged() {
-    trek.damageControl.findDamagedDeviceKey()
-  }
-
-  @TypeChecked
   void testRandomDeviceRepairNoDamage() {
-    trek.randomDeviceRepair()
-    assert ui.msgLog.size() == 0
+    damageControl = new MockFor( DamageControl ).tap {
+      demand.findDamagedDeviceKey { 0 }
+    }
+    damageControl.use {
+      DeviceStatusLottery lottery = new DeviceStatusLottery()
+      lottery.damageControl = new DamageControl()
+      lottery.localMsg = ui.&localMsg
+
+      lottery.randomDeviceRepair()
+
+      assert ui.msgLog.size() == 0
+      assert ui.localMsgLog.size() == 0
+    }
   }
 
-  @TypeChecked
   void testRandomDeviceRepairWithDamage() {
-    trek.damageControl.devices[1].state = -1
-    trek.randomDeviceRepair()
-    assert trek.damageControl.devices[1].state == 0
-    assert ui.msgLog.size() >= 1
-    assert ui.msgLog.last().contains( 'state of repair improved' )
+    damageControl = new MockFor( DamageControl ).tap {
+      demand.findDamagedDeviceKey { 1 }
+      demand.randomlyRepair { int firstDamagedDeviceKey ->
+        assert firstDamagedDeviceKey == 1
+      }
+      demand.deviceId { int deviceKey ->
+        assert deviceKey == 1
+        'Some device ID'
+      }
+    }
+
+    damageControl.use {
+      DeviceStatusLottery lottery = new DeviceStatusLottery()
+      lottery.damageControl = new DamageControl()
+      lottery.localMsg = ui.&localMsg
+
+      lottery.randomDeviceRepair()
+
+      assert ui.msgLog.size() == 0
+      assert ui.localMsgLog.size() == 1
+      assert ui.localMsgLog.first() == 'truce'
+    }
   }
 }

@@ -25,12 +25,23 @@ abstract class TrekTestBase extends GroovyTestCase {
   class TestUi {
     List<Float>  inputValues = [];
     List<String> msgLog = [];
+    List<String> localMsgLog = [];
     String conditionText;
 
     void outln( String str ) {
       msgLog << str
     }
 
+    void localMsg( final String msgId ) {
+      localMsgLog << msgId
+    }
+
+    @SuppressWarnings('UnusedMethodParameter')
+    void localMsg( final String msgId, Object[] msgArgs ) {
+      localMsgLog << msgId
+    }
+
+    @SuppressWarnings('UnusedMethodParameter')
     float getFloatInput( final String prompt ) {
       inputValues.pop()
     }
