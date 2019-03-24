@@ -115,8 +115,8 @@ final class Trek extends LoggingBase {
 
   Trek( theUi = null ) {
     ui = theUi
-    formatter = new MessageFormat("");
-    formatter.setLocale( Locale.getDefault() );
+    formatter = new MessageFormat('');
+    formatter.setLocale( Locale.default );
 
     ClasspathResourceManager resourceManager = new ClasspathResourceManager()
     InputStream inStream = resourceManager.getInputStream('Language.properties')
@@ -126,7 +126,7 @@ final class Trek extends LoggingBase {
       repositioner = new Repositioner( this )
       damageControl = new DamageControl( damage )
     } else {
-        log.fatal "Can't load Language.poperties"
+        log.fatal 'Could not load Language.poperties'
         assert inStream
     }
   }
@@ -289,8 +289,8 @@ final class Trek extends LoggingBase {
     msgBox formatter.format( msgArgs )
   }
 
-  void msgBox( msg, boolean logIt = true ) {
-    ui.outln "$msg"
+  void msgBox( final String msg, boolean logIt = true ) {
+    ui.outln msg
     if ( logIt ) {
       log.info msg
     }
@@ -322,39 +322,6 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
-  void spaceStorm() {
-    final int systemToDamage      = new Random().nextInt( damage.size() ) + 1
-    final int damageAmount        = new Random().nextInt(5) + 1
-    damage[systemToDamage].state -= damageAmount
-    log.info "Space storm has damaged device No. $systemToDamage"
-    log.info "   damage of $damageAmount units"
-    log.info "   new status: ${damage[systemToDamage].state} units"
-    localMsg 'deviceStatusLottery.spaceStorm', [ damage[systemToDamage].name ]
-  }
-
-  @TypeChecked
-  void deviceStatusLottery() {
-    assert damage
-    log.debug 'deviceStatusLottery()'
-    if ( new Random().nextFloat() <= 0.5 ) { // 1760
-      spaceStorm()
-    } else { // 1790 - Not a space storm
-      randomDeviceRepair()
-    }
-  }
-
-  @TypeChecked
-  void randomDeviceRepair() {
-    final int firstDamagedDeviceKey = damageControl.findDamagedDeviceKey()
-    if ( firstDamagedDeviceKey ) {
-      damageControl.randomlyRepair( firstDamagedDeviceKey )
-      final String damagedDeviceId = damage[firstDamagedDeviceKey].id
-
-      localMsg 'truce', [ "device.DAMAGE.$damagedDeviceId" ]
-    }
-  }
-
-  @TypeChecked
   void enemyAttacksBeforeShipCanMove() {
     if ( enemyFleet.canAttack() ) {
       log.info 'Klingons attack before the ship can move away.'
@@ -371,7 +338,7 @@ final class Trek extends LoggingBase {
   @TypeChecked
   void setCourse() {
     ShipVector vector = getShipCourse()
-    if ( vector && vector.valid ) {
+    if ( vector?.valid ) {
       log.info "Got a good vector: $vector"
 
       if ( tooFastForDamagedEngine( vector ) ) {
@@ -382,7 +349,7 @@ final class Trek extends LoggingBase {
         damageRepair() /// @todo Is damageRepair() called at the correct point?
 
         if ( new Random().nextFloat() <= 0.20 ) { // 1750
-          deviceStatusLottery()
+          DeviceStatusLottery.run( damageControl, this.&localMsg )
         }
         game.tick() // Line 1830
         final Coords2d oldQuadrant = ship.position.quadrant.clone()
@@ -585,8 +552,9 @@ final class Trek extends LoggingBase {
       game.elapsed(),
       rating()
     ]
-    formatter.applyPattern( rb.getString( 'trek.victoryDance' ) );
-    msgBox formatter.format( msgArgs );
+    // formatter.applyPattern( rb.getString( 'trek.victoryDance' ) );
+    // msgBox formatter.format( msgArgs );
+    localMsg 'trek.victoryDance', msgArgs
   }
 
   @TypeChecked
@@ -601,8 +569,9 @@ final class Trek extends LoggingBase {
       enemyFleet.numKlingonBatCrRemain,
       game.elapsed()
     ]
-    formatter.applyPattern( rb.getString( 'trek.funeral' ) );
-    msgBox formatter.format( msgArgs );
+    // formatter.applyPattern( rb.getString( 'trek.funeral' ) );
+    // msgBox formatter.format( msgArgs );
+    localMsg 'trek.funeral', msgArgs
   }
 
   @TypeChecked
