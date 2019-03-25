@@ -92,14 +92,6 @@ final class Trek extends LoggingBase {
     ship.position.sector.col = newPos
   }
 
-  Map<Integer,ShipDevice> damage = [
-    1: new ShipDevice('device.WARP.ENGINES'), 2: new ShipDevice('device.S.R..SENSORS'),
-    3: new ShipDevice('device.L.R..SENSORS'), 4: new ShipDevice('device.PHASER.CNTRL'),
-    5: new ShipDevice('device.PHOTON.TUBES'), 6: new ShipDevice('device.DAMAGE.CNTRL')
-  ]; ///< D%[] and D$[] in TREK.BAS.
-     ///< @todo Move damage[] into FederationShip.
-     ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
-
   @TypeChecked
   boolean isValid() {
     ship?.valid && game?.valid && enemyFleet?.valid
@@ -115,8 +107,8 @@ final class Trek extends LoggingBase {
 
   Trek( theUi = null ) {
     ui = theUi
-    formatter = new MessageFormat('');
-    formatter.setLocale( Locale.default );
+    formatter = new MessageFormat('')
+    formatter.locale = Locale.default
 
     ClasspathResourceManager resourceManager = new ClasspathResourceManager()
     InputStream inStream = resourceManager.getInputStream('Language.properties')
@@ -124,7 +116,7 @@ final class Trek extends LoggingBase {
     if ( inStream ) {
       rb = new PropertyResourceBundle( inStream )
       repositioner = new Repositioner( this )
-      damageControl = new DamageControl( damage )
+      damageControl = new DamageControl()
     } else {
         log.fatal 'Could not load Language.poperties'
         assert inStream
@@ -148,7 +140,7 @@ final class Trek extends LoggingBase {
     enemyFleet.numKlingonBatCrInQuad = 0
     quadrant.clear()
     positionShipInQuadrant()
-    positionGamePieces( 0 )
+    positionGamePieces()
   }
 
   /// The ship has a arrived in a new quadrant, and already knows this.
@@ -170,7 +162,7 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
-  private updateNumEnemyShipsInQuad() {
+  private void updateNumEnemyShipsInQuad() {
     final Coords2d shipQuadrant = ship.position.quadrant
     final QuadrantValue qv = new QuadrantValue( galaxy[shipQuadrant] )
     galaxy[shipQuadrant] -= 100 * qv.enemy
@@ -179,7 +171,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   @Newify(QuadrantValue)
-  void positionGamePieces( Object dummy ) {
+  void positionGamePieces() {
     log.trace( logPositionPieces,
         galaxy.scan(ship.position.quadrant), ship.position.quadrant)
 
@@ -200,12 +192,12 @@ final class Trek extends LoggingBase {
     int starsInQuad = 0
     // int numBasesInQuad = 0 //b3%
 
-    log.info "Distributing Klingon battle cruisers."
-    minCoord.upto(maxCoord) { i->
-      minCoord.upto(maxCoord) { j->
+    log.info 'Distributing Klingon battle cruisers.'
+    minCoord.upto(maxCoord) { i ->
+      minCoord.upto(maxCoord) { j ->
         enemyFleet.numKlingonBatCrInQuad = 0 // k3%
         // int b9 = 0 //b9%
-        def c1 = new java.util.Random().nextFloat()*64 //rnd * 64
+        final float c1 = new java.util.Random().nextFloat() * 64
 
         1.upto( enemyFleet.maxKlingonBCinQuad ) {
           if ( c1 < enemyFleet.softProbs[ it ] ) {
@@ -217,7 +209,7 @@ final class Trek extends LoggingBase {
           }
         }
 
-        final int numBasesInQuad = new java.util.Random().nextFloat() > 0.9 ? 1 : 0 // b3%
+        final int numBasesInQuad = new Random().nextFloat() > 0.9 ? 1 : 0 // b3%
         numStarBasesTotal += numBasesInQuad // 1210 B9%=B9%+B3%
         starsInQuad = numberOfStarsToBirth()
         totalStars += starsInQuad
@@ -251,8 +243,6 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void setupGame() {
-    assert damage
-
     // try {
     logException {
       ship = new FederationShip();
@@ -298,15 +288,11 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void reportDamage() {
-    damageControl.report( rb, this.&msgBox, formatter )
+    damageControl.report( rb.&getString, this.&localMsg )
   }
 
-  void damageRepair() {
-    log.info "Repairing damage"
-    damageControl.repair( this.&msgBox )
-  }
-
-  void attackReporter( damageAmount, message ) {
+  @TypeChecked
+  void attackReporter( final int damageAmount, final String message ) {
     log.info "Ship under attack, $damageAmount units of damage sustained."
     msgBox message
     //:E% -= damageAmount // Line 2410
@@ -346,7 +332,8 @@ final class Trek extends LoggingBase {
         localMsg 'engine.damaged.max'
       } else {
         enemyAttacksBeforeShipCanMove()
-        damageRepair() /// @todo Is damageRepair() called at the correct point?
+        damageControl.repair( this.&localMsg )
+        /// @todo Is repair() called at the correct point?
 
         if ( new Random().nextFloat() <= 0.20 ) { // 1750
           DeviceStatusLottery.run( damageControl, this.&localMsg )
@@ -384,14 +371,17 @@ final class Trek extends LoggingBase {
     }
   }
 
-  void blockedAtSector( row, column ) {
+  @TypeChecked
+  void blockedAtSector( final int row, final int column ) {
     localMsg 'blockedAtSector',
       [ quadrant[row,column], column, row ] as Object[]
   }
 
-  String logFmtCoords( x, y ) {
+  @TypeChecked
+  String logFmtCoords( final int x, final int y ) {
     "${[x,y]} == $y - $x"
   }
+  
   /// @todo Reverse the coordinates? i.e. i,j or j,i?
   /// @deprecated
   @TypeChecked

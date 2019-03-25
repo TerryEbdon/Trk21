@@ -1,4 +1,5 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -16,47 +17,49 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@groovy.util.logging.Log4j2
+@groovy.transform.TypeChecked
 class DamageReporter {
-  def devices;
-  def rb;
-  def msgBox;
+  Map<Integer, ShipDevice> devices;
+  Closure<String> rbString;
+  Closure localMsg;
 
-  DamageReporter( damage, bundle, Closure closure  ) {
-    devices = damage
-    rb = bundle
-    msgBox = closure
-  }
+  void report( Map<Integer, ShipDevice> damage, Closure<String> rbStrCl, Closure localMsgCl ) {
+    log.trace 'In DamageReporter.report() -- begin'
 
-  def report( formatter ) {
+    devices  = damage
+    rbString = rbStrCl
+    localMsg = localMsgCl
+
     if ( !devices[6].isDamaged() ) {
       header()
-      body formatter
-      } else {
-        offline()
-      }
+      body()
+    } else {
+      offline()
     }
+    log.trace 'DamageReporter.report() -- End'
+  }
 
   private void header() {
-    msgBox ''
-    msgBox rb.getString( 'damage.cntrl.report.h1' )
-    msgBox rb.getString( 'damage.cntrl.report.h2' )
-    msgBox rb.getString( 'damage.cntrl.report.h3' )
+    localMsg 'damage.control.report.h0'
+    localMsg 'damage.control.report.h1'
+    localMsg 'damage.control.report.h2'
+    localMsg 'damage.control.report.h3'
   }
 
   private void offline() {
-    msgBox rb.getString( 'damage.control.offline' ) // "Damage Control is damaged!"
+    localMsg 'damage.control.offline' // Damage Control is damaged!
   }
 
-  private void body( formatter ) {
+  private void body() {
     devices.values().each { device ->
       Object[] msgArgs = [
-        rb.getString( device.id ).padRight(15),
+        rbString( device.id ).padRight(15),
         sprintf( '%2d', device.state)
       ]
 
-      formatter.applyPattern( rb.getString( 'damage.cntrl.report.line' ) );
-      msgBox formatter.format( msgArgs );
+      localMsg 'damage.control.report.line', msgArgs
     }
-    msgBox ''
+    localMsg 'damage.control.report.footer'
   }
 }

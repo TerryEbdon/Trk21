@@ -23,76 +23,84 @@ import static ShipDevice.*;
  * limitations under the License.
  */
 
+@groovy.util.logging.Log4j2('logger')
 final class DamageControlTest extends DeviceTestBase {
 
   private DamageControl dc;
 
   @Override void setUp() {
     super.setUp()
-    damage[2].state = -3
-    dc = new DamageControl( damage )
+    dc = new DamageControl()
+    dc.devices[2].state = -3
   }
 
   @TypeChecked
   void testDamageControl() {
     dc.with {
-      final ShipDevice damaged = damage[ findDamagedDeviceKey() ]
-      assert '222' == damaged.id
-      assert -3 == damaged.state
-      assert damaged.isDamaged()
+      final ShipDevice damageDevice = dc.devices[ findDamagedDeviceKey() ]
+      assert damageDevice?.id   == 'device.S.R..SENSORS'
+      assert damageDevice.state == -3
+      assert damageDevice.isDamaged()
     }
   }
 
   @TypeChecked
   void testFindDamagedWithNoDamage() {
-    damage[2].state = 0
+    // damage[2].state = 0
+    dc.devices[2].state = 0
     assert dc.findDamagedDeviceKey() == 0
   }
 
   @TypeChecked
   void testRandomlyRepair() {
-    final int oldState = damage[2].state
+    // final int oldState = damage[2].state
+    final int oldState = dc.devices[2].state
+
     dc.randomlyRepair 2
-    assert damage[2].state > oldState
+
+    assert dc.devices[2].state > oldState
   }
 
   @TypeChecked
   void testDamageControlRepair() {
-    final int oldState = damage[2].state
-    dc.repair DamageControlRepairCallBackMock.&callBack
-    assert DamageControlRepairCallBackMock.called
-    assert DamageControlRepairCallBackMock.calledWith.size() > 0
-    assert damage[2].state > oldState
+    TestUi ui = new TestUi()
+    final int oldState = dc.devices[2].state
+
+    dc.repair ui.&localMsg
+
+    assert ui.msgLog.empty
+    assert ui.localMsgLog.size() == 1
+    assert ui.localMsgLog.first() == 'damage.control.repair'
+    assert dc.devices[2].state == oldState + 1
+    assert dc.devices[1].state == 0
   }
 
   void testDamageControlReport() {
-    if ( notYetImplemented() ) return
+    final String localisedDeviceName = 'neutron blaster'
+    TestUi ui = new TestUi()
 
     MockFor damageReporterMock = new MockFor( DamageReporter )
-    damageReporterMock.demand.report { formatter -> }
-
-    // damageReporterMock.use {
-    //   dc.report( rb, Closure closure, formatter )
-    // }
-    // dc.report( rb, Closure closure, formatter )
-    // MockFor drMock = new MockFor( DamageReporter )
-    // drMock.demand.report { rb, Closure closure, formatter ->
-    //
-    // }
-    // drMock.use {
-    //   dc.report( {true} )
-    // }
-    assert false
-  }
-
-  class DamageControlRepairCallBackMock {
-
-    static boolean called = false;
-    static String calledWith = ''
-
-    static void callBack( msg ) {
-      called = true
-      calledWith = msg
+    damageReporterMock.demand.with {
+      report { Map devices, Closure rbStringCl, Closure localMsgCl ->
+        logger.debug 'in mock report()'
+        assert devices.isEmpty() == false
+        final String msg = rbStringCl( 'wibble' )
+        assert msg == localisedDeviceName
+        localMsgCl msg
+        logger.debug 'About to exit from DamageReporter.report()'
+      }
     }
+
+    Closure localDeviceName = { String key ->
+      logger.debug 'localDeviceName closure called with key {}', key
+      localisedDeviceName
+    }
+
+    damageReporterMock.use {
+      dc.report( localDeviceName, ui.&localMsg )
+    }
+
+    assert ui.localMsgLog.size() == 1
+    assert ui.localMsgLog.first() == localisedDeviceName
   }
 }

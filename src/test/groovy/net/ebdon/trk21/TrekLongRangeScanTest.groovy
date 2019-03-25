@@ -63,9 +63,7 @@ final class TrekLongRangeScanTest extends TrekTestBase {
 
   private void resetShip( final int expectedPositionCalls ) {
     shipStub = new StubFor( FederationShip )
-    // int positionCalledTimes = 0
     shipStub.demand.getPosition( expectedPositionCalls ) {
-      // positionCalledTimes++
       Coords2d c2d = [row:1, col:1]
       new Position( c2d, c2d )
     }
@@ -91,9 +89,7 @@ final class TrekLongRangeScanTest extends TrekTestBase {
     resetShip 10  // Only needed if test fails & scans when it shouldn't.
     setupGalaxy()  // Only needed if test fails & scans when it shouldn't.
     trek.with {
-      damage[3].state = -9 // 9 units of damage
-      assert damageControl.devices[3].damaged
-
+      damageControl.inflictDamage( 3, 9 ) // 9 units of damage to LR sensor.
       assert damageControl.isDamaged( DeviceType.lrSensor )
       trek.longRangeScan()
     }

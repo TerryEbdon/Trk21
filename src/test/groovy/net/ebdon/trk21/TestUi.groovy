@@ -18,15 +18,29 @@ package net.ebdon.trk21;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@SuppressWarnings('AbstractClassWithoutAbstractMethod')
 @groovy.transform.TypeChecked
-abstract class TrekTestBase extends GroovyTestCase {
+@groovy.transform.ToString(includePackage=false)
+final class TestUi {
+  List<Float>  inputValues = [];
+  List<String> msgLog = [];
+  List<String> localMsgLog = [];
+  String conditionText;
 
-  Trek    trek;
-  TestUi  ui;
+  void outln( String str ) {
+    msgLog << str
+  }
 
-  @Override void setUp() {
-    super.setUp()
-    ui = new TestUi()
+  void localMsg( final String msgId ) {
+    localMsgLog << msgId
+  }
+
+  @SuppressWarnings('UnusedMethodParameter')
+  void localMsg( final String msgId, Object[] msgArgs ) {
+    localMsgLog << msgId
+  }
+
+  float getFloatInput( final String prompt ) {
+    assert prompt.length()
+    inputValues.pop()
   }
 }

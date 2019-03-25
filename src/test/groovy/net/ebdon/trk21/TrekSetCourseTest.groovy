@@ -35,7 +35,6 @@ final class TrekSetCourseTest extends TrekTestBase {
   }
 
   void testSetBadCourseWithDamagedEngines() {
-    logger.info '-----'
     logger.info 'testSetBadCourseWithDamagedEngines'
     ui.inputValues = [1,1]
 
@@ -54,6 +53,7 @@ final class TrekSetCourseTest extends TrekTestBase {
       }
     }
 
+    logger.info ui
     assert ui.inputValues.size() == 0
     assert ui.msgLog.size()   == 2
     assert ui.msgLog.first()  == 'Warp engines are damaged.'
@@ -71,11 +71,9 @@ final class TrekSetCourseTest extends TrekTestBase {
   }
 
   void testGoodCourseWithDamagedEngines() {
-    // if ( notYetImplemented() ) return
     logger.info '-----'
     logger.info 'testGoodCourseWithDamagedEngines'
     ui.inputValues = [1F, 0.2F]
-    trek.damage[1].state = -1
 
     MockFor shipMock = resetShip(1)
     shipMock.demand.move { ShipVector vector ->
@@ -83,19 +81,21 @@ final class TrekSetCourseTest extends TrekTestBase {
       assert vector.warpFactor == 0.2F
     }
 
-    // shipMock.demand.deadInSpace { false }
-
     MockFor fleetMock = new MockFor( EnemyFleet )
     fleetMock.demand.canAttack { false }
     fleetMock.demand.getDefeated { true }
 
     MockFor dcMock = new MockFor( DamageControl )
-    // dcMock.demand.isDamaged { DeviceType dt ->
-    //   assert dt == DeviceType.engine
-    //   logger.info "Called with correct DeviceType: $dt"
-    //   true
-    // }
-    dcMock.demand.repair { Closure closure -> }
+    dcMock.demand.isDamaged(0) { DeviceType dt -> // Note: 0 expected calls
+      assert dt == DeviceType.engine
+      logger.info "Called with correct DeviceType, but should NOT be called at all!"
+      assert false
+      true
+    }
+
+    dcMock.demand.repair {  Closure localMsg ->
+      localMsg 'damage.control.repair', ['hello','world'] as Object[]
+    }
 
     MockFor rnd = new MockFor( java.util.Random )
     rnd.demand.nextFloat { ->
@@ -118,8 +118,11 @@ final class TrekSetCourseTest extends TrekTestBase {
       }
     }
 
-    assert ui.inputValues.size() == 0
-    assert ui.msgLog.size() == 0
+    assert ui.inputValues.empty
+    assert ui.msgLog.size() == 1
+    assert ui.msgLog.first().contains( 'hello' )
+    assert ui.msgLog.first().contains( 'world' )
+
     logger.info 'testGoodCourseWithDamagedEngines -- OK'
   }
 }

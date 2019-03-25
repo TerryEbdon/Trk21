@@ -7,7 +7,7 @@ import static ShipDevice.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,11 +23,16 @@ import static ShipDevice.*;
 @groovy.util.logging.Log4j2
 final class DamageControl {
 
-  Map<Integer, ShipDevice> devices;
+  Map<Integer,ShipDevice> devices = [
+    1: new ShipDevice('device.WARP.ENGINES'), 2: new ShipDevice('device.S.R..SENSORS'),
+    3: new ShipDevice('device.L.R..SENSORS'), 4: new ShipDevice('device.PHASER.CNTRL'),
+    5: new ShipDevice('device.PHOTON.TUBES'), 6: new ShipDevice('device.DAMAGE.CNTRL')
+  ]; ///< D%[] and D$[] in TREK.BAS.
+     ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
 
-  DamageControl( damage ) {
+  DamageControl( damage = null ) {
     // assert damage
-    devices = damage
+    // devices = damage
   }
 
   @Override final String toString() {
@@ -41,17 +46,15 @@ final class DamageControl {
     devices.find { it.id == deviceType.id }
   }
 
-  ///@ todo: Localise repair() messages.
   // @TypeChecked
-  void repair( Closure msgBox ) {
+  void repair( Closure logMsg ) {
     log.trace 'repair()'
     assert devices
     1.upto( devices.size() ) { int deviceId ->
       if ( devices[deviceId].isDamaged() ) {
         ++devices[deviceId].state
-        msgBox 'Repair systems are working on damage to ' +
-          devices[deviceId].name +
-          ", state improved to ${devices[deviceId].state}"
+        logMsg 'damage.control.repair',
+          [ devices[deviceId].name, devices[deviceId].state ] as Object[]
       }
     }
     log.trace 'repair() -- OK'
@@ -125,7 +128,7 @@ final class DamageControl {
     devices[key].state -= amount
   }
 
-  void report( rb, Closure closure, formatter ) {
-    new DamageReporter( devices, rb, closure ).report( formatter )
+  void report( Closure rbGetString, Closure localMsg ) {
+    new DamageReporter().report( devices, rbGetString, localMsg )
   }
 }
