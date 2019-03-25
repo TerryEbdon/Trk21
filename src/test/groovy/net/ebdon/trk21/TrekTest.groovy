@@ -1,5 +1,6 @@
 package net.ebdon.trk21;
 
+import groovy.mock.interceptor.MockFor;
 import static Quadrant.*;
 /**
  * @file
@@ -23,7 +24,7 @@ import static Quadrant.*;
 @groovy.util.logging.Log4j2('logger')
 final class TrekTest extends GroovyTestCase {
 
-  final String msgPositionEnemy = "Position enemy ships in quadrant %s: %03d";
+  final String msgPositionEnemy = 'Position enemy ships in quadrant %s: %03d';
 
   Trek trek;
 
@@ -46,10 +47,10 @@ final class TrekTest extends GroovyTestCase {
 
       logger.info "Set $ship.position"
 
-      assert 1 == ship.position.quadrant.row
-      assert 2 == ship.position.quadrant.col
-      assert 3 == ship.position.sector.row
-      assert 4 == ship.position.sector.col
+      assert ship.position.quadrant.row == 1
+      assert ship.position.quadrant.col == 2
+      assert ship.position.sector.row   == 3
+      assert ship.position.sector.col   == 4
 
       entQuadX = 1
       entQuadY = 2
@@ -58,10 +59,10 @@ final class TrekTest extends GroovyTestCase {
 
       logger.info "Set $ship.position"
 
-      assert 1 == ship.position.quadrant.row
-      assert 2 == ship.position.quadrant.col
-      assert 3 == ship.position.sector.row
-      assert 4 == ship.position.sector.col
+      assert ship.position.quadrant.row == 1
+      assert ship.position.quadrant.col == 2
+      assert ship.position.sector.row   == 3
+      assert ship.position.sector.col   == 4
 
       entQuadX = entQuadY = entSectX = entSectY = 1
       assert ship.position.valid
@@ -80,9 +81,9 @@ final class TrekTest extends GroovyTestCase {
       assert ship.position.quadrant.col == 4
       positionShipInQuadrant()
 
-      logger.info "Expecting a ship in " + logFmtCoords( [entSectX,entSectY] )
+      logger.info 'Expecting a ship in ' + logFmtCoords( [entSectX,entSectY] )
       assert quadrant[entSectX,entSectY] == Thing.ship
-      assert 1 == quadrant.count { it.value == Thing.ship }
+      assert quadrant.count { it.value == Thing.ship } == 1
     }
     logger.info 'testPositionEnterpriseInQuadrantGood -- OK'
   }
@@ -100,31 +101,81 @@ final class TrekTest extends GroovyTestCase {
     logger.info 'testPositionEnterpriseInQuadrantBad -- OK'
   }
 
+  @SuppressWarnings('ExplicitCallToGetAtMethod')
+  @Newify([MockFor,Position,Coords2d])
   void testPositionGamePieces() {
     logger.info 'testPositionGamePieces...'
-    setupAt( *topLeftCoords, *topLeftCoords )
-    trek.with {
-      enemyFleet.numKlingonBatCrTotal   = 9
-      enemyFleet.numKlingonBatCrRemain  = 9
-      galaxy[ *topLeftCoords ] = 919
 
-      logger.info sprintf(
-        msgPositionEnemy,
-        logFmtCoords(entSectX,entSectY), galaxy[entQuadX,entQuadY]
-      )
-      positionGamePieces()
-      galaxy.dump()
-      quadrant.dump()
+    MockFor ship          = MockFor( FederationShip )
+    MockFor galaxy        = MockFor( Galaxy )
+    MockFor quadrantSetup = MockFor( QuadrantSetup )
 
-      assert 1 == quadrant.count { logger.trace "s.Checking $it : ${it.value == Thing.ship }"; it.value == Thing.ship }
-      assert 1 == quadrant.count { logger.trace "b.Checking $it : ${it.value == Thing.base }"; it.value == Thing.base }
-      assert 9 == quadrant.count { logger.trace "e.Checking $it : ${it.value == Thing.enemy}"; it.value == Thing.enemy }
-      assert 9 == quadrant.count { logger.trace "*.Checking $it : ${it.value == Thing.star }"; it.value == Thing.star }
+    ship.demand.getPosition { Position( Coords2d(1,2), Coords2d(3,4) ) }
+    galaxy.demand.getAt { Coords2d c2d ->
+      assert c2d == Coords2d(1,2)
+      919
     }
+
+    quadrantSetup.demand.with {
+      positionEnemy { int numEnemy -> assert numEnemy == 9 }
+      positionBases { int numBases -> assert numBases == 1 }
+      positionStars { int numStars -> assert numStars == 9 }
+    }
+
+    ship.use {
+      trek.ship = new FederationShip()
+      galaxy.use {
+        trek.galaxy = new Galaxy()
+        quadrantSetup.use {
+          trek.positionGamePieces()
+        }
+      }
+    }
+
     logger.info 'testPositionGamePieces -- OK'
   }
 
-  private void setupAt( qRow, qCol, sRow, sCol ) {
+  @SuppressWarnings('ExplicitCallToGetAtMethod')
+  @Newify([MockFor,Position,Coords2d])
+  void testUpdateQuadrantAfterSkirmish() {
+    MockFor ship          = MockFor( FederationShip )
+    MockFor galaxy        = MockFor( Galaxy )
+    MockFor quadrantSetup = MockFor( QuadrantSetup )
+    MockFor enemyFleet    = MockFor( EnemyFleet )
+
+    // Start of demand required for updateNumEnemyShipsInQuad
+    ship.demand.getPosition { Position( Coords2d(1,2), Coords2d(3,4) ) }
+    enemyFleet.demand.getNumKlingonBatCrInQuad { 3 }
+    galaxy.demand.with {
+      getAt { Coords2d c2d ->
+        assert c2d == Coords2d(1,2)
+        919
+      }
+
+      getAt { Coords2d c2d -> assert c2d == Coords2d(1,2); 919 } // enemy @ start
+      putAt { Coords2d c2d, int newVal -> assert newVal ==  19 } // remove them
+      getAt { Coords2d c2d -> assert c2d == Coords2d(1,2);  19 }
+      putAt { Coords2d c2d, int newVal -> assert newVal == 319 } // sync with fleet
+    }
+    // end of demand required for updateNumEnemyShipsInQuad
+
+    quadrantSetup.demand.updateAfterSkirmish { }
+
+    ship.use {
+      trek.ship = new FederationShip()
+      galaxy.use {
+        trek.galaxy = new Galaxy()
+        enemyFleet.use {
+          trek.enemyFleet = new EnemyFleet()
+          quadrantSetup.use {
+            trek.updateQuadrantAfterSkirmish()
+          }
+        }
+      }
+    }
+  }
+
+  private void setupAt( final int qRow, final int qCol, final int sRow, final int sCol ) {
     trek.with {
       entSectX = qRow
       entSectY = qCol
@@ -135,30 +186,5 @@ final class TrekTest extends GroovyTestCase {
       quadrant.clear()
       quadrant[entSectX,entSectY] = Thing.ship
     }
-  }
-
-  private void setupAtCentre() {
-    setupAt( 4, 4, 4, 4 )
-  }
-
-  /// @deprecated
-  private ShipVector shipWarpOne( dir ) {
-    trek.ship.energyUsedByLastMove = 8
-    new ShipVector().tap {
-      course      = dir
-      warpFactor  = 1
-      isValid()
-    }
-  }
-
-  void testRepositionTransitGalaxy() {
-    logger.info 'testRepositionTransitGalaxy...'
-    if ( notYetImplemented() ) return
-
-    [0,1].permutations().eachCombination { courseIncrements ->
-      logger.info "Transit with [row,col] offsets of $courseIncrements"
-      transit( *courseIncrements )
-    }
-    logger.info 'testRepositionTransitGalaxy -- OK'
   }
 }

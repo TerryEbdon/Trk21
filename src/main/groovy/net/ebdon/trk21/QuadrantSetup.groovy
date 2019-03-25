@@ -76,7 +76,7 @@ class QuadrantSetup {
     assert enemyFleet.valid
     Map<List<Integer>,Quadrant.Thing> enemiesAtStart = quadrant.findEnemies()
     log.debug "enemiesAtStart: $enemiesAtStart"
-    log.debug "Found {} possibly dead enemies.",
+    log.debug 'Found {} possibly dead enemies.',
       enemiesAtStart ? enemiesAtStart.size() : 'no'
 
     enemiesAtStart.each { List<Integer>sectorCoords, Quadrant.Thing thing ->
