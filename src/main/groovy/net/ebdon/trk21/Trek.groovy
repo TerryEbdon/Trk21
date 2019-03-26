@@ -32,8 +32,8 @@ import static ShipDevice.*;
 */
 @groovy.util.logging.Log4j2
 final class Trek extends LoggingBase {
-  def ui;
-  // UiBase ui;
+  // def ui;
+  UiBase ui;
   PropertyResourceBundle rb;
   MessageFormat formatter;
 
@@ -268,17 +268,6 @@ final class Trek extends LoggingBase {
     text
   }
 
-  @TypeChecked
-  void localMsg( final String msgId ) {
-    msgBox rb.getString( msgId )
-  }
-
-  @TypeChecked
-  void localMsg( final String msgId, Object[] msgArgs ) {
-    formatter.applyPattern( rb.getString( msgId ) )
-    msgBox formatter.format( msgArgs )
-  }
-
   void msgBox( final String msg, boolean logIt = true ) {
     ui.outln msg
     if ( logIt ) {
@@ -288,13 +277,13 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void reportDamage() {
-    damageControl.report( rb.&getString, this.&localMsg )
+    damageControl.report( rb.&getString, ui.&localMsg )
   }
 
   @TypeChecked
   void attackReporter( final int damageAmount, final String message ) {
     log.info "Ship under attack, $damageAmount units of damage sustained."
-    msgBox message
+    ui.outln message
     //:E% -= damageAmount // Line 2410
   }
 
@@ -303,7 +292,7 @@ final class Trek extends LoggingBase {
     if ( !ship.isProtectedByStarBase() ) {
       enemyFleet.attack( ship.position.sector, this.&attackReporter )
     } else {
-      localMsg 'starbase.shields'
+      ui.localMsg 'starbase.shields'
     }
   }
 
@@ -328,15 +317,15 @@ final class Trek extends LoggingBase {
       log.info "Got a good vector: $vector"
 
       if ( tooFastForDamagedEngine( vector ) ) {
-        localMsg 'engine.damaged'
-        localMsg 'engine.damaged.max'
+        ui.localMsg 'engine.damaged'
+        ui.localMsg 'engine.damaged.max'
       } else {
         enemyAttacksBeforeShipCanMove()
-        damageControl.repair( this.&localMsg )
+        damageControl.repair( ui.&localMsg )
         /// @todo Is repair() called at the correct point?
 
         if ( new Random().nextFloat() <= 0.20 ) { // 1750
-          DeviceStatusLottery.run( damageControl, this.&localMsg )
+          DeviceStatusLottery.run( damageControl, ui.&localMsg )
         }
         game.tick() // Line 1830
         final Coords2d oldQuadrant = ship.position.quadrant.clone()
@@ -354,7 +343,7 @@ final class Trek extends LoggingBase {
     } else {
       log.info "vector is not so good: $vector"
       if (vector.course * vector.warpFactor != 0 ) { // User didn't hit cancel
-        localMsg 'input.vector.bad'
+        ui.localMsg 'input.vector.bad'
       }
     }
   }
@@ -373,7 +362,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void blockedAtSector( final int row, final int column ) {
-    localMsg 'blockedAtSector',
+    ui.localMsg 'blockedAtSector',
       [ quadrant[row,column], column, row ] as Object[]
   }
 
@@ -381,7 +370,7 @@ final class Trek extends LoggingBase {
   String logFmtCoords( final int x, final int y ) {
     "${[x,y]} == $y - $x"
   }
-  
+
   /// @todo Reverse the coordinates? i.e. i,j or j,i?
   /// @deprecated
   @TypeChecked
@@ -452,10 +441,10 @@ final class Trek extends LoggingBase {
       // GOSUB 2370 UNLESS A%
       // 1570 IF D%(2%) THEN &"SHORT RANGE SENSORS ARE INOPERABLE":GOTO1650
 
-      msgBox( '---------------', false )
-      quadrant.displayOn( {msgBox it} )
+      ui.outln '---------------'
+      quadrant.displayOn ui.&outln
 
-      msgBox( '---------------', false )
+      ui.outln '---------------'
       showCondition()
       msgBox( sprintf("%8s: %5d  %15s: %s", rb.getString('starDate'), game.currentSolarYear, rb.getString('condition'),ship.condition ) )
       msgBox( sprintf('%8s: %5s  %15s: %d - %d', rb.getString('quadrant'),currentQuadrant(), rb.getString('sector'),
@@ -471,7 +460,7 @@ final class Trek extends LoggingBase {
   private void attackFleetWithPhasers( final int energy ) {
     new Battle(
       enemyFleet, ship, damageControl,
-      this.&msgBox, this.&attackReporter, rb
+      ui.&outln, this.&attackReporter, rb
     ).phaserAttackFleet( energy )
   }
 
@@ -487,7 +476,7 @@ final class Trek extends LoggingBase {
     if ( course ) {
       new Battle(
         enemyFleet, ship, damageControl,
-        this.&msgBox, this.&attackReporter, rb
+        ui.&outln, this.&attackReporter, rb
       ).fireTorpedo( course )
     }
     log.info "Fire torpedo completed - available: ${ship.numTorpedoes}"
@@ -509,7 +498,7 @@ final class Trek extends LoggingBase {
         updateQuadrantAfterSkirmish()
       } else {
         log.info 'Phaser command refused; user tried to fire too many units.'
-        localMsg 'phaser.refused.badEnergy'
+        ui.localMsg 'phaser.refused.badEnergy'
       }
     } else {
       log.info 'Command cancelled by user.'
@@ -525,9 +514,8 @@ final class Trek extends LoggingBase {
       game.elapsed(),
       rating()
     ]
-    // formatter.applyPattern( rb.getString( 'trek.victoryDance' ) );
-    // msgBox formatter.format( msgArgs );
-    localMsg 'trek.victoryDance', msgArgs
+
+    ui.localMsg 'trek.victoryDance', msgArgs
   }
 
   @TypeChecked
@@ -542,9 +530,7 @@ final class Trek extends LoggingBase {
       enemyFleet.numKlingonBatCrRemain,
       game.elapsed()
     ]
-    // formatter.applyPattern( rb.getString( 'trek.funeral' ) );
-    // msgBox formatter.format( msgArgs );
-    localMsg 'trek.funeral', msgArgs
+    ui.localMsg 'trek.funeral', msgArgs
   }
 
   @TypeChecked

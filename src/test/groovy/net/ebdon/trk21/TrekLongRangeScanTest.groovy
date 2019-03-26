@@ -55,8 +55,8 @@ final class TrekLongRangeScanTest extends TrekTestBase {
     scanGoodGalaxy()
     logger.debug ui
 
-    assert ui.msgLog.size() == 4
-    assert ui.msgLog.first().contains( 'Long range sensor scan for quadrant 1 - 1\n' )
+    assert ui.localMsgLog == ['sensors.longRange.scanQuadrant']
+    assert ui.msgLog == ['  000  000  000', '  000  111  121', '  000  211  221']
 
     logger.info 'testLongRangeScan -- OK'
   }
@@ -94,8 +94,8 @@ final class TrekLongRangeScanTest extends TrekTestBase {
       trek.longRangeScan()
     }
     logger.debug ui
-    assert ui.msgLog.size() == 1
-    assert ui.msgLog.contains( 'Long range sensors are inoperable.' )
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['sensors.longRange.offline']
 
     logger.info 'testScanDamaged -- OK'
   }

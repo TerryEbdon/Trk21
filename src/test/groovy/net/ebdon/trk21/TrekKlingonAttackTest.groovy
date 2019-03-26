@@ -48,7 +48,7 @@ final class TrekKlingonAttackTest extends TrekTestBase {
       trek.klingonAttack()
     }
 
-    assert ui.msgLog.size() == 1
-    assert ui.msgLog.first() == 'Star Base shields protect the Enterprise.'
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['starbase.shields']
   }
 }

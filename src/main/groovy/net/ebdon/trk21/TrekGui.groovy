@@ -95,7 +95,7 @@ final class TrekGui extends UiBase {
   }
 
   @Override void run() {
-    // assert damage
+    trek = new Trek( this );
     trek.setupGame()
 
     log.info "Message font: ${config.gui.font.message}"

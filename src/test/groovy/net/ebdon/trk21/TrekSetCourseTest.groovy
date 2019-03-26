@@ -31,6 +31,7 @@ final class TrekSetCourseTest extends TrekTestBase {
   @TypeChecked
   @Override void setUp() {
     super.setUp()
+    assert ui?.msgLog.empty
     trek = new Trek( ui )
   }
 
@@ -55,9 +56,8 @@ final class TrekSetCourseTest extends TrekTestBase {
 
     logger.info ui
     assert ui.inputValues.size() == 0
-    assert ui.msgLog.size()   == 2
-    assert ui.msgLog.first()  == 'Warp engines are damaged.'
-    assert ui.msgLog.last()   == 'Maximum speed is .2'
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['engine.damaged', 'engine.damaged.max']
     logger.info 'testSetBadCourseWithDamagedEngines -- OK'
   }
 
@@ -119,9 +119,8 @@ final class TrekSetCourseTest extends TrekTestBase {
     }
 
     assert ui.inputValues.empty
-    assert ui.msgLog.size() == 1
-    assert ui.msgLog.first().contains( 'hello' )
-    assert ui.msgLog.first().contains( 'world' )
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['damage.control.repair']
 
     logger.info 'testGoodCourseWithDamagedEngines -- OK'
   }

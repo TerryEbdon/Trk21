@@ -26,6 +26,7 @@ class TrekCli extends UiBase {
   }
 
   @Override void run() {
+    trek = new Trek( this );
     trek.setupGame()
     trek.startGame()
     gameLoop()

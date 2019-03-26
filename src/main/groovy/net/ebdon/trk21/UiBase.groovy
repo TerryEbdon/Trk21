@@ -17,8 +17,8 @@ package net.ebdon.trk21;
  * limitations under the License.
  */
 
- abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for config.
-  Trek  trek        = new Trek( this );
+abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for config.
+  Trek  trek;
 
   abstract void run();
   abstract void outln( final String str );
@@ -36,5 +36,16 @@ package net.ebdon.trk21;
 
   final String pleaseEnterNumber() {
     getPrompt( 'input.err.enterNumber' )
+  }
+
+  @groovy.transform.TypeChecked
+  void localMsg( final String msgId ) {
+    outln getPrompt( msgId )
+  }
+
+  @groovy.transform.TypeChecked
+  void localMsg( final String msgId, Object[] msgArgs ) {
+    trek.formatter.applyPattern( getPrompt( msgId ) )
+    outln trek.formatter.format( msgArgs )
   }
 }

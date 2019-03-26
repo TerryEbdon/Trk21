@@ -20,7 +20,7 @@ package net.ebdon.trk21;
  */
 @groovy.transform.TypeChecked
 @groovy.transform.ToString(includePackage=false)
-final class TestUi {
+final class TestUi extends UiBase {
   List<Float>  inputValues = [];
   List<String> msgLog = [];
   List<String> localMsgLog = [];
@@ -39,8 +39,11 @@ final class TestUi {
     localMsgLog << msgId
   }
 
-  float getFloatInput( final String prompt ) {
+  Float getFloatInput( final String prompt ) {
     assert prompt.length()
     inputValues.pop()
   }
+
+  @Override
+  void run() { }
 }
