@@ -50,14 +50,6 @@ final class EnemyFleet {
       13.28 ]; ///< r[0..9] in TREK.BAS
 
     boolean isValid() {
-      // numKlingonBatCrTotal >= 0 &&
-      // numKlingonBatCrRemain >= 0 &&
-      // numKlingonBatCrInQuad >= 0 &&
-      // numKlingonBatCrInQuad <= numKlingonBatCrRemain &&
-      // numKlingonBatCrRemain <= numKlingonBatCrTotal &&
-      // numKlingonBatCrTotal <= maxPossibleKlingonShips &&
-      // scrapHeap.size() <= maxKlingonBCinQuad
-
       numKlingonBatCrInQuad in 0..numKlingonBatCrRemain   &&
       numKlingonBatCrRemain in 0..numKlingonBatCrTotal    &&
       numKlingonBatCrTotal  in 0..maxPossibleKlingonShips &&
