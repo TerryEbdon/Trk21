@@ -1,11 +1,12 @@
 package net.ebdon.trk21;
 
+import groovy.transform.TypeChecked;
 import static net.ebdon.trk21.GameSpace.*;
 /**
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,9 +35,9 @@ final class EnemyFleet {
     **/
     static final int maxKlingonEnergy = 200;
 
-    def klingons    = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
-    def scrapHeap   = []
-    final softProbs = [
+    int[][] klingons        = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
+    List<Integer> scrapHeap = []
+    final float[] softProbs = [
       0,
       0.0001,
       0.01,
@@ -49,12 +50,17 @@ final class EnemyFleet {
       13.28 ]; ///< r[0..9] in TREK.BAS
 
     boolean isValid() {
-      numKlingonBatCrTotal >= 0 &&
-      numKlingonBatCrRemain >= 0 &&
-      numKlingonBatCrInQuad >= 0 &&
-      numKlingonBatCrInQuad <= numKlingonBatCrRemain &&
-      numKlingonBatCrRemain <= numKlingonBatCrTotal &&
-      numKlingonBatCrTotal <= maxPossibleKlingonShips &&
+      // numKlingonBatCrTotal >= 0 &&
+      // numKlingonBatCrRemain >= 0 &&
+      // numKlingonBatCrInQuad >= 0 &&
+      // numKlingonBatCrInQuad <= numKlingonBatCrRemain &&
+      // numKlingonBatCrRemain <= numKlingonBatCrTotal &&
+      // numKlingonBatCrTotal <= maxPossibleKlingonShips &&
+      // scrapHeap.size() <= maxKlingonBCinQuad
+
+      numKlingonBatCrInQuad in 0..numKlingonBatCrRemain   &&
+      numKlingonBatCrRemain in 0..numKlingonBatCrTotal    &&
+      numKlingonBatCrTotal  in 0..maxPossibleKlingonShips &&
       scrapHeap.size() <= maxKlingonBCinQuad
     }
 
@@ -64,17 +70,17 @@ final class EnemyFleet {
     }
 
     void setNumKlingonBatCrRemain( final int newNumKbcRemain ) {
-      assert newNumKbcRemain >= 0 && newNumKbcRemain <= numKlingonBatCrTotal
+      assert newNumKbcRemain in 0..numKlingonBatCrTotal
       numKlingonBatCrRemain = newNumKbcRemain
     }
 
-    void setNumKlingonBatCrTotal( newNumKbcTotal ) {
-      assert newNumKbcTotal >= 0 && newNumKbcTotal <= maxPossibleKlingonShips
+    void setNumKlingonBatCrTotal( final int newNumKbcTotal ) {
+      assert newNumKbcTotal in 0..maxPossibleKlingonShips
       numKlingonBatCrTotal = newNumKbcTotal
     }
 
     void setNumKlingonBatCrInQuad( final int newNumKbcIq ) {
-      assert newNumKbcIq >= 0 && newNumKbcIq <=9
+      assert newNumKbcIq in 0..9
       assert newNumKbcIq <= numKlingonBatCrRemain
 
       log.trace( "numKlingonBatCrInQuad changed from $numKlingonBatCrInQuad to $newNumKbcIq" )
@@ -86,7 +92,7 @@ final class EnemyFleet {
     }
 
     void resetQuadrant() { ///> Forget all Klingon ship data for the quadrant.
-      log.trace "Removing all battle cruisers & scrap from quadrant."
+      log.trace 'Removing all battle cruisers & scrap from quadrant.'
       1.upto( maxKlingonBCinQuad ) { shipNum ->
         if ( shipExists( shipNum ) ) {
           launchIntoStar shipNum
@@ -95,14 +101,15 @@ final class EnemyFleet {
       scrapHeap.clear()
     }
 
-    boolean isShipAt( key ) {
+    // @TypeChecked
+    boolean isShipAt( List<Integer> key ) {
       klingons.find {
         key.first() == it[1] && key.last() == it[2]
       }
     }
 
-    void positionInSector( final klingonShipNo, final klingonPosition ) {
-      assert klingonShipNo >= 0 && klingonShipNo <= numKlingonBatCrInQuad
+    void positionInSector( final int klingonShipNo, final List<Integer>klingonPosition ) {
+      assert klingonShipNo in 0..numKlingonBatCrInQuad
       assert sectorIsInsideQuadrant( klingonPosition )
 
       /// @pre Target sector must be empty
@@ -119,6 +126,7 @@ final class EnemyFleet {
       klingons[klingonShipNo][3] = maxKlingonEnergy
     }
 
+    @TypeChecked
     String toString() {
       "Enemy Bat C total, $numKlingonBatCrTotal, " +
       "remain: $numKlingonBatCrRemain, " +
@@ -126,6 +134,7 @@ final class EnemyFleet {
       "Bat Cru: ${klingons[1..maxKlingonBCinQuad]}"
     }
 
+    @TypeChecked
     boolean canAttack() {
       numKlingonBatCrInQuad > 0
     }
@@ -146,21 +155,21 @@ final class EnemyFleet {
     }
 
     /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
+    @TypeChecked
     static float energyHittingTarget(
         final float energyReleased,
         final float distanceToTarget ) {
 
-      assert energyReleased > 0 && energyReleased <= maxKlingonEnergy
-      assert distanceToTarget > 0 &&
-             distanceToTarget <= maxSectorDistance
+      assert energyReleased   > 0 && energyReleased   <= maxKlingonEnergy
+      assert distanceToTarget > 0 && distanceToTarget <= maxSectorDistance
 
       /// @todo: Same bug as was in PhaserControl - it's possible to
       /// hit the target with more energy than was fired at it.
-      def rnd = new Random().nextFloat()
+      float rnd = new Random().nextFloat()
       ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1
     }
 
-    void attack( final Coords2d targetSectorCoords, reportAttack ) {
+    void attack( final Coords2d targetSectorCoords, Closure reportAttack ) {
       assert sectorIsInsideQuadrant( targetSectorCoords)
       assert canAttack()
       assert reportAttack != null
@@ -178,7 +187,7 @@ final class EnemyFleet {
 
           reportAttack(
             hitWithEnergy,
-            "Hit from Klingon at sector " +
+            'Hit from Klingon at sector ' +
               GameSpace.logFmtCoords( *(klingons[shipNo][1..2]) ) // Line 2410
           )
         } else {
@@ -187,7 +196,8 @@ final class EnemyFleet {
       }
     }
 
-    def hitOnShip( final int shipNum, final int hitAmount ) {
+    @TypeChecked
+    void hitOnShip( final int shipNum, final int hitAmount ) {
       log.info 'Fleet ship {} hit by {} units of Federation phasers',
         shipNum, hitAmount
 
@@ -199,13 +209,15 @@ final class EnemyFleet {
       }
     }
 
-    void scrapShip( final shipNum ) {
+    @TypeChecked
+    void scrapShip( final int shipNum ) {
       scrapHeap << shipNum
       log.info "Ship $shipNum destroyed."
       log.info "There are ${scrapHeap.size()} scrapped ships in this quadrant."
       assert scrapHeap.size() <= maxKlingonBCinQuad
     }
 
+    @TypeChecked
     void regroup() {
       log.info "${scrapHeap.size()} dead ships will be launched into a star."
       while ( scrapHeap.size() ) {
@@ -213,23 +225,26 @@ final class EnemyFleet {
       }
     }
 
-    private void launchIntoStar(final shipNum) {
+    @TypeChecked
+    private void launchIntoStar(final int shipNum) {
       log.debug "Launching ship $shipNum into a star."
-      // 1.upto(3) {
         klingons[shipNum] = [shipNum,0,0,0]
-      // }
     }
-    private void removeShip(final shipNum) {
+
+    @TypeChecked
+    private void removeShip(final int shipNum) {
       launchIntoStar shipNum
       --numKlingonBatCrInQuad
       --numKlingonBatCrRemain
     }
 
+    @TypeChecked
     int energy( final int shipNum ) {
-      assert shipNum >=1 && shipNum <= 9
+      assert shipNum in 1..9
       klingons[ shipNum ][3]
     }
 
+    @TypeChecked
     boolean shipExists(final int shipNum) {
       klingons[ shipNum ][3] > 0
     }

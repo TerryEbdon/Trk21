@@ -62,7 +62,7 @@ final class Galaxy extends GameSpace {
 
   @TypeChecked
   String scan( final Coords2d c2d ) {
-    scan c2d.first(), c2d.last()
+    scan c2d.row, c2d.col
   }
 
   @TypeChecked
