@@ -417,27 +417,10 @@ final class Trek extends LoggingBase {
   }
 
   /// Perform a @ref TrekLongRangeSensors "long-range sensor scan"
-  // @groovy.transform.TypeChecked
+  @TypeChecked
   void longRangeScan() {
-    if ( damageControl.isDamaged( DeviceType.lrSensor ) ) {
-      localMsg 'sensors.longRange.offline'
-    } else {
-      localMsg 'sensors.longRange.scanQuadrant',
-          [ship.position.quadrant.col, ship.position.quadrant.row] as Object[]
-
-      ( entQuadX - 1 ).upto( entQuadX + 1 ) { int i ->    // q1% -1 to q1% + 1
-        msgBox longRangeScanRow( i )
-      }
-    }
-  }
-
-  // @groovy.transform.TypeChecked
-  private String longRangeScanRow( final int row ) {
-    String rowStatus = ''
-    ( entQuadY - 1 ).upto( entQuadY + 1 ) { int col ->  // q2% -1 to q2% + 1
-      rowStatus += ( '  ' + galaxy.scan( row, col ) )
-    }
-    rowStatus
+    new LongRangeScan( ui, damageControl, galaxy ).
+        scanAround( ship.position.quadrant)
   }
 
   void showCondition() {
