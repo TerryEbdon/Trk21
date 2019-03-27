@@ -50,7 +50,7 @@ final class TrekCalendar { // line 1110
     /// @return The elapsed mission time in \ref SolarYears.
     int elapsed() {
         final int rv = currentSolarYear - gameStartSolarYear
-        assert rv <= missionLifeInSolarYears
+        assert rv in 0..missionLifeInSolarYears
         rv
     }
 

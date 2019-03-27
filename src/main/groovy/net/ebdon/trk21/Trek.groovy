@@ -512,29 +512,22 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void victoryDance() {
-    Object[] msgArgs = [
-      game.currentSolarYear,
+    uiFmtMsg 'trek.victoryDance', [ game.currentSolarYear,
       enemyFleet.numKlingonBatCrTotal,
       game.elapsed(),
-      rating()
-    ]
-
-    ui.localMsg 'trek.victoryDance', msgArgs
+      rating() ]
   }
 
   @TypeChecked
   private int rating() {
+    assert game.elapsed() > 0
     (enemyFleet.numKlingonBatCrTotal / game.elapsed() * 1000).toInteger()
   }
 
   @TypeChecked
   void shipDestroyed() {
-    Object[] msgArgs = [
-      game.currentSolarYear,
-      enemyFleet.numKlingonBatCrRemain,
-      game.elapsed()
-    ]
-    ui.localMsg 'trek.funeral', msgArgs
+    uiFmtMsg 'trek.funeral', [ game.currentSolarYear,
+      game.elapsed(), enemyFleet.numKlingonBatCrRemain ]
   }
 
   @TypeChecked
