@@ -441,19 +441,23 @@ final class Trek extends LoggingBase {
       // GOSUB 2370 UNLESS A%
       // 1570 IF D%(2%) THEN &"SHORT RANGE SENSORS ARE INOPERABLE":GOTO1650
 
-      ui.outln '---------------'
+      ui.localMsg 'sensors.shortRange.header'
       quadrant.displayOn ui.&outln
+      ui.localMsg 'sensors.shortRange.divider'
 
-      ui.outln '---------------'
       showCondition()
-      msgBox( sprintf("%8s: %5d  %15s: %s", rb.getString('starDate'), game.currentSolarYear, rb.getString('condition'),ship.condition ) )
-      msgBox( sprintf('%8s: %5s  %15s: %d - %d', rb.getString('quadrant'),currentQuadrant(), rb.getString('sector'),
-          ship.position.sector.col, ship.position.sector.row ) )
-      msgBox( sprintf('%8s: %5d  %15s: %2d', rb.getString('energy'),ship.energyNow, rb.getString('missiles'),ship.numTorpedoes ) )
-      msgBox( sprintf('%8s: %5d', rb.getString('enemy'), enemyFleet.numKlingonBatCrRemain ) )
-
+      ship.position.sector.with {
+        uiFmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
+        uiFmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
+        uiFmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
+        uiFmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
+      }
       log.info game.toString()
     }
+  }
+
+  private void uiFmtMsg( final String format, final List args ) {
+    msgBox String.format(rb.getString(format), *args )
   }
 
   @TypeChecked
