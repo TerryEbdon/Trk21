@@ -26,6 +26,12 @@ final class TestUi extends UiBase {
   List<String> localMsgLog = [];
   String conditionText;
 
+  boolean isEmpty() {
+    inputValues.empty &&
+    msgLog.empty      &&
+    localMsgLog.empty
+  }
+
   void outln( String str ) {
     msgLog << str
   }
