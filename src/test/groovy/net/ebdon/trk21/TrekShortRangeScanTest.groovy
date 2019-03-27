@@ -24,58 +24,78 @@ import groovy.transform.TypeChecked;
 @groovy.util.logging.Log4j2('logger')
 final class TrekShortRangeScanTest extends TrekTestBase {
 
-  private MockFor shipMock; /// @todo Duplicated in TrekLongRangeScanTest
+  private MockFor shipMock;
+  private MockFor game;
+  private MockFor enemyFleet;
 
-  @TypeChecked
+  private final String dummyCondition = 'flummoxed'
+
+  private final int dummyEnergy    = 12345
+  private final int torpedoCount   = 99
+  private final int dummyFleetSize = 88
+  private final int dummySolarYear = 98765
+
+  private final Coords2d dummyCoords = [row:1, col:2]
+  private final Position dummyPosition = new Position( dummyCoords, dummyCoords )
+
+  // @TypeChecked
   @Override void setUp() {
     super.setUp()
-    trek = new Trek( ui )
+    game = new MockFor( TrekCalendar )
+    game.demand.getCurrentSolarYear { dummySolarYear }
+    enemyFleet = new MockFor( EnemyFleet )
+    enemyFleet.demand.getNumKlingonBatCrRemain { dummyFleetSize }
   }
 
-  /// @todo Duplicated in TrekLongRangeScanTest
-  private void resetShip( final int expectedPositionCalls ) {
+  private void resetShip() {
     shipMock = new MockFor( FederationShip )
 
     shipMock.demand.with {
-      shortRangeScan { galaxy -> }
-      attemptDocking { quadrant -> }
-      getCondition(4) { 'flummoxed' }
-
-      getPosition( expectedPositionCalls ) {
-        Coords2d c2d = [row:1, col:1]
-        new Position( c2d, c2d )
-      }
-      getEnergyNow { 12345 }
-      getNumTorpedoes { 99 }
+      shortRangeScan  { galaxy -> }
+      attemptDocking  { quadrant -> }
+      getCondition(3) { dummyCondition }
+      getPosition(1)  { dummyPosition }
+      getCondition(1) { dummyCondition }
+      getPosition(2)  { dummyPosition }
+      getEnergyNow    { dummyEnergy }
+      getNumTorpedoes { torpedoCount }
     }
   }
 
   @TypeChecked
+  @SuppressWarnings('JUnitTestMethodWithoutAssert')
   void testShortRangeScan() {
-    resetShip 4
-    trek.quadrant.clear()
-    shipMock.use {
-      trek.ship = new FederationShip()
-      trek.shortRangeScan()
+    resetShip()
+
+    enemyFleet.use {
+      game.use {
+        trek = new Trek( ui )
+        trek.quadrant.clear()
+
+        shipMock.use {
+          trek.ship = new FederationShip()
+          trek.shortRangeScan()
+        }
+      }
     }
     checkScanOutput()
   }
 
   @TypeChecked
   private void checkScanOutput() {
-    final String dividerLine = '---------------'
-
     ui.with {
-      assert msgLog.size() == 14
-      assert msgLog.first().contains( dividerLine )
-      assert msgLog[9].contains( dividerLine )
-      assert msgLog[10].contains( 'STARDATE' )
-      assert msgLog[10].contains( 'CONDITION: flummoxed' )
-      assert msgLog[11].contains( 'QUADRANT:' )
-      assert msgLog[11].contains( 'SECTOR: 1 - 1' )
-      assert msgLog[12].contains( 'ENERGY: 12345' )
-      assert msgLog[12].contains( 'PHOTON TORPEDOS: 99' )
-      assert msgLog[13].contains( 'KLINGONS:     0' )
+      assert localMsgLog == ['sensors.shortRange.header', 'sensors.shortRange.divider']
+      assert msgLog.size() == 12
+      8.times {
+        assert msgLog[ it ] == '. . . . . . . . '
+      }
+      assert msgLog[8].contains( "STARDATE: $dummySolarYear" )
+      assert msgLog[8].contains( "CONDITION: $dummyCondition" )
+      assert msgLog[9].contains( 'QUADRANT:' )
+      assert msgLog[9].contains( "SECTOR: $dummyCoords.col - $dummyCoords.row" )
+      assert msgLog[10].contains( "ENERGY: $dummyEnergy" )
+      assert msgLog[10].contains( "PHOTON TORPEDOES: $torpedoCount" )
+      assert msgLog[11].contains( "KLINGONS:    $dummyFleetSize" )
     }
   }
 }
