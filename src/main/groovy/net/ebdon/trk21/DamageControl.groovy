@@ -30,11 +30,6 @@ final class DamageControl {
   ]; ///< D%[] and D$[] in TREK.BAS.
      ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
 
-  DamageControl( damage = null ) {
-    // assert damage
-    // devices = damage
-  }
-
   @Override final String toString() {
     String str = ''
     devices.each { key, device ->
