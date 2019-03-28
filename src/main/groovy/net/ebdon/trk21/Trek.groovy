@@ -324,7 +324,7 @@ final class Trek extends LoggingBase {
         ui.localMsg 'engine.damaged.max'
       } else {
         enemyAttacksBeforeShipCanMove()
-        damageControl.repair( ui.&localMsg )
+        damageControl.repair( ui.&fmtMsg )
         /// @todo Is repair() called at the correct point?
 
         if ( new Random().nextFloat() <= 0.20 ) { // 1750

@@ -41,15 +41,15 @@ final class DamageControl {
     devices.find { it.id == deviceType.id }
   }
 
-  // @TypeChecked
-  void repair( Closure logMsg ) {
+  @TypeChecked
+  void repair( Closure fmtMsg ) {
     log.trace 'repair()'
     assert devices
-    1.upto( devices.size() ) { int deviceId ->
+    for ( int deviceId in 1..devices.size() ) {
       if ( devices[deviceId].isDamaged() ) {
         ++devices[deviceId].state
-        logMsg 'damage.control.repair',
-          [ devices[deviceId].name, devices[deviceId].state ] as Object[]
+        fmtMsg 'damage.control.repair',
+          [ devices[deviceId].name, devices[deviceId].state ]
       }
     }
     log.trace 'repair() -- OK'

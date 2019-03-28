@@ -93,8 +93,8 @@ final class TrekSetCourseTest extends TrekTestBase {
       true
     }
 
-    dcMock.demand.repair {  Closure localMsg ->
-      localMsg 'damage.control.repair', ['hello','world'] as Object[]
+    dcMock.demand.repair {  Closure fmtMsg ->
+      fmtMsg 'damage.control.repair', ['hello','world']
     }
 
     MockFor rnd = new MockFor( java.util.Random )

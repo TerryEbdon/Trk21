@@ -27,6 +27,8 @@ import static ShipDevice.DeviceType;
 final class TrekLongRangeScanTest extends TrekTestBase {
 
   private StubFor shipStub;
+  private Coords2d c2d = [row:1, col:1]
+  private Position shipPos = [c2d, c2d]
 
   @TypeChecked
   @Override void setUp() {
@@ -56,6 +58,7 @@ final class TrekLongRangeScanTest extends TrekTestBase {
     logger.debug ui
 
     assert ui.localMsgLog == ['sensors.longRange.scanQuadrant']
+    assert ui.argsLog == [ [c2d.row, c2d.col] ]
     assert ui.msgLog == ['  000  000  000', '  000  111  121', '  000  211  221']
 
     logger.info 'testLongRangeScan -- OK'
@@ -63,10 +66,7 @@ final class TrekLongRangeScanTest extends TrekTestBase {
 
   private void resetShip( final int expectedPositionCalls ) {
     shipStub = new StubFor( FederationShip )
-    shipStub.demand.getPosition( expectedPositionCalls ) {
-      Coords2d c2d = [row:1, col:1]
-      new Position( c2d, c2d )
-    }
+    shipStub.demand.getPosition( expectedPositionCalls ) { shipPos }
 
     shipStub.use {
       trek.ship = new FederationShip()

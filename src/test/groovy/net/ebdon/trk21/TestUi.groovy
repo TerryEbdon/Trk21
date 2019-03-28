@@ -24,6 +24,7 @@ final class TestUi extends UiBase {
   List<Float>  inputValues = [];
   List<String> msgLog = [];
   List<String> localMsgLog = [];
+  List argsLog = [];
   String conditionText;
 
   boolean isEmpty() {
@@ -38,11 +39,13 @@ final class TestUi extends UiBase {
 
   void localMsg( final String msgId ) {
     localMsgLog << msgId
+    argsLog << []
   }
 
   @Override void fmtMsg( final String formatId, final List args ) {
     assert args
-    localMsg formatId
+    localMsgLog << formatId
+    argsLog << args
   }
 
   @SuppressWarnings('UnusedMethodParameter')
