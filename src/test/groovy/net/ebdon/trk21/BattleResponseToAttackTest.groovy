@@ -32,14 +32,13 @@ class BattleResponseToAttackTest extends GroovyTestCase {
   private MockFor fleetMock;
   private StubFor dcStub;
   private MockFor shipMock;
-  private final  Map<Integer, ShipDevice> devices = [:]
   private List<String> attackReporterMessages;
 
   @Override void setUp() {
     super.setUp()
     attackReporterMessages = [];
     dcStub = new StubFor( DamageControl )
-    dcStub.use { dc = new DamageControl( devices ) }
+    dcStub.use { dc = new DamageControl() }
 
     shipMock = new MockFor( FederationShip )
     shipMock.use { ship = new FederationShip() }
