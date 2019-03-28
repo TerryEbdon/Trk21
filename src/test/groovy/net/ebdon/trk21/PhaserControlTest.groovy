@@ -25,7 +25,7 @@ import groovy.mock.interceptor.StubFor;
 
 @groovy.util.logging.Log4j2('logger')
 /// todo Lots of `1` and `8` instances are hard-coded in this class.
-final class PhaserControlTest extends DeviceTestBase {
+final class PhaserControlTest extends GroovyTestCase {
 
   private PhaserControl pc;
   private DamageControl dc;
@@ -40,7 +40,7 @@ final class PhaserControlTest extends DeviceTestBase {
 
   @Override void setUp() {
     logger.info "setUp()"
-    dc = new DamageControl( damage )
+    dc = new DamageControl()
     shipStub = new StubFor( FederationShip )
     shipStub.demand.deadInSpace {true}
     shipStub.use {

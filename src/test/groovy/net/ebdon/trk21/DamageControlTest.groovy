@@ -24,7 +24,7 @@ import static ShipDevice.*;
  */
 
 @groovy.util.logging.Log4j2('logger')
-final class DamageControlTest extends DeviceTestBase {
+final class DamageControlTest extends GroovyTestCase {
 
   private DamageControl dc;
 

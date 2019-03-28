@@ -32,12 +32,11 @@ class BattleTest extends GroovyTestCase {
   private StubFor fleetStub;
   private StubFor dcStub;
   private StubFor shipStub;
-  private final Map<Integer, ShipDevice> devices = [:]
 
   @Override void setUp() {
     super.setUp()
     dcStub = new StubFor( DamageControl )
-    dcStub.use { dc = new DamageControl( devices ) }
+    dcStub.use { dc = new DamageControl() }
 
     shipStub = new StubFor( FederationShip )
     shipStub.use { ship = new FederationShip() }
