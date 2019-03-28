@@ -1,6 +1,5 @@
 package net.ebdon.trk21;
 
-// import static Quadrant.*;
 import groovy.mock.interceptor.MockFor;
 /**
  * @file
@@ -21,32 +20,83 @@ import groovy.mock.interceptor.MockFor;
  * limitations under the License.
  */
 
-@groovy.util.logging.Log4j2('logger')
 @Newify(MockFor)
+@SuppressWarnings('JUnitTestMethodWithoutAssert')
+@SuppressWarnings('Println')
 final class CliTest extends GroovyTestCase {
 
-  void testNavComp() {
-    MockFor trekMock          = MockFor( Trek )
-    MockFor scannerMock       = MockFor( Scanner )
+  private MockFor trekMock;
+  private MockFor scannerMock;
 
-    trekMock.demand.asBoolean       { true } /// @todo refactor Repositioner & Trek to avoid this.
-    trekMock.demand.setupGame       { }
-    trekMock.demand.startGame       { }
-    trekMock.demand.navComp         { }
-    trekMock.demand.gameWon         { false }
-    trekMock.demand.gameLost        { false }
-    trekMock.demand.gameContinues   { true }
-
+  @Override void setUp() {
+    super.setUp()
+    trekMock    = MockFor( Trek )
+    scannerMock = MockFor( Scanner )
     scannerMock.demand.useDelimiter { String dlm -> assert dlm == '\n'; scannerMock }
-    scannerMock.demand.next         { 'n' }
-    scannerMock.demand.next         { 'q' }
+    trekPreTestDemands()
+  }
+
+  private void trekPreTestDemands() {
+    trekMock.demand.with {
+      asBoolean       { true } /// @todo refactor Repositioner & Trek to avoid this.
+      setupGame       { }
+      startGame       { }
+    }
+  }
+
+  private void trekPostTestDemands() {
+    trekMock.demand.with {
+      gameWon         { false }
+      gameLost        { false }
+      gameContinues   { true  }
+    }
+  }
+
+  private void runTestWith( final String commands ) {
+    trekPostTestDemands()
+    commands.toList().each { String nextCommand ->
+      scannerMock.demand.next { nextCommand }
+    }
 
     scannerMock.use {
       trekMock.use {
-        scannerMock.use {
-          new TrekCli().run()
-        }
+        new TrekCli().run()
       }
     }
+  }
+
+  void testShortRangeScan() {
+    trekMock.demand.shortRangeScan  { println 's\nshortRangeScan() called.' }
+    runTestWith 'sq'
+  }
+
+  void testLongRangeScan() {
+    trekMock.demand.longRangeScan   { println 'l\nlongRangeScan() called.' }
+    runTestWith 'lq'
+  }
+
+  void testSetCourse() {
+    trekMock.demand.setCourse       { println 'c\nsetCourse() called.' }
+    runTestWith 'cq'
+  }
+
+  void testFireTorpedo() {
+    trekMock.demand.fireTorpedo     { println 't\nfireTorpedo() called.' }
+    runTestWith 'tq'
+  }
+
+  void testFirePhasers() {
+    trekMock.demand.firePhasers     { println 'p\nfirePhasers() called.' }
+    runTestWith 'pq'
+  }
+
+  void testReportDamage() {
+    trekMock.demand.reportDamage    { println 'd\nreportDamage() called.' }
+    runTestWith 'dq'
+  }
+
+  void testNavComp() {
+    trekMock.demand.navComp         { println 'n\nnavComp() called.' }
+    runTestWith 'nq'
   }
 }
