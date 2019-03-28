@@ -33,6 +33,9 @@ final class NavComp {
   final Quadrant  quadrant;
 
   void run () {
-    ui.localMsg 'navComp.offline'
+    ui.localMsg 'navComp.retrofit'
+    if ( srSensorDamaged ) {
+      ui.localMsg 'navComp.srSensor.offline'
+    }
   }
 }

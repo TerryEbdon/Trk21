@@ -44,7 +44,7 @@ class TrekCli extends UiBase {
   }
 
   /// @todo Localise gameLoop() messages.
-  private gameLoop() {
+  private void gameLoop() {
     boolean finished
     while ( !finished ) {
       final String command = getLine( '%nCommand: ') ?: 'q' // CTRL+Z = Quit.
