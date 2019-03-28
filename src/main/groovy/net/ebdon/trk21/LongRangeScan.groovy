@@ -19,9 +19,9 @@ package net.ebdon.trk21;
  */
 @groovy.transform.ToString(includePackage=false)
 @groovy.transform.Canonical
-// @groovy.transform.TypeChecked
+@groovy.transform.TypeChecked
 final class LongRangeScan {
-  def ui;
+  UiBase ui;
   DamageControl damageControl;
   Galaxy galaxy;
 
@@ -35,7 +35,7 @@ final class LongRangeScan {
 
   private void scanFromQuadrant( final Coords2d quadrantCoords ) {
     quadrantCoords.with {
-      ui.localMsg 'sensors.longRange.scanQuadrant', [col, row] as Object[]
+      ui.fmtMsg 'sensors.longRange.scanQuadrant', [col, row]
 
       final Range<Integer> columnRange = (col - 1)..(col + 1)
       for ( int rowToScan in (row - 1)..(row + 1) ) { // q1% -1 to q1% + 1
@@ -44,7 +44,6 @@ final class LongRangeScan {
     }
   }
 
-  @groovy.transform.TypeChecked
   private String scanRow( final int rowToScan, final Range<Integer> colRange ) {
     String rowStatus = ''
     for ( int colToscan in colRange ) { // q2% -1 to q2% + 1

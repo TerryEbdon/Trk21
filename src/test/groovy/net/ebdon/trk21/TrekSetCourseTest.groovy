@@ -124,4 +124,24 @@ final class TrekSetCourseTest extends TrekTestBase {
 
     logger.info 'testGoodCourseWithDamagedEngines -- OK'
   }
+
+  void testBadCourse() {
+    ui.inputValues = [15,1]
+
+    trek.setCourse()
+
+    assert ui.inputValues == [1]
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['input.vector.bad']
+  }
+
+  void testBadWarpfactor() {
+    ui.inputValues = [1,15]
+
+    trek.setCourse()
+
+    assert ui.inputValues.empty
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['input.vector.bad']
+  }
 }

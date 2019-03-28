@@ -30,8 +30,13 @@ abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for c
     text
   }
 
-  private final String getPrompt( key ) {
+  @groovy.transform.TypeChecked
+  private String getPrompt( final String key ) {
     trek.rb.getString key
+  }
+
+  void fmtMsg( final String formatId, final List args ) {
+    outln String.format( getPrompt( formatId ), *args )
   }
 
   final String pleaseEnterNumber() {

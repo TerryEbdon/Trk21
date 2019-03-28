@@ -40,6 +40,11 @@ final class TestUi extends UiBase {
     localMsgLog << msgId
   }
 
+  @Override void fmtMsg( final String formatId, final List args ) {
+    assert args
+    localMsg formatId
+  }
+
   @SuppressWarnings('UnusedMethodParameter')
   void localMsg( final String msgId, Object[] msgArgs ) {
     localMsgLog << msgId

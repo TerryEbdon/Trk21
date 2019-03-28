@@ -312,7 +312,10 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void setCourse() {
-    ShipVector vector = getShipCourse()
+    final Tuple2<Boolean, ShipVector> rv = getShipCourse()
+    final ShipVector vector = rv.second
+    final boolean rejected = rv.first
+
     if ( vector?.valid ) {
       log.info "Got a good vector: $vector"
 
@@ -342,7 +345,7 @@ final class Trek extends LoggingBase {
       }
     } else {
       log.info "vector is not so good: $vector"
-      if (vector.course * vector.warpFactor != 0 ) { // User didn't hit cancel
+      if ( rejected ) { // User didn't hit cancel
         ui.localMsg 'input.vector.bad'
       }
     }
@@ -383,7 +386,8 @@ final class Trek extends LoggingBase {
   }
 
   /// @todo Test needed for getShipCourse()
-  ShipVector getShipCourse() {
+  Tuple2<Boolean,ShipVector> getShipCourse() {
+    boolean rejected = false
     float course        = 0
     float warpFactor    = 0
     ShipVector sv = new ShipVector()
@@ -397,12 +401,14 @@ final class Trek extends LoggingBase {
       if ( ShipVector.isValidWarpFactor( warpFactor ) ) {
         sv.warpFactor = warpFactor
       } else {
+        rejected = warpFactor
         log.info "Warp factor $warpFactor is outside of expected range."
       }
     } else {
       log.info "Course value $course is outside of expected range."
+      rejected = course
     }
-    sv
+    [rejected,sv]
   }
 
   /// Perform a @ref TrekLongRangeSensors "long-range sensor scan"
@@ -447,17 +453,13 @@ final class Trek extends LoggingBase {
 
       showCondition()
       ship.position.sector.with {
-        uiFmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
-        uiFmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
-        uiFmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
-        uiFmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
+        ui.fmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
+        ui.fmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
+        ui.fmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
+        ui.fmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
       }
       log.info game.toString()
     }
-  }
-
-  private void uiFmtMsg( final String format, final List args ) {
-    msgBox String.format(rb.getString(format), *args )
   }
 
   @TypeChecked
@@ -512,7 +514,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void victoryDance() {
-    uiFmtMsg 'trek.victoryDance', [ game.currentSolarYear,
+    ui.fmtMsg 'trek.victoryDance', [ game.currentSolarYear,
       enemyFleet.numKlingonBatCrTotal,
       game.elapsed(),
       rating() ]
@@ -526,7 +528,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void shipDestroyed() {
-    uiFmtMsg 'trek.funeral', [ game.currentSolarYear,
+    ui.fmtMsg 'trek.funeral', [ game.currentSolarYear,
       game.elapsed(), enemyFleet.numKlingonBatCrRemain ]
   }
 

@@ -84,18 +84,20 @@ final class TrekShortRangeScanTest extends TrekTestBase {
   @TypeChecked
   private void checkScanOutput() {
     ui.with {
-      assert localMsgLog == ['sensors.shortRange.header', 'sensors.shortRange.divider']
-      assert msgLog.size() == 12
-      8.times {
-        assert msgLog[ it ] == '. . . . . . . . '
+      assert localMsgLog[0] == 'sensors.shortRange.header'
+      assert localMsgLog[1] == 'sensors.shortRange.divider'
+      (2..5).each {
+        assert localMsgLog[it] == "sensors.shipStatus.${it - 1}"
       }
-      assert msgLog[8].contains( "STARDATE: $dummySolarYear" )
-      assert msgLog[8].contains( "CONDITION: $dummyCondition" )
-      assert msgLog[9].contains( 'QUADRANT:' )
-      assert msgLog[9].contains( "SECTOR: $dummyCoords.col - $dummyCoords.row" )
-      assert msgLog[10].contains( "ENERGY: $dummyEnergy" )
-      assert msgLog[10].contains( "PHOTON TORPEDOES: $torpedoCount" )
-      assert msgLog[11].contains( "KLINGONS:    $dummyFleetSize" )
+
+      assert msgLog == ['. . . . . . . . '] * 8
+      // assert msgLog[8].contains( "STARDATE: $dummySolarYear" )
+      // assert msgLog[8].contains( "CONDITION: $dummyCondition" )
+      // assert msgLog[9].contains( 'QUADRANT:' )
+      // assert msgLog[9].contains( "SECTOR: $dummyCoords.col - $dummyCoords.row" )
+      // assert msgLog[10].contains( "ENERGY: $dummyEnergy" )
+      // assert msgLog[10].contains( "PHOTON TORPEDOES: $torpedoCount" )
+      // assert msgLog[11].contains( "KLINGONS:    $dummyFleetSize" )
     }
   }
 }
