@@ -19,22 +19,20 @@ package net.ebdon.trk21;
 
 class TrekCli extends UiBase {
 
-  private Scanner sc = new Scanner(System.in).useDelimiter('\n');
+  private Scanner sc = new Scanner(System.in);
 
   static main( args ) {
       new TrekCli().run()
   }
 
   @Override void run() {
+    sc.useDelimiter('\n')
     trek = new Trek( this );
     trek.setupGame()
     trek.startGame()
     gameLoop()
   }
 
-  void resetScanner() {
-    sc = new Scanner(System.in).useDelimiter('\n');
-  }
   /// @note Can't use System.console().readLine() with GroovyServ.
   private String getLine( final String prompt ) {
     printf prompt
@@ -57,22 +55,21 @@ class TrekCli extends UiBase {
         case 't': trek.fireTorpedo(); break
         case 'p': trek.firePhasers(); break
         case 'd': trek.reportDamage();  break
+        case 'n': trek.navComp();  break
         case 'q': outln '\nBye!\n'; finished = true; trek = null; break
         default: println 'What?'
       }
 
       if (!finished) {
-        trek.with {
-          if (gameWon()) {
+        if (trek.gameWon()) {
+          finished = true
+          trek.victoryDance()
+        } else {
+          if (trek.gameLost()) {
             finished = true
-            victoryDance()
+            trek.shipDestroyed()
           } else {
-            if (gameLost()) {
-              finished = true
-              shipDestroyed()
-            } else {
-              assert gameContinues()
-            }
+            assert trek.gameContinues()
           }
         }
       }

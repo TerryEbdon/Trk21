@@ -1,7 +1,7 @@
 package net.ebdon.trk21;
 
+// import static Quadrant.*;
 import groovy.mock.interceptor.MockFor;
-import static Quadrant.*;
 /**
  * @file
  * @author      Terry Ebdon
@@ -22,14 +22,16 @@ import static Quadrant.*;
  */
 
 @groovy.util.logging.Log4j2('logger')
+@Newify(MockFor)
 final class TrekTest extends GroovyTestCase {
 
-  final String msgPositionEnemy = 'Position enemy ships in quadrant %s: %03d';
+  private final String msgPositionEnemy = 'Position enemy ships in quadrant %s: %03d';
 
-  Trek trek;
+  private Trek trek;
 
   @Override
   void setUp() {
+    super.setUp()
     logger.info 'setUp'
     trek = new Trek();
     trek.ship = new FederationShip() /// @todo Mock this.
@@ -76,25 +78,26 @@ final class TrekTest extends GroovyTestCase {
     trek.with {
       quadrant.clear()
       ship.position.quadrant = new Coords2d( row: 3, col: 4 )
-      logger.info 'testPositionEnterpriseInQuadrantGood set ship quadrant ' + ship.position.quadrant
+      logger.info 'testPositionEnterpriseInQuadrantGood set ship quadrant {}',
+          ship.position.quadrant
       assert ship.position.quadrant.row == 3
       assert ship.position.quadrant.col == 4
       positionShipInQuadrant()
 
       logger.info 'Expecting a ship in ' + logFmtCoords( [entSectX,entSectY] )
-      assert quadrant[entSectX,entSectY] == Thing.ship
-      assert quadrant.count { it.value == Thing.ship } == 1
+      assert quadrant[entSectX,entSectY] == Quadrant.Thing.ship
+      assert quadrant.count { it.value == Quadrant.Thing.ship } == 1
     }
     logger.info 'testPositionEnterpriseInQuadrantGood -- OK'
   }
 
   void testPositionEnterpriseInQuadrantBad() {
+    logger.info 'testPositionEnterpriseInQuadrantBad'
     trek.with {
       shouldFail {  // Trying to position ship in quadrant [0,0]
-        logger.info 'testPositionEnterpriseInQuadrantBad' + logFmtCoords( [entSectX,entSectY] )
         positionShipInQuadrant()
         ship.position.quadrant = new Coords2d( row:1, col:1 )
-        logger.info 'testPositionEnterpriseInQuadrant' + ship.position.quadrant
+        logger.trace 'testPositionEnterpriseInQuadrant {}', ship.position.quadrant
         positionShipInQuadrant() // fail: empty board.
       }
     }
@@ -102,7 +105,7 @@ final class TrekTest extends GroovyTestCase {
   }
 
   @SuppressWarnings('ExplicitCallToGetAtMethod')
-  @Newify([MockFor,Position,Coords2d])
+  @Newify([Position,Coords2d])
   void testPositionGamePieces() {
     logger.info 'testPositionGamePieces...'
 
@@ -136,7 +139,7 @@ final class TrekTest extends GroovyTestCase {
   }
 
   @SuppressWarnings('ExplicitCallToGetAtMethod')
-  @Newify([MockFor,Position,Coords2d])
+  @Newify([Position,Coords2d])
   void testUpdateQuadrantAfterSkirmish() {
     MockFor ship          = MockFor( FederationShip )
     MockFor galaxy        = MockFor( Galaxy )
@@ -175,16 +178,12 @@ final class TrekTest extends GroovyTestCase {
     }
   }
 
-  private void setupAt( final int qRow, final int qCol, final int sRow, final int sCol ) {
-    trek.with {
-      entSectX = qRow
-      entSectY = qCol
-      entQuadX = sRow
-      entQuadY = sCol
+  void testNavComp() {
+    MockFor navComp = MockFor( NavComp )
+    navComp.demand.run { }
 
-      galaxy.clear()
-      quadrant.clear()
-      quadrant[entSectX,entSectY] = Thing.ship
+    navComp.use {
+      trek.navComp()
     }
   }
 }

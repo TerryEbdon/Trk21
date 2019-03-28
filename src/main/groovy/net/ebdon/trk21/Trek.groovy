@@ -418,6 +418,13 @@ final class Trek extends LoggingBase {
         scanAround( ship.position.quadrant)
   }
 
+  @TypeChecked
+  void navComp() {
+    final boolean srSensorDamaged = damageControl.isDamaged( DeviceType.srSensor )
+    new NavComp( ui, srSensorDamaged, ship.position, quadrant ).run()
+  }
+
+  @TypeChecked
   void showCondition() {
     ui.conditionText = displayableCondition()
   }
