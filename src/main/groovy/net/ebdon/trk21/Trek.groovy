@@ -45,7 +45,6 @@ final class Trek extends LoggingBase {
     Galaxy    galaxy    = new Galaxy();
     Quadrant  quadrant  = new Quadrant();
 
-    Repositioner repositioner;
     DamageControl damageControl;
 
     EnemyFleet enemyFleet = new EnemyFleet();
@@ -115,7 +114,6 @@ final class Trek extends LoggingBase {
 
     if ( inStream ) {
       rb = new PropertyResourceBundle( inStream )
-      repositioner = new Repositioner( this )
       damageControl = new DamageControl()
     } else {
         log.fatal 'Could not load Language.poperties'
@@ -338,7 +336,7 @@ final class Trek extends LoggingBase {
           log.trace "Ship has moved, but where is it?"
           // Continue from line 1840...
 
-          repositioner.repositionShip vector
+          new Repositioner( this ).repositionShip vector
           repopulateSector oldQuadrant
           shortRangeScan()
         }

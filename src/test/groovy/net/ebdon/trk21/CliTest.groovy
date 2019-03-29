@@ -38,7 +38,6 @@ final class CliTest extends GroovyTestCase {
 
   private void trekPreTestDemands() {
     trekMock.demand.with {
-      asBoolean       { true } /// @todo refactor Repositioner & Trek to avoid this.
       setupGame       { }
       startGame       { }
     }
