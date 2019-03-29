@@ -66,11 +66,13 @@ final class DamageControlTest extends GroovyTestCase {
     TestUi ui = new TestUi()
     final int oldState = dc.devices[2].state
 
-    dc.repair ui.&localMsg
+    dc.repair ui.&fmtMsg
 
     assert ui.msgLog.empty
-    assert ui.localMsgLog.size() == 1
+    assert ui.localMsgLog?.size() == 1
     assert ui.localMsgLog.first() == 'damage.control.repair'
+    assert ui.argsLog?.size() == 1
+    assert ui.argsLog == [ [dc.devices[2].name, dc.devices[2].state] ]
     assert dc.devices[2].state == oldState + 1
     assert dc.devices[1].state == 0
   }
