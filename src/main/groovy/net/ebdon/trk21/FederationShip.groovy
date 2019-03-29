@@ -41,7 +41,7 @@ final class FederationShip {
       'DOCKED'
     ];
 
-    private void useEnergyForMove( final int energyUsedByLastMove ) {
+    private void useEnergyForMove( final int energyUsedByLastMove ) { /// @bug arg name same as member variable.
       energyNow -= energyUsedByLastMove
       log.info "Ship's movement used $energyUsedByLastMove units of energy."
       logFuelReduction()

@@ -5,7 +5,7 @@ import static GameSpace.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,19 +42,12 @@ class TrekMock {
   }
 
   String toString() {
-    // "Calendar   : $game\n" +
-    // "Ship       : $ship\n" +
-    // "EnemyFleet : $enemyFleet\n" +
-    // "Quadrant   : [$entQuadX, $entQuadY]\n" +
-    // "Sector     : [$entSectX, $entSectY]"
-
     "Ship= $ship, Quadrant: [$entQuadX, $entQuadY], " +
     "Sector: [$entSectX, $entSectY], moveBlocked: $moveBlocked"
   }
 
-  void blockedAtSector( row, col ) {
-    log.info "Move blocked by object at sector ${logFmtCoords( row, col )}"
-    quadrant.dump()
+  @groovy.transform.TypeChecked
+  void blockedAtSector( final int row, final int column ) {
     moveBlocked = true
   }
 }

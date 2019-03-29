@@ -7,7 +7,7 @@ import static CourseOffset.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,7 +44,6 @@ final class Repositioner {
 
   boolean moveAborted   = false;
   def           trek    = null;
-  // ShipVector    sv      = null;
   CourseOffset  offset  = null;
 
   float newX; // Line 1840 Stat.2
@@ -52,50 +51,45 @@ final class Repositioner {
 
   def startSector;
 
-  Repositioner( t ) {
-    assert t
+  Repositioner( t = null ) {
+    // assert t
     trek = t
   }
 
   String toString() {
     "moveAborted: $moveAborted, newX: $newX, newY: $newY startSector: $startSector\n" +
     "trek=   $trek\n" +
-    // "sv=     $sv\n" +
     "offset= $offset"
   }
 
   void repositionShip( final ShipVector shipVector ) {
     newX = trek.entSectX // Line 1840 Stat.2
     newY = trek.entSectY // Line 1840 Stat.3
-    startSector =[ newX, newY ]
+    startSector = [ newX, newY ]
 
-    assert trek && shipVector
+    // assert trek && shipVector
     moveAborted = false
     // sv = shipVector
     offset = new CourseOffset( shipVector ) // gosub 2300 @ line 1840
     log.info msgReposInfo,
         startSector.toString(), trek.ship.energyUsedByLastMove, offset
     log.debug "Before move: $this"
-    trek.with {
-      quadrant[ entSectX, entSectY ] = Thing.emptySpace  // Line 1840 Stat.1
-      newX = entSectX // Line 1840 Stat.2
-      newY = entSectY // Line 1840 Stat.3
-    }
+    // trek.with {
+      trek.quadrant[ trek.entSectX, trek.entSectY ] = Thing.emptySpace  // Line 1840 Stat.1
+      newX = trek.entSectX // Line 1840 Stat.2
+      newY = trek.entSectY // Line 1840 Stat.3
+    // }
 
     // 1 unit of energy = 1 warp factor & moves ship 1... sector? or quadrant?
     // 1.upto( ship.energyUsedByLastMove ) { // for each sector traversed. L.1860
-    for ( int it = 1; it <= trek.ship.energyUsedByLastMove && !moveAborted; ++it ) {
+    for ( int it = 1; !moveAborted && it <= trek.ship.energyUsedByLastMove; ++it ) {
       moveSector it
     }
 
-    trek.with {
-      // (entSectX, entSectY) = [newX + 0.5, newY + 0.5]  // Line 1875
-      quadrant[ entSectX, entSectY ] = Thing.ship // 1875
-      log.info msgArrivedInQuad,   logFmtCoords( entQuadX, entQuadY )
-      log.info msgArrivedInsector, logFmtCoords( entSectX, entSectY )
-      // log.info "Ship arrived in quadrant ${logFmtCoords( entQuadX, entQuadY )}"
-      // log.info "Ship arrived in sector   ${logFmtCoords( entSectX, entSectY )}"
-    }
+    trek.quadrant[ trek.entSectX, trek.entSectY ] = Thing.ship // 1875
+    log.info msgArrivedInQuad,   logFmtCoords( trek.entQuadX, trek.entQuadY )
+    log.info msgArrivedInsector, logFmtCoords( trek.entSectX, trek.entSectY )
+
     log.debug "After move: $this"
   }
 
@@ -107,7 +101,7 @@ final class Repositioner {
     moveAborted = true
   }
 
-  void moveSector( subMoveNo ) {
+  private void moveSector( final int subMoveNo ) {
     assert offset
     int z1, z2 // sector arrived at?
     (z1,z2) = [(newX += offset.x) + 0.5, (newY += offset.y) + 0.5] // Line 1860
@@ -196,8 +190,4 @@ final class Repositioner {
     log.info sprintf( msgJumpTo, *rQuadCoords )
     rQuadCoords
   }
-
-  // static float newCoordIfOutsideQuadrant( final ShipVector sv, final coord, final offset ) {
-  //   coord + sv.warpFactor * offset + ( coord -0.5 ) / 8 // Line 1920
-  // }
 }

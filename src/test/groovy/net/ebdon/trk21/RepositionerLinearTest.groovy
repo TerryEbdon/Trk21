@@ -2,6 +2,8 @@ package net.ebdon.trk21;
 
 import static GameSpace.*;
 import static Quadrant.*;
+import groovy.mock.interceptor.MockFor;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -21,14 +23,53 @@ import static Quadrant.*;
  * limitations under the License.
  */
 
+@Newify(MockFor)
 @groovy.util.logging.Log4j2('logger')
 final class RepositionerLinearTest extends RepositionerTestBase {
-// if ( notYetImplemented() ) return
-
-  private def getLog() {logger}
 
   private void setupAtCentre() {
     setupAt 4, 4, 4, 4
+  }
+
+  void testBlocked2() {
+    MockFor trekMock = MockFor( Trek )
+    ShipVector sv = shipWarpOne(1)
+    TestUi ui = new TestUi()
+    Map fakeQuadrant = [
+      contains: { int z1, int z2 ->   true },
+      isOccupied: { int z1, int z2 -> true }
+    ]
+
+    for ( int row in minCoord..maxCoord ) {
+      for ( int col in minCoord..maxCoord ) {
+        fakeQuadrant[row,col] = ( row * col == 1 ? Thing.ship : Thing.star ) // fill quadrant with stars
+      }
+    }
+
+    trekMock.demand.with {
+      getEntSectX { 1 }
+      getEntSectY { 1 }
+      getQuadrant { fakeQuadrant }
+      2.times {
+        getEntSectX { 1 }
+        getEntSectY { 1 }
+      }
+
+      getShip         { [energyUsedByLastMove: 8] }
+      getQuadrant(2)  { fakeQuadrant }
+      blockedAtSector { int row, int col -> assert [row, col] == [1, 2] }
+      getQuadrant     { fakeQuadrant }
+      getEntSectX     { 1 }
+      getEntSectY     { 1 }
+    }
+
+    trekMock.use {
+      Repositioner rp = new Repositioner()
+      rp.trek = new Trek( ui )
+      rp.repositionShip sv
+      assert rp.moveAborted == true
+      assert fakeQuadrant[1,1] == Thing.ship
+    }
   }
 
   void testBlocked() {
@@ -60,8 +101,8 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     setupAtCentre()
     ShipVector sv = new ShipVector()
-    sv.course = 1
-    sv.warpFactor = 0.5
+    sv.course = 1F
+    sv.warpFactor = 0.5F
     trek.with {
       ship.energyUsedByLastMove = 2
       repositioner.repositionShip sv
@@ -72,8 +113,8 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     logger.info 'intraQuadrantTest OK'
   }
 
-  private ShipVector shipWarpOne( dir ) {
-    shipWarpDir 1, dir
+  private ShipVector shipWarpOne( float dir ) {
+    shipWarpDir 1F, dir
   }
 
   void testSlowBoundaryTransition() {
@@ -81,14 +122,14 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     setupAt 6,4,6,3
     trek.ship.energyUsedByLastMove = 4
     ShipVector sv = new ShipVector().tap {
-      course = 7
-      warpFactor = 0.5
+      course = 7F
+      warpFactor = 0.5F
       assert isValid()
     }
 
     logger.info "sv: $sv"
-    final def targetQuadrant  = [trek.entQuadX + 1, trek.entQuadY]
-    final def targetSector    = [trek.entSectX,     trek.entSectY]
+    final List<Integer> targetQuadrant  = [trek.entQuadX + 1, trek.entQuadY]
+    final List<Integer> targetSector    = [trek.entSectX,     trek.entSectY]
     repositioner.repositionShip sv
 
     trek.with {
@@ -115,39 +156,38 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     logger.info 'extraQuadrantTest -- OK'
   }
 
+  @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts are in transit()
   void testTransitGalaxy() {
     logger.info 'testTransitGalaxy'
 
-    // [0,1].permutations().eachCombination { courseIncrements ->
-    [0,1].eachPermutation() { courseIncrements ->
-      logger.info "Transit with offsets of $courseIncrements"
+    [0,1].eachPermutation { List<Integer> courseIncrements ->
       transit( *courseIncrements )
-      logger.info "Transit with offsets of $courseIncrements -- OK"
     }
     logger.info 'testTransitGalaxy OK'
   }
 
-  @Override
-  protected ShipVector getTransitShipVector( final course ) {
+  @groovy.transform.TypeChecked
+  @Override protected ShipVector getTransitShipVector( final float course ) {
     shipWarpOne course
   }
 
-  @Override
-  protected def getExpectedTransitCoords( final int stepNum, final expectedRowOffset, final expectedColOffset ) {
+  @groovy.transform.TypeChecked
+  @Override protected List<Integer> getExpectedTransitCoords(
+        final int stepNum, final int expectedRowOffset, final int expectedColOffset ) {
     final int expectedRow = 1 + stepNum * expectedRowOffset
     final int expectedCol = 1 + stepNum * expectedColOffset
     [expectedRow, expectedCol]
   }
 
-  final void transit( final expectedRowOffset, final expectedColOffset ) {
-    logger.info sprintf( "Transit with expected offsets: %d, %d",
-      expectedRowOffset, expectedColOffset )
+  protected void transit( final int expectedRowOffset, final int expectedColOffset ) {
+    logger.info 'Transit with expected offsets: {}, {}',
+      expectedRowOffset, expectedColOffset
 
     assert expectedRowOffset != expectedColOffset // Not [0,0] or [1,1]
     final int maxSteps = maxCoord - 1
     logger.info "Calling transitSteps for $maxSteps steps"
     transitSteps expectedRowOffset, expectedColOffset, maxSteps
-    logger.info sprintf( "Transit with expected offsets: %d, %d -- OK",
-      expectedRowOffset, expectedColOffset )
+    logger.info 'Transit with expected offsets: {}, {} -- OK',
+      expectedRowOffset, expectedColOffset
   }
 }

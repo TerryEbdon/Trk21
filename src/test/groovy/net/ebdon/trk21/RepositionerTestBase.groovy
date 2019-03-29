@@ -5,7 +5,7 @@ import static Quadrant.*;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import static Quadrant.*;
 @groovy.util.logging.Log4j2('logger')
 abstract class RepositionerTestBase extends GroovyTestCase {
 
-  abstract protected void transit( final expectedRowOffset, final expectedColOffset );
+  abstract protected void transit( final int expectedRowOffset, final int expectedColOffset );
 
   final String errTransitBadPos    = 'In wrong quadrant %s at q.step %2d with offsets of [%d, %d]';
   final String msgTransitTestStart = "Transit in at most %2d steps with ShipVector: %s";
@@ -49,9 +49,9 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   final def getCourseFrom( expectedRowOffset, expectedColOffset ) {
 
     final def course = [
-      [0,1]: 1,   // "East"
-      [1,0]: 7,   // "South"
-      [1,1]: 8    // "South-East"
+      [0,1]: 1F,   // "East"
+      [1,0]: 7F,   // "South"
+      [1,1]: 8F    // "South-East"
     ]
 
     def rv = course[ expectedRowOffset, expectedColOffset ]
@@ -60,8 +60,8 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   }
 
   final ShipVector shipWarpDir( warp, dir ) {
-    assert warp > 0 && warp << 13
-    assert dir > 0 && dir < 8.01 /// @todo Max course is weird.
+    assert warp > 0F && warp < 13F
+    assert dir  > 0F && dir  < 8.01F /// @todo Max course is weird.
 
     trek.ship.energyUsedByLastMove = warp * 8
     new ShipVector().tap {
@@ -73,7 +73,6 @@ abstract class RepositionerTestBase extends GroovyTestCase {
 
   final void setupAt( qRow, qCol, sRow, sCol ) {
     logger.debug sprintf( msgSetupAt, qRow, qCol, sRow, sCol )
-    // logger.debug "SetupAt $qRow, $qCol, $sRow, $sCol"
     trek.with {
       entQuadX = qRow
       entQuadY = qCol
@@ -86,29 +85,27 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     }
   }
 
-  abstract protected ShipVector getTransitShipVector( final course ) ;
-  abstract protected def getExpectedTransitCoords(
+  abstract protected ShipVector getTransitShipVector( final float course ) ;
+  abstract protected List<Integer> getExpectedTransitCoords(
       final int stepNum,
-      final expectedRowOffset,
-      final expectedColOffset );
+      final int expectedRowOffset,
+      final int expectedColOffset );
 
-  final protected void transitSteps( final expectedRowOffset, final expectedColOffset, final maxSteps ) {
+  final protected void transitSteps(
+      final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
     logger.info "transitSteps called with $expectedRowOffset, $expectedColOffset, $maxSteps"
     final def course = getCourseFrom( expectedRowOffset, expectedColOffset )
     final boolean isOneOne = expectedRowOffset * expectedColOffset
     // ShipVector sv = isOneOne ? shipWarpDir( 12, course ) : shipWarpOne( course )
     ShipVector sv = getTransitShipVector( course )
 
-    // logger.info "Transit in at most $maxSteps steps with ShipVector: $sv"
     logger.info sprintf( msgTransitTestStart, maxSteps, sv )
     setupAt 1, 1, 1, 1
     1.upto(maxSteps) { stepNum ->
       logger.info sprintf(
         msgStartStepQuad, stepNum,
         trek.entQuadX, trek.entQuadY, trek.entSectX, trek.entSectY )
-      // logger.info "q.step $stepNum starting with Quadrant x,y: " +
-      //   "${[trek.entQuadX,trek.entQuadY]} " +
-      //   "sector x,y: ${[trek.entQuadX,trek.entQuadY]}"
+
       repositioner.repositionShip sv
       trek.with {
         // final int expectedRow = 1 + stepNum * expectedRowOffset
@@ -133,7 +130,6 @@ abstract class RepositionerTestBase extends GroovyTestCase {
           entQuadX, entQuadY, entSectX, entSectY )
       }
     }
-    // logger.info 'transitSteps -- OK'
     logger.info sprintf( msgTransitTestEnd, maxSteps, sv )
   }
 }
