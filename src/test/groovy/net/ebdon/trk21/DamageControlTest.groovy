@@ -1,5 +1,6 @@
 package net.ebdon.trk21;
 
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
 
@@ -49,6 +50,31 @@ final class DamageControlTest extends GroovyTestCase {
     // damage[2].state = 0
     dc.devices[2].state = 0
     assert dc.findDamagedDeviceKey() == 0
+  }
+
+  /// Test for Issue #36:
+  /// Space storm damage to device 6, damage control, stack dumps.
+  @TypeChecked
+  private void checkInflictDamage( final int deviceNo ) {
+    final Integer damageAmount    = 2
+    final Integer oldState    = dc.devices[deviceNo]?.state
+
+    dc.inflictDamage( deviceNo, damageAmount )
+
+    assert dc.devices[deviceNo].state == oldState - damageAmount
+  }
+
+  /// Test for Issue #36:
+  /// Space storm damage to device 6, damage control, stack dumps.
+  @TypeChecked
+  void testInflictDamage() {
+    final int highestDeviceNo = dc.devices.size()
+
+    checkInflictDamage highestDeviceNo
+
+    shouldFail(PowerAssertionError) {
+      checkInflictDamage highestDeviceNo + 1
+    }
   }
 
   @TypeChecked

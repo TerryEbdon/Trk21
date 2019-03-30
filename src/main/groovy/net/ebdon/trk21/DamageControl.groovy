@@ -118,7 +118,7 @@ final class DamageControl {
 
   @TypeChecked
   void inflictDamage( final int key, final int amount ) {
-    assert key > 0 && key < devices.size()
+    assert key in 1..devices.size()
     assert amount > 0
     devices[key].state -= amount
   }
