@@ -80,7 +80,7 @@ final class Repositioner {
       trek.quadrant[row, col] = Thing.emptySpace  // Line 1840 Stat.1
     }
 
-    // 1 unit of energy = 1 warp factor & moves ship 1... sector? or quadrant?
+    // 1 unit of energy = 1 warp factor & moves ship 1 quadrant?
     for ( int it = 1; !moveAborted && it <= ship.energyUsedByLastMove; ++it ) {
       moveSector it   // for each sector traversed. L.1860
     }
@@ -112,8 +112,8 @@ final class Repositioner {
         newX -= offset.x
         newY -= offset.y
       } else {
-        trek.entSectX = z1
-        trek.entSectY = z2
+        ship.position.sector.row = z1
+        ship.position.sector.col = z2
         log.debug sprintf(
             msgInEmptySector, subMoveNo,
             logFmtCoords( z1, z2 ), newX, newY )
