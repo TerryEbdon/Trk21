@@ -50,7 +50,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     trekMock.demand.with {
       getShip         { fakeShip }
-      getQuadrant(3)  { fakeQuadrant }
+      getQuadrant(4)  { fakeQuadrant }
       blockedAtSector { int row, int col -> assert [row, col] == [1, 2] }
       getQuadrant     { fakeQuadrant }
     }

@@ -3,6 +3,7 @@ package net.ebdon.trk21;
 import static GameSpace.*;
 import static Quadrant.*;
 import static CourseOffset.*;
+import org.apache.logging.log4j.Level;
 /**
  * @file
  * @author      Terry Ebdon
@@ -22,7 +23,6 @@ import static CourseOffset.*;
  */
 
 /// @todo Move log format strings into configuration.
-/// @todo Replace sprintf() with Log4j2 formatting.
 @groovy.util.logging.Log4j2
 final class Repositioner {
   final String msgMovePart          = 'Ship move part %2d -';
@@ -94,9 +94,8 @@ final class Repositioner {
   }
 
   private void objectAtSector( subMoveNo, row, col ) {
-    log.debug sprintf(
-      msgMoveBlocked, subMoveNo,
-      trek.quadrant[row,col], logFmtCoords( row, col ) )
+    log.printf Level.DEBUG,
+      msgMoveBlocked, subMoveNo, trek.quadrant[row,col], [row, col]
     trek.blockedAtSector row, col
     moveAborted = true
   }
@@ -114,30 +113,33 @@ final class Repositioner {
       } else {
         ship.position.sector.row = z1
         ship.position.sector.col = z2
-        log.debug sprintf(
-            msgInEmptySector, subMoveNo,
-            logFmtCoords( z1, z2 ), newX, newY )
+        log.printf Level.DEBUG,
+            msgInEmptySector, subMoveNo, [z1, z2], newX, newY
       }
     } else { // Line 1920 - 1925
-      log.info sprintf( msgCrossQuadEdge, subMoveNo, logFmtCoords( z1, z2 ) )
-      // log.info "Ship move part $subMoveNo - crossing quadrant edge at ${logFmtCoords( z1, z2 )}"
+      log.printf Level.INFO, msgCrossQuadEdge, subMoveNo, [z1, z2]
       moveAborted = true
       trek.with {
         log.info "Resetting sector to $startSector"
         (entSectX,entSectY) = startSector
         (entQuadX,entQuadY) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
-
         // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
         // entSectY  = bounceToSectCoord( newY, z2 ) // Line 1925, stats 4.
+      }
 
-        log.info sprintf( msgTryToEnterQuad, subMoveNo, logFmtCoords( entQuadX,entQuadY ) )
-        log.info sprintf( msgTryToEnterSect, subMoveNo, logFmtCoords( entSectX,entSectY ) )
+      ship.position.with {
+        log.printf Level.INFO, msgTryToEnterQuad, subMoveNo, quadrant
+        log.printf Level.INFO, msgTryToEnterSect, subMoveNo, sector
+      }
 
+      trek.with {
         (entQuadX,entQuadY) = constrainCoords( [entQuadX,entQuadY] ) // 1930 & 1940 -- Can't leave galaxy.
         (entSectX,entSectY) = constrainCoords( [entSectX,entSectY] ) // 1930 & 1940 -- Can't leave galaxy.
-        log.info sprintf( msgConstrainedToQuad, subMoveNo, logFmtCoords( entQuadX,entQuadY ) )
-        log.info sprintf( msgConstrainedToSect, subMoveNo, logFmtCoords( entSectX,entSectY ) )
-        // log.info "Ship move part $subMoveNo - constrained to quadrant ${[z1,z2]} == $z2 - $z1"
+      }
+
+      ship.position.with {
+        log.printf Level.INFO, msgConstrainedToQuad, subMoveNo, quadrant
+        log.printf Level.INFO, msgConstrainedToSect, subMoveNo, sector
       }
     }
   }
@@ -173,16 +175,13 @@ final class Repositioner {
     log.info msgJumpOffset, offset
     def rQuadCoords = []
     final def warpFactor = offset.shipVector.warpFactor
-    // def rSectCoords = []
     [ [trek.entQuadX, offset.x, trek.entSectX],
       [trek.entQuadY, offset.y, trek.entSectY]
     ].each { quadCoord, offsetCoord, sectCoord -> // Line 1920
-      // log.debug "quadCoord: $quadCoord warp: ${sv.warpFactor} offset: $offset sectCoord: $sectCoord"
-      log.debug sprintf( msgJumpCoord, quadCoord, offsetCoord, sectCoord )
+      log.printf Level.DEBUG, msgJumpCoord, quadCoord, offsetCoord, sectCoord
       rQuadCoords << quadCoord + warpFactor * offsetCoord + (sectCoord - 0.5) / 8
-      // rSectCoords << ( sectCoord -0.5 ) / 8
     }
-    log.info sprintf( msgJumpTo, *rQuadCoords )
+    log.printf( Level.INFO, msgJumpTo, *rQuadCoords )
     rQuadCoords
   }
 }
