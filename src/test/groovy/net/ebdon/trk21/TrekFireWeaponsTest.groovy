@@ -33,7 +33,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
   private MockFor quadrantSetupMock;
 
   private final Coords2d c2d = [row:1, col:1]
-  private final Position shipPosition = [c2d, c2d]
+  private final Position shipPosition = [c2d.clone(), c2d.clone()]
 
   @TypeChecked
   @Newify([MockFor,Trek])

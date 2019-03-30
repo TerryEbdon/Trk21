@@ -36,7 +36,7 @@ final class TrekShortRangeScanTest extends TrekTestBase {
   private final int dummySolarYear = 98765
 
   private final Coords2d dummyCoords = [row:1, col:2]
-  private final Position dummyPosition = new Position( dummyCoords, dummyCoords )
+  private final Position dummyPosition = [ dummyCoords.clone(), dummyCoords.clone() ]
 
   // @TypeChecked
   @Override void setUp() {
@@ -54,9 +54,9 @@ final class TrekShortRangeScanTest extends TrekTestBase {
       shortRangeScan  { galaxy -> }
       attemptDocking  { quadrant -> }
       getCondition(3) { dummyCondition }
-      getPosition(1)  { dummyPosition }
+      getPosition(1)  { dummyPosition.clone() }
       getCondition(1) { dummyCondition }
-      getPosition(2)  { dummyPosition }
+      getPosition(2)  { dummyPosition.clone() }
       getEnergyNow    { dummyEnergy }
       getNumTorpedoes { torpedoCount }
     }
