@@ -26,6 +26,7 @@ in this tuts+ article: [Quick Tip: Trigonometry for Flash Game
 Developers](https://code.tutsplus.com/tutorials/quick-tip-trigonometry-for-flash-game-developers--active-4458)
  */
 @groovy.util.logging.Log4j2
+@groovy.transform.TypeChecked
 final class CourseOffset {
   final ShipVector shipVector;
   float x;
@@ -37,8 +38,8 @@ final class CourseOffset {
   CourseOffset( final ShipVector sv ) {
     shipVector = sv
     final float radians = courseAsRadians()
-    x = -Math.sin( radians ) /// Negative as rows start at top.
-    y =  Math.cos( radians )
+    x = -Math.sin( radians ).toFloat() /// Negative as rows start at top.
+    y =  Math.cos( radians ).toFloat()
   }
 
   String toString() {
@@ -64,8 +65,8 @@ final class CourseOffset {
 
    */
   private float courseAsRadians() {
-    final multiplesOf45Degrees = shipVector.course - 1
-    final float degrees = 45 * multiplesOf45Degrees
+    final multiplesOf45Degrees = shipVector.course - 1F
+    final float degrees = 45F * multiplesOf45Degrees
     log.debug  "course ${shipVector.course} is $multiplesOf45Degrees * 45 = $degrees degrees"
     Math.toRadians( degrees )
   }

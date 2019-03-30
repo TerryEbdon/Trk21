@@ -25,18 +25,18 @@ package net.ebdon.trk21;
 */
 @groovy.transform.TypeChecked
 final class ShipVector {
-  float course        = 0;
-  float warpFactor    = 0;
+  float course        = 0F;
+  float warpFactor    = 0F;
 
-  static final float minCourse = 1;
-  static final float maxCourse = 8.999999;
-  static final float minWarpFactor = 0.125;
-  static final float maxWarpFactor = 12;
+  static final float minCourse = 1F;
+  static final float maxCourse = 8.999999F;
+  static final float minWarpFactor = 0.125F;
+  static final float maxWarpFactor = 12F;
 
   boolean isValid() {
     isValidCourse( course ) &&
     isValidWarpFactor( warpFactor ) &&
-    course * warpFactor > 0
+    course * warpFactor > 0F
   }
 
   static boolean isValidCourse( final float newCourse ) {

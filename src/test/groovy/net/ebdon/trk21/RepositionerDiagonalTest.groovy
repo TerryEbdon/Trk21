@@ -24,6 +24,7 @@ import static Quadrant.*;
 @groovy.util.logging.Log4j2('logger')
 final class RepositionerDiagonalTest extends RepositionerTestBase {
 
+  @SuppressWarnings('JUnitTestMethodWithoutAssert')
   final void testTransitDiagonal() {
     transit 1, 1
   }
@@ -39,17 +40,17 @@ final class RepositionerDiagonalTest extends RepositionerTestBase {
     [8,8]
   }
 
-  final void transit( final int expectedRowOffset, final int expectedColOffset ) {
+  @Override void transit( final int expectedRowOffset, final int expectedColOffset ) {
     logger.info "Transit with expected offsets: $expectedRowOffset, $expectedColOffset"
     assert expectedRowOffset == expectedColOffset
 
-    final float cornerToCornerDistance = Math.sqrt( 2 * maxCoord**2 )
+    final float cornerToCornerDistance = Math.sqrt( 2 * maxCoord ** 2 )
     final float stepSize = Math.sin( Math.toRadians( 45 ) )
     final int maxSteps = Math.round( cornerToCornerDistance / stepSize )
     logger.info "Calling transitSteps for $maxSteps steps"
     transitSteps expectedRowOffset, expectedColOffset, maxSteps
 
-    logger.info "Transit with expected offsets: " +
+    logger.info 'Transit with expected offsets: ' +
       "$expectedRowOffset, $expectedColOffset -- OK"
   }
 }

@@ -26,11 +26,11 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   abstract protected void transit( final int expectedRowOffset, final int expectedColOffset );
 
   final String errTransitBadPos    = 'In wrong quadrant %s at q.step %2d with offsets of [%d, %d]';
-  final String msgTransitTestStart = "Transit in at most %2d steps with ShipVector: %s";
-  final String msgTransitTestEnd   = "Transit in at most %2d steps with ShipVector: %s -- OK";
-  final String msgQstep            = "q.step %2d";
-  final String msgQuad             = "Quadrant [%2d, %2d]";
-  final String msgSect             = "Sector [%2d, %2d]";
+  final String msgTransitTestStart = 'Transit in at most %2d steps with ShipVector: %s';
+  final String msgTransitTestEnd   = 'Transit in at most %2d steps with ShipVector: %s -- OK';
+  final String msgQstep            = 'q.step %2d';
+  final String msgQuad             = 'Quadrant [%2d, %2d]';
+  final String msgSect             = 'Sector [%2d, %2d]';
   final String msgStartStepQuad    = "$msgQstep starting with  $msgQuad $msgSect";
   // final String msgStepIn           = "$msgQstep starting with  $msgQuad $msgSect";
   final String msgStepNowIn        = "$msgQstep:        now in $msgQuad $msgSect";
@@ -41,25 +41,27 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   TrekMock trek;
   Repositioner repositioner;
 
+  @groovy.transform.TypeChecked
   final void setUp() {
     trek = new TrekMock();
     repositioner = new Repositioner( trek )
   }
 
-  final def getCourseFrom( expectedRowOffset, expectedColOffset ) {
-
-    final def course = [
+  @groovy.transform.TypeChecked
+  private float getCourseFrom( final int expectedRowOffset, final int expectedColOffset ) {
+    final Map course = [
       [0,1]: 1F,   // "East"
       [1,0]: 7F,   // "South"
       [1,1]: 8F    // "South-East"
     ]
 
-    def rv = course[ expectedRowOffset, expectedColOffset ]
+    final float rv = course[ expectedRowOffset, expectedColOffset ]
     logger.info "Expected course is $rv"
     rv
   }
 
-  final ShipVector shipWarpDir( warp, dir ) {
+  @groovy.transform.TypeChecked
+  final ShipVector shipWarpDir( final float warp, final float dir ) {
     assert warp > 0F && warp < 13F
     assert dir  > 0F && dir  < 8.01F /// @todo Max course is weird.
 
@@ -71,7 +73,8 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     }
   }
 
-  final void setupAt( qRow, qCol, sRow, sCol ) {
+  @groovy.transform.TypeChecked
+  final void setupAt( final int qRow, final int qCol, final int sRow, final int sCol ) {
     logger.debug sprintf( msgSetupAt, qRow, qCol, sRow, sCol )
     trek.with {
       entQuadX = qRow
@@ -94,8 +97,8 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   final protected void transitSteps(
       final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
     logger.info "transitSteps called with $expectedRowOffset, $expectedColOffset, $maxSteps"
-    final def course = getCourseFrom( expectedRowOffset, expectedColOffset )
-    final boolean isOneOne = expectedRowOffset * expectedColOffset
+    final float course = getCourseFrom( expectedRowOffset, expectedColOffset )
+    // final boolean isOneOne = expectedRowOffset * expectedColOffset
     // ShipVector sv = isOneOne ? shipWarpDir( 12, course ) : shipWarpOne( course )
     ShipVector sv = getTransitShipVector( course )
 
