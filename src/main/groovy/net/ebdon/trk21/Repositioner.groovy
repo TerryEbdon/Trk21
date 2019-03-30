@@ -50,6 +50,7 @@ final class Repositioner {
   float newY; // Line 1840 Stat.3
 
   def startSector;
+  def ship;
 
   Repositioner( t = null ) {
     // assert t
@@ -63,33 +64,32 @@ final class Repositioner {
   }
 
   void repositionShip( final ShipVector shipVector ) {
-    newX = trek.entSectX // Line 1840 Stat.2
-    newY = trek.entSectY // Line 1840 Stat.3
+    ship = trek.ship
+
+    newX = ship.position.sector.row // Line 1840 Stat.2
+    newY = ship.position.sector.col // Line 1840 Stat.3
     startSector = [ newX, newY ]
 
-    // assert trek && shipVector
     moveAborted = false
-    // sv = shipVector
+
     offset = new CourseOffset( shipVector ) // gosub 2300 @ line 1840
     log.info msgReposInfo,
-        startSector.toString(), trek.ship.energyUsedByLastMove, offset
+        startSector.toString(), ship.energyUsedByLastMove, offset
     log.debug "Before move: $this"
-    // trek.with {
-      trek.quadrant[ trek.entSectX, trek.entSectY ] = Thing.emptySpace  // Line 1840 Stat.1
-      newX = trek.entSectX // Line 1840 Stat.2
-      newY = trek.entSectY // Line 1840 Stat.3
-    // }
-
-    // 1 unit of energy = 1 warp factor & moves ship 1... sector? or quadrant?
-    // 1.upto( ship.energyUsedByLastMove ) { // for each sector traversed. L.1860
-    for ( int it = 1; !moveAborted && it <= trek.ship.energyUsedByLastMove; ++it ) {
-      moveSector it
+    ship.position.sector.with {
+      trek.quadrant[row, col] = Thing.emptySpace  // Line 1840 Stat.1
     }
 
-    trek.quadrant[ trek.entSectX, trek.entSectY ] = Thing.ship // 1875
-    log.info msgArrivedInQuad,   logFmtCoords( trek.entQuadX, trek.entQuadY )
-    log.info msgArrivedInsector, logFmtCoords( trek.entSectX, trek.entSectY )
+    // 1 unit of energy = 1 warp factor & moves ship 1... sector? or quadrant?
+    for ( int it = 1; !moveAborted && it <= ship.energyUsedByLastMove; ++it ) {
+      moveSector it   // for each sector traversed. L.1860
+    }
 
+    ship.position.with {
+      trek.quadrant[ sector.row, sector.col ] = Thing.ship // 1875
+      log.info msgArrivedInQuad,   quadrant
+      log.info msgArrivedInsector, sector
+    }
     log.debug "After move: $this"
   }
 
@@ -125,10 +125,6 @@ final class Repositioner {
       trek.with {
         log.info "Resetting sector to $startSector"
         (entSectX,entSectY) = startSector
-        // z1 = newX = newCoordIfOutsideQuadrant( sv, entSectX, offset.x ) // 1920, 1925 stat 1
-        // z2 = newY = newCoordIfOutsideQuadrant( sv, entSectY, offset.y ) // 1920, 1925 stat 2
-
-        // (z1,z2,newX,newY) = newCoordIfOutsideQuadrant() // 1920, 1925 stat 2
         (entQuadX,entQuadY) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
 
         // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
@@ -136,8 +132,7 @@ final class Repositioner {
 
         log.info sprintf( msgTryToEnterQuad, subMoveNo, logFmtCoords( entQuadX,entQuadY ) )
         log.info sprintf( msgTryToEnterSect, subMoveNo, logFmtCoords( entSectX,entSectY ) )
-        // log.info "Ship move part $subMoveNo - try to enter quadrant ${[z1,z2]} == $z2 - $z1"
-        // (entQuadX,entQuadY) = constrainCoords( [z1, z2] ) // 1930 & 1940 -- Can't leave galaxy.
+
         (entQuadX,entQuadY) = constrainCoords( [entQuadX,entQuadY] ) // 1930 & 1940 -- Can't leave galaxy.
         (entSectX,entSectY) = constrainCoords( [entSectX,entSectY] ) // 1930 & 1940 -- Can't leave galaxy.
         log.info sprintf( msgConstrainedToQuad, subMoveNo, logFmtCoords( entQuadX,entQuadY ) )

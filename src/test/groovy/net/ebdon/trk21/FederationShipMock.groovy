@@ -22,6 +22,7 @@ package net.ebdon.trk21;
 final class FederationShipMock {
   def energyUsedByLastMove = 0;
   def energyNow = 3000;
+  Position position = new Position();
 
   String toString() {
     // "energy: $energyNow, condition: $condition, " +

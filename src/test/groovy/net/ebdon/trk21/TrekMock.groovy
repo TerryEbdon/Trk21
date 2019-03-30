@@ -1,6 +1,8 @@
 package net.ebdon.trk21;
 
 import static GameSpace.*;
+import groovy.transform.TypeChecked;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -23,11 +25,6 @@ import static GameSpace.*;
 @groovy.util.logging.Log4j2('logger')
 class TrekMock {
 
-  int entSectX = 0;
-  int entSectY = 0;
-  int entQuadX = 0;
-  int entQuadY = 0;
-
   Galaxy galaxy;
   Quadrant quadrant;
   FederationShipMock ship;
@@ -39,6 +36,46 @@ class TrekMock {
     quadrant    = new Quadrant()
     moveBlocked = false
     log.info "Constructed with " + toString()
+  }
+
+  @TypeChecked
+  int getEntQuadX() {
+    ship.position.quadrant.row
+  }
+
+  @TypeChecked
+  void setEntQuadX( final int newPos ) {
+    ship.position.quadrant.row = newPos
+  }
+
+  @TypeChecked
+  int getEntSectX() {
+    ship.position.sector.row
+  }
+
+  @TypeChecked
+  void setEntSectX( final int newPos ) {
+    ship.position.sector.row = newPos
+  }
+
+  @TypeChecked
+  int getEntQuadY() {
+    ship.position.quadrant.col
+  }
+
+  @TypeChecked
+  void setEntQuadY( final int newPos ) {
+    ship.position.quadrant.col = newPos
+  }
+
+  @TypeChecked
+  int getEntSectY() {
+    ship.position.sector.col
+  }
+
+  @TypeChecked
+  void setEntSectY( final int newPos ) {
+    ship.position.sector.col = newPos
   }
 
   String toString() {

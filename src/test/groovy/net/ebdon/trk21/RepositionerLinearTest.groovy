@@ -31,6 +31,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     setupAt 4, 4, 4, 4
   }
 
+  @Newify([Position,Coords2d])
   void testBlocked2() {
     MockFor trekMock = MockFor( Trek )
     ShipVector sv = shipWarpOne(1)
@@ -40,6 +41,11 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       isOccupied: { int z1, int z2 -> true }
     ]
 
+    Coords2d c2d = [1,1]
+    Position shipPos = [c2d,c2d]
+
+    Map fakeShip = [energyUsedByLastMove: 8, position: shipPos]
+
     for ( int row in minCoord..maxCoord ) {
       for ( int col in minCoord..maxCoord ) {
         fakeQuadrant[row,col] = ( row * col == 1 ? Thing.ship : Thing.star ) // fill quadrant with stars
@@ -47,20 +53,21 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     }
 
     trekMock.demand.with {
-      getEntSectX { 1 }
-      getEntSectY { 1 }
-      getQuadrant { fakeQuadrant }
-      2.times {
-        getEntSectX { 1 }
-        getEntSectY { 1 }
-      }
+      getShip         { fakeShip }
+      // getEntSectX { 1 }
+      // getEntSectY { 1 }
+      getQuadrant     { fakeQuadrant }
+      // 2.times {
+      //   getEntSectX { 1 }
+      //   getEntSectY { 1 }
+      // }
 
-      getShip         { [energyUsedByLastMove: 8] }
+      // getShip         { fakeShip }
       getQuadrant(2)  { fakeQuadrant }
       blockedAtSector { int row, int col -> assert [row, col] == [1, 2] }
       getQuadrant     { fakeQuadrant }
-      getEntSectX     { 1 }
-      getEntSectY     { 1 }
+      // getEntSectX     { 1 }
+      // getEntSectY     { 1 }
     }
 
     trekMock.use {
