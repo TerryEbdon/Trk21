@@ -29,6 +29,10 @@ final class Coords2d {
     row > 0 && col > 0
   }
 
+  List<Integer> toList() {
+    [row, col]
+  }
+
   void constrain() {
     row = constrainCoord( row )
     col = constrainCoord( col )

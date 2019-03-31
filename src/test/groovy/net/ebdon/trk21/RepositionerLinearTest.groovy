@@ -23,7 +23,7 @@ import groovy.mock.interceptor.MockFor;
  * limitations under the License.
  */
 
-@Newify(MockFor)
+@Newify([MockFor,Position,Coords2d])
 @groovy.util.logging.Log4j2('logger')
 final class RepositionerLinearTest extends RepositionerTestBase {
 
@@ -31,7 +31,6 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     setupAt 4, 4, 4, 4
   }
 
-  @Newify([Position,Coords2d])
   void testBlocked() {
     MockFor trekMock = MockFor( Trek )
     ShipVector sv = shipWarpOne( 1F )
@@ -65,7 +64,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
   }
 
   void testBlockedOld() {
-    logger.info 'testBlocked'
+    logger.info 'testBlockedOld'
 
     setupAt( *topLeftCoords, *topLeftCoords )
     minCoord.upto(maxCoord) { row ->
@@ -85,10 +84,10 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       quadrant.dump()
       assert quadrant[topLeftCoords] == Thing.ship
     }
-    logger.info 'testBlocked OK'
+    logger.info 'testBlockedOld OK'
   }
 
-  void testIntraQuadrantNew() {
+  void testIntraQuadrant() {
     Map fakeQuadrant = [
       contains: { int z1, int z2 ->   true }, // Should never leave quadrant
       isOccupied: { int z1, int z2 -> false } // empty quadrant
@@ -124,7 +123,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       rp.repositionShip sv
       assert rp.moveAborted == false
       assert fakeShip.size() == 2
-      assert fakeShip.position == new Position( quadrant: c2d, sector: targetSector )
+      assert fakeShip.position == Position( quadrant: c2d, sector: targetSector )
       assert fakeQuadrant.size() == 5
       assert fakeQuadrant[4,startSectorCol]   == Thing.emptySpace
       assert fakeQuadrant[4,transitSectorCol] == Thing.emptySpace
@@ -153,8 +152,8 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     shipWarpDir 1F, dir
   }
 
-  void testSlowBoundaryTransition() {
-    logger.info 'testSlowBoundaryTransition...'
+  void testSlowBoundaryTransitionOld() {
+    logger.info 'testSlowBoundaryTransitionOld...'
     setupAt 6,4,6,3
     trek.ship.energyUsedByLastMove = 4
     ShipVector sv = new ShipVector().tap {
@@ -173,19 +172,58 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       assert [entSectX,entSectY] == targetSector
       assert quadrant[targetSector] == Thing.ship
     }
-    logger.info 'testSlowBoundaryTransition -- OK'
+    logger.info 'testSlowBoundaryTransitionOld -- OK'
   }
 
-  void testExtraQuadrantNew() {
+  void testSlowBoundaryTransition() {
     Map fakeQuadrant = [
-      contains: { int z1, int z2 ->   z2 in 1..8 },
+      contains  : { int z1, int z2 -> z1 in minCoord..maxCoord && z2 in minCoord..maxCoord },
+      isOccupied: { int z1, int z2 -> false } // empty quadrant
+    ]
+
+    final Coords2d startSector    = [6, 3]
+    Position shipPos              = [Coords2d(6,4), startSector.clone()]
+
+    final Position toPos = [ Coords2d(7,4), startSector.clone() ]
+
+    Map fakeShip        = [energyUsedByLastMove: 4, position: shipPos]
+    final ShipVector sv = [course: 7F, warpFactor: 0.5F]
+
+    fakeQuadrant[ startSector.toList() ] = Thing.ship
+    for ( int row in (1 + startSector.row)..maxCoord ) {
+      fakeQuadrant[row, startSector.col] = Thing.emptySpace
+    }
+
+    MockFor trekMock = MockFor( Trek )
+    trekMock.demand.with {
+      getShip         { fakeShip }
+      getQuadrant(7)  { fakeQuadrant }
+    }
+
+    TestUi ui = new TestUi()
+    trekMock.use {
+      Repositioner rp = new Repositioner()
+      rp.trek = new Trek( ui )
+      rp.repositionShip sv
+
+      assert fakeShip.size()     == 2 // energyUsedByLastMove & position
+      assert fakeShip.position   == toPos
+      assert fakeQuadrant.size() == 3 + 2 // sectors + closures
+      assert fakeQuadrant[toPos.sector.toList()] == Thing.ship
+      assert rp.moveAborted == true // Aborted in-quadrant move @ edge then jumped.
+    }
+  }
+
+  void testExtraQuadrant() {
+    Map fakeQuadrant = [
+      contains  : { int z1, int z2 -> z2 in 1..maxCoord },
       isOccupied: { int z1, int z2 -> false } // empty quadrant
     ]
     final int startSectorCol       = 4              // Start here
     final int endSectorCol         = startSectorCol // Arrive here
 
     fakeQuadrant[4,startSectorCol]   = Thing.ship
-    for ( int col in 5..8 ) {
+    for ( int col in 5..maxCoord ) {
       fakeQuadrant[4, col] = Thing.emptySpace
     }
 
@@ -193,7 +231,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     Position shipPos              = [c2d.clone(),c2d.clone()]
     final Coords2d targetSector   = [4,endSectorCol]
     final Coords2d targetQuadrant = [4,5]
-    final Position targetposition = [quadrant: targetQuadrant, sector: targetSector]
+    final Position targetPosition = [quadrant: targetQuadrant, sector: targetSector]
     final int energyUse = 8
     final ShipVector sv = shipWarpOne( 1F )
     Map fakeShip        = [energyUsedByLastMove: energyUse, position: shipPos]
@@ -210,7 +248,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       rp.trek = new Trek( ui )
       rp.repositionShip sv
       assert fakeShip.size()     == 2 // energyUsedByLastMove & position
-      assert fakeShip.position   == targetposition
+      assert fakeShip.position   == targetPosition
       assert fakeQuadrant.size() == 5 + 2 // sectors + closures
       assert fakeQuadrant[4,startSectorCol] == Thing.ship // Warp 1, so move 8 sectors crossing edge.
       assert rp.moveAborted == true // Aborted in-quadrant move @ edge then jumped.
