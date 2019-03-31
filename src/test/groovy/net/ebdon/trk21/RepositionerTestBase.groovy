@@ -76,7 +76,7 @@ abstract class RepositionerTestBase extends GroovyTestCase {
 
   @groovy.transform.TypeChecked
   final void setupAt( final int qRow, final int qCol, final int sRow, final int sCol ) {
-    logger.debug sprintf( msgSetupAt, qRow, qCol, sRow, sCol )
+    logger.printf Level.INFO, msgSetupAt, qRow, qCol, sRow, sCol
     trek.with {
       entQuadX = qRow
       entQuadY = qCol
@@ -107,16 +107,15 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     setupAt 1, 1, 1, 1
     1.upto(maxSteps) { stepNum ->
       logger.printf Level.INFO, msgStartStepQuad, stepNum, trek.ship.position
+      logger.trace trek.ship
 
       repositioner.repositionShip sv
       trek.with {
-        // final int expectedRow = 1 + stepNum * expectedRowOffset
-        // final int expectedCol = 1 + stepNum * expectedColOffset
         int expectedRow, expectedCol
         (expectedRow,expectedCol) = getExpectedTransitCoords(
             stepNum, expectedRowOffset, expectedColOffset )
 
-        logger.printf Level.INFO, msgStepNowIn, stepNum, trek.ship.position
+        logger.printf Level.INFO, msgStepNowIn,    stepNum, ship.position
         logger.printf Level.INFO, msgStepExpectIn, stepNum, ship.position.quadrant
 
         final String badQuadRow = sprintf( errTransitBadPos,
