@@ -30,4 +30,8 @@ class Position {
     quadrant.isValid() && sector.isValid()
   }
 
+  void constrain() {
+    quadrant.constrain()
+    sector.constrain()
+  }
 }

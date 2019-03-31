@@ -35,11 +35,11 @@ final class Repositioner {
   final String msgConstrainedToSect = "$msgMovePart constrained to sector   %s";
   final String msgArrivedInQuad     = 'Ship arrived in quadrant {}';
   final String msgArrivedInsector   = 'Ship arrived in sector   {}';
-  final String msgReposInfo         = "Reposition from sector   {} with energy {} and offset {}";
-  final String msgJumpFrom          = "Jumping from: quadrant:  {}";
+  final String msgReposInfo         = 'Reposition from sector   {} with energy {} and offset {}';
+  final String msgJumpFrom          = 'Jumping from: quadrant:  {}';
   final String msgfloatQuadFormat   = "[${CourseOffset.format1}, ${CourseOffset.format1}]";
   final String msgJumpTo            = "jumping to:   quadrant: $msgfloatQuadFormat";
-  final String msgJumpOffset        = "Jumping with offset: {}";
+  final String msgJumpOffset        = 'Jumping with offset: {}';
   final String msgJumpCoord         = "Jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
 
   boolean moveAborted   = false;
@@ -49,7 +49,7 @@ final class Repositioner {
   float newX; // Line 1840 Stat.2
   float newY; // Line 1840 Stat.3
 
-  def startSector;
+  Coords2d startSector;
   def ship;
 
   Repositioner( t = null ) {
@@ -59,22 +59,21 @@ final class Repositioner {
 
   String toString() {
     "moveAborted: $moveAborted, newX: $newX, newY: $newY startSector: $startSector\n" +
-    "trek=   $trek\n" +
+    // "trek=   ${trek?.toString() ?: '???'}\n" +
     "offset= $offset"
   }
 
   void repositionShip( final ShipVector shipVector ) {
     ship = trek.ship
 
-    newX = ship.position.sector.row // Line 1840 Stat.2
-    newY = ship.position.sector.col // Line 1840 Stat.3
-    startSector = [ newX, newY ]
+    startSector = ship.position.sector
+    newX = startSector.row // Line 1840 Stat.2
+    newY = startSector.col // Line 1840 Stat.3
 
     moveAborted = false
 
     offset = new CourseOffset( shipVector ) // gosub 2300 @ line 1840
-    log.info msgReposInfo,
-        startSector.toString(), ship.energyUsedByLastMove, offset
+    log.info msgReposInfo, startSector, ship.energyUsedByLastMove, offset
     log.debug "Before move: $this"
     ship.position.sector.with {
       trek.quadrant[row, col] = Thing.emptySpace  // Line 1840 Stat.1
@@ -93,7 +92,8 @@ final class Repositioner {
     log.debug "After move: $this"
   }
 
-  private void objectAtSector( subMoveNo, row, col ) {
+  private void objectAtSector( final int subMoveNo, final int row, final int col ) {
+    log.error 'Move step {} blocked at {}', subMoveNo, [row,col]
     log.printf Level.DEBUG,
       msgMoveBlocked, subMoveNo, trek.quadrant[row,col], [row, col]
     trek.blockedAtSector row, col
@@ -111,33 +111,30 @@ final class Repositioner {
         newX -= offset.x
         newY -= offset.y
       } else {
-        ship.position.sector.row = z1
-        ship.position.sector.col = z2
+        ship.position.sector = [z1, z2]
         log.printf Level.DEBUG,
             msgInEmptySector, subMoveNo, [z1, z2], newX, newY
       }
     } else { // Line 1920 - 1925
       log.printf Level.INFO, msgCrossQuadEdge, subMoveNo, [z1, z2]
       moveAborted = true
-      trek.with {
-        log.info "Resetting sector to $startSector"
-        (entSectX,entSectY) = startSector
-        (entQuadX,entQuadY) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
-        // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
-        // entSectY  = bounceToSectCoord( newY, z2 ) // Line 1925, stats 4.
-      }
+      log.info "Resetting sector to $startSector"
+      ship.position.sector = startSector
 
       ship.position.with {
+        quadrant.with {
+          log.info 'Resetting quadrant'
+          (row,col) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
+        }
+        // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
+        // entSectY  = bounceToSectCoord( newY, z2 ) // Line 1925, stats 4.
+
         log.printf Level.INFO, msgTryToEnterQuad, subMoveNo, quadrant
         log.printf Level.INFO, msgTryToEnterSect, subMoveNo, sector
       }
 
-      trek.with {
-        (entQuadX,entQuadY) = constrainCoords( [entQuadX,entQuadY] ) // 1930 & 1940 -- Can't leave galaxy.
-        (entSectX,entSectY) = constrainCoords( [entSectX,entSectY] ) // 1930 & 1940 -- Can't leave galaxy.
-      }
-
       ship.position.with {
+        constrain() // 1930 & 1940
         log.printf Level.INFO, msgConstrainedToQuad, subMoveNo, quadrant
         log.printf Level.INFO, msgConstrainedToSect, subMoveNo, sector
       }
@@ -154,32 +151,21 @@ final class Repositioner {
     maxCoord * ( compoundCoord - quadrantCoord ) + 0.5  // Line 1925, stats 3 and 4.
   }
 
+  /// @returns:
   /// Returns the new coordinates as floats of the form:
   /// `q.sss` where `q` is the new quadrant and `sss` is the sector,
   /// expressed as eights of a quadrant. e.g. 2.125 means 2 quadrants and 1
   /// sector.
-  // def newCoordIfOutsideQuadrant() {
-  //   def rv = []
-  //   [ [trek.entQuadX, offset.x, trek.entSectX],
-  //     [trek.entQuadY, offset.y, trek.entSectY]
-  //   ].each { quadCoord, offset, sectCoord -> // Line 1920
-  //     rv << quadCoord + sv.warpFactor * offset + ( sectCoord -0.5 ) / 8
-  //   }
-  //   rv * 2
-  // }
-
-  /// Returns:
-  ///  [quadrantRow,quadrantCol.sectorRow,sectorCol]
-  def newCoordIfOutsideQuadrantV2() {
-    log.info msgJumpFrom, logFmtCoords( trek.entQuadX, trek.entQuadY )
+  List<Float> newCoordIfOutsideQuadrantV2() {
+    log.info msgJumpFrom, ship.position.quadrant
     log.info msgJumpOffset, offset
     def rQuadCoords = []
-    final def warpFactor = offset.shipVector.warpFactor
-    [ [trek.entQuadX, offset.x, trek.entSectX],
-      [trek.entQuadY, offset.y, trek.entSectY]
-    ].each { quadCoord, offsetCoord, sectCoord -> // Line 1920
+    final float warpFactor = offset.shipVector.warpFactor
+    [ [ship.position.quadrant.row, offset.x, ship.position.sector.row],
+      [ship.position.quadrant.col, offset.y, ship.position.sector.col]
+    ].each { int quadCoord, float offsetCoord, int sectCoord -> // Line 1920
       log.printf Level.DEBUG, msgJumpCoord, quadCoord, offsetCoord, sectCoord
-      rQuadCoords << quadCoord + warpFactor * offsetCoord + (sectCoord - 0.5) / 8
+      rQuadCoords << quadCoord + warpFactor * offsetCoord + (sectCoord - 0.5F) / 8F
     }
     log.printf( Level.INFO, msgJumpTo, *rQuadCoords )
     rQuadCoords

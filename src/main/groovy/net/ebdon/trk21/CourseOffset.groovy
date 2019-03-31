@@ -65,9 +65,9 @@ final class CourseOffset {
 
    */
   private float courseAsRadians() {
-    final multiplesOf45Degrees = shipVector.course - 1F
+    final float multiplesOf45Degrees = shipVector.course - 1F
     final float degrees = 45F * multiplesOf45Degrees
     log.debug  "course ${shipVector.course} is $multiplesOf45Degrees * 45 = $degrees degrees"
-    Math.toRadians( degrees )
+    Math.toRadians( degrees ).toFloat()
   }
 }

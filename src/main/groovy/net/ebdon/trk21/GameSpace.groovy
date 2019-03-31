@@ -117,15 +117,6 @@ abstract class GameSpace {
     (minCoord..maxCoord).containsAll( x, y )
   }
 
-  static def constrainCoords( coords ) {
-    coords.collect { constrainCoord it }
-  }
-
-  static int constrainCoord( coord ) {
-    coord = [coord,minCoord].max() // Line 1930
-    coord = [coord,maxCoord].min() // Line 1940
-  }
-
   static def logFmtCoords( final x, final y ) {
     "${[x,y]} == $y - $x"
   }

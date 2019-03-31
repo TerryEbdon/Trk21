@@ -29,6 +29,17 @@ final class Coords2d {
     row > 0 && col > 0
   }
 
+  void constrain() {
+    row = constrainCoord( row )
+    col = constrainCoord( col )
+  }
+
+  static private int constrainCoord( final int coord ) {
+    int constrained = coord
+    constrained = [constrained, GameSpace.minCoord].max() // Line 1930
+    constrained = [constrained, GameSpace.maxCoord].min() // Line 1940
+  }
+
   @Deprecated
   final int first() { row } /// @todo work-around for GameSpace.distanceBetween()
   @Deprecated

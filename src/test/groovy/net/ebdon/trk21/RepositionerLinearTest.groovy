@@ -129,7 +129,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       assert fakeQuadrant[4,startSectorCol]   == Thing.emptySpace
       assert fakeQuadrant[4,transitSectorCol] == Thing.emptySpace
       assert fakeQuadrant[4,endSectorCol]     == Thing.ship
-      }
+    }
   }
 
   void testIntraQuadrantOld() {
@@ -176,8 +176,49 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     logger.info 'testSlowBoundaryTransition -- OK'
   }
 
+  void testExtraQuadrantNew() {
+    Map fakeQuadrant = [
+      contains: { int z1, int z2 ->   z2 in 1..8 },
+      isOccupied: { int z1, int z2 -> false } // empty quadrant
+    ]
+    final int startSectorCol       = 4              // Start here
+    final int endSectorCol         = startSectorCol // Arrive here
+
+    fakeQuadrant[4,startSectorCol]   = Thing.ship
+    for ( int col in 5..8 ) {
+      fakeQuadrant[4, col] = Thing.emptySpace
+    }
+
+    final Coords2d c2d            = [4,startSectorCol]
+    Position shipPos              = [c2d.clone(),c2d.clone()]
+    final Coords2d targetSector   = [4,endSectorCol]
+    final Coords2d targetQuadrant = [4,5]
+    final Position targetposition = [quadrant: targetQuadrant, sector: targetSector]
+    final int energyUse = 8
+    final ShipVector sv = shipWarpOne( 1F )
+    Map fakeShip        = [energyUsedByLastMove: energyUse, position: shipPos]
+
+    MockFor trekMock = MockFor( Trek )
+    trekMock.demand.with {
+      getShip         { fakeShip }
+      getQuadrant(11) { fakeQuadrant }
+    }
+
+    TestUi ui = new TestUi()
+    trekMock.use {
+      Repositioner rp = new Repositioner()
+      rp.trek = new Trek( ui )
+      rp.repositionShip sv
+      assert fakeShip.size()     == 2 // energyUsedByLastMove & position
+      assert fakeShip.position   == targetposition
+      assert fakeQuadrant.size() == 5 + 2 // sectors + closures
+      assert fakeQuadrant[4,startSectorCol] == Thing.ship // Warp 1, so move 8 sectors crossing edge.
+      assert rp.moveAborted == true // Aborted in-quadrant move @ edge then jumped.
+    }
+  }
+
   @groovy.transform.TypeChecked
-  void testExtraQuadrant() {
+  void testExtraQuadrantOld() {
     logger.info 'extraQuadrantTest'
     setupAtCentre()
     trek.with {
