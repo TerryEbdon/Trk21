@@ -1,6 +1,8 @@
 package net.ebdon.trk21;
 
 import static Quadrant.*;
+import org.apache.logging.log4j.Level;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -26,16 +28,15 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   abstract protected void transit( final int expectedRowOffset, final int expectedColOffset );
 
   final String errTransitBadPos    = 'In wrong quadrant %s at q.step %2d with offsets of [%d, %d]';
-  final String msgTransitTestStart = 'Transit in at most %2d steps with ShipVector: %s';
-  final String msgTransitTestEnd   = 'Transit in at most %2d steps with ShipVector: %s -- OK';
+  private final String msgTransitTestStart = 'Transit in at most %2d steps with ShipVector: %s';
+  private final String msgTransitTestEnd   = 'Transit in at most %2d steps with ShipVector: %s -- OK';
   final String msgQstep            = 'q.step %2d';
   final String msgQuad             = 'Quadrant [%2d, %2d]';
   final String msgSect             = 'Sector [%2d, %2d]';
-  final String msgStartStepQuad    = "$msgQstep starting with  $msgQuad $msgSect";
-  // final String msgStepIn           = "$msgQstep starting with  $msgQuad $msgSect";
-  final String msgStepNowIn        = "$msgQstep:        now in $msgQuad $msgSect";
-  final String msgStepExpectIn     = "$msgQstep:  should be in $msgQuad";
-  final String msgEndStepQuad      = "$msgQstep: finished with $msgQuad $msgSect";
+  final String msgStartStepQuad    = "$msgQstep starting with  %s";
+  final String msgStepNowIn        = "$msgQstep:        now in %s";
+  final String msgStepExpectIn     = "$msgQstep:  should be in %s";
+  final String msgEndStepQuad      = "$msgQstep: finished with %s";
   final String msgSetupAt          = "SetupAt $msgQuad $msgSect";
 
   TrekMock trek;
@@ -102,12 +103,10 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     // ShipVector sv = isOneOne ? shipWarpDir( 12, course ) : shipWarpOne( course )
     ShipVector sv = getTransitShipVector( course )
 
-    logger.info sprintf( msgTransitTestStart, maxSteps, sv )
+    logger.printf Level.INFO, msgTransitTestStart, maxSteps, sv
     setupAt 1, 1, 1, 1
     1.upto(maxSteps) { stepNum ->
-      logger.info sprintf(
-        msgStartStepQuad, stepNum,
-        trek.entQuadX, trek.entQuadY, trek.entSectX, trek.entSectY )
+      logger.printf Level.INFO, msgStartStepQuad, stepNum, trek.ship.position
 
       repositioner.repositionShip sv
       trek.with {
@@ -117,9 +116,8 @@ abstract class RepositionerTestBase extends GroovyTestCase {
         (expectedRow,expectedCol) = getExpectedTransitCoords(
             stepNum, expectedRowOffset, expectedColOffset )
 
-        logger.info sprintf( msgStepNowIn, stepNum,
-            entQuadX, entQuadY, entSectX, entSectY )
-        logger.info sprintf( msgStepExpectIn, stepNum, entQuadX, entQuadY )
+        logger.printf Level.INFO, msgStepNowIn, stepNum, trek.ship.position
+        logger.printf Level.INFO, msgStepExpectIn, stepNum, ship.position.quadrant
 
         final String badQuadRow = sprintf( errTransitBadPos,
             'row',stepNum, expectedRowOffset, expectedColOffset )
@@ -129,10 +127,9 @@ abstract class RepositionerTestBase extends GroovyTestCase {
         assertEquals badQuadRow, expectedRow, entQuadX
         assertEquals badQuadCol, expectedCol, entQuadY
         assertEquals "In wrong quadrant col at q.step $stepNum", expectedCol, entQuadY /// @todo delete this line
-        logger.info sprintf( msgEndStepQuad, stepNum,
-          entQuadX, entQuadY, entSectX, entSectY )
+        logger.printf Level.INFO, msgEndStepQuad, stepNum, trek.ship.position
       }
     }
-    logger.info sprintf( msgTransitTestEnd, maxSteps, sv )
+    logger.printf Level.INFO, msgTransitTestEnd, maxSteps, sv
   }
 }

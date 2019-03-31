@@ -21,7 +21,7 @@ import groovy.transform.*;
 
 @AutoClone
 @Canonical @TypeChecked
-@ToString(includePackage=false,includeNames=true)
+@ToString(includePackage=false,includeNames=false,excludes='valid')
 class Position {
   Coords2d quadrant = new Coords2d();  ///< Q1% and Q2% in TREK.BAS
   Coords2d sector   = new Coords2d();  ///< S1% and S2% in TREK.BAS
