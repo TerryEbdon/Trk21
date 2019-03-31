@@ -93,7 +93,7 @@ final class Repositioner {
   }
 
   private void objectAtSector( final int subMoveNo, final int row, final int col ) {
-    log.error 'Move step {} blocked at {}', subMoveNo, [row,col]
+    log.info 'Move step {} blocked at {}', subMoveNo, [row,col]
     log.printf Level.DEBUG,
       msgMoveBlocked, subMoveNo, trek.quadrant[row,col], [row, col]
     trek.blockedAtSector row, col
@@ -159,7 +159,7 @@ final class Repositioner {
   List<Float> newCoordIfOutsideQuadrantV2() {
     log.info msgJumpFrom, ship.position.quadrant
     log.info msgJumpOffset, offset
-    def rQuadCoords = []
+    List rQuadCoords = []
     final float warpFactor = offset.shipVector.warpFactor
     [ [ship.position.quadrant.row, offset.x, ship.position.sector.row],
       [ship.position.quadrant.col, offset.y, ship.position.sector.col]

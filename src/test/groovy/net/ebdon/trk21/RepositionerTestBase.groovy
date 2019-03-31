@@ -2,6 +2,7 @@ package net.ebdon.trk21;
 
 import static Quadrant.*;
 import org.apache.logging.log4j.Level;
+import groovy.mock.interceptor.MockFor;
 
 /**
  * @file
@@ -95,7 +96,15 @@ abstract class RepositionerTestBase extends GroovyTestCase {
       final int expectedRowOffset,
       final int expectedColOffset );
 
+  @groovy.transform.TypeChecked
   final protected void transitSteps(
+      final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
+
+    transitStepsOld expectedRowOffset, expectedColOffset, maxSteps
+    transitStepsNew expectedRowOffset, expectedColOffset, maxSteps
+  }
+
+  private void transitStepsOld(
       final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
     logger.info "transitSteps called with $expectedRowOffset, $expectedColOffset, $maxSteps"
     final float course = getCourseFrom( expectedRowOffset, expectedColOffset )
@@ -126,9 +135,62 @@ abstract class RepositionerTestBase extends GroovyTestCase {
         assertEquals badQuadRow, expectedRow, entQuadX
         assertEquals badQuadCol, expectedCol, entQuadY
         assertEquals "In wrong quadrant col at q.step $stepNum", expectedCol, entQuadY /// @todo delete this line
-        logger.printf Level.INFO, msgEndStepQuad, stepNum, trek.ship.position
+        logger.printf Level.INFO, msgEndStepQuad, stepNum, ship.position
       }
     }
     logger.printf Level.INFO, msgTransitTestEnd, maxSteps, sv
+  }
+
+  @Newify([MockFor,Position,Coords2d])
+  protected void transitStepsNew(
+      final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
+    logger.info "transitSteps called with $expectedRowOffset, $expectedColOffset, $maxSteps"
+    final float course = getCourseFrom( expectedRowOffset, expectedColOffset )
+    ShipVector sv = getTransitShipVector( course )
+    logger.printf Level.INFO, msgTransitTestStart, maxSteps, sv
+    final Coords2d c2d = [1,1]
+    Position shipPos = [c2d.clone(),c2d.clone()]
+
+    Map fakeShip = [energyUsedByLastMove: 8F * sv.warpFactor, position: shipPos]
+
+    Map fakeQuadrant = [
+      contains   : { int z1, int z2 -> z1 in minCoord..maxCoord && z2 in minCoord..maxCoord },
+      isOccupied : { int z1, int z2 -> false }, // empty quadrant
+      [1, 1]     : Thing.ship,
+    ]
+
+    for ( int row in 2..maxCoord ) {
+      for ( int col in 2..maxCoord ) {
+        fakeQuadrant[row, col] = Thing.emptySpace
+      }
+    }
+
+    assert  maxSteps > 0
+    TestUi ui = new TestUi()
+
+    for ( int stepNum in 1..maxSteps ) {
+      logger.printf Level.INFO, msgStartStepQuad, stepNum, trek.ship.position
+
+      MockFor trekMock = MockFor( Trek )
+      trekMock.demand.with {
+        getShip { fakeShip }
+        getQuadrant(17..23) { fakeQuadrant } // 17 calls for linear, 23 for diagonal.
+      }
+
+      trekMock.use {
+        Repositioner rp = new Repositioner()
+        rp.trek = new Trek( ui )
+        rp.repositionShip sv
+
+        Coords2d expectedQuadrant = getExpectedTransitCoords(
+            stepNum, expectedRowOffset, expectedColOffset )
+
+        logger.printf Level.INFO, msgStepNowIn,    stepNum, fakeShip.position
+        logger.printf Level.INFO, msgStepExpectIn, stepNum, fakeShip.position.quadrant
+
+        assert fakeShip.position.quadrant == expectedQuadrant
+      }
+      logger.printf Level.INFO, msgTransitTestEnd, maxSteps, sv
+    }
   }
 }
