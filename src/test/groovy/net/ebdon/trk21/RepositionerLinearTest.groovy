@@ -48,18 +48,24 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     Map fakeShip = [energyUsedByLastMove: 8, position: shipPos]
 
     trekMock.demand.with {
-      getShip         { fakeShip }
-      getQuadrant(4)  { fakeQuadrant }
-      blockedAtSector { int row, int col -> assert [row, col] == [1, 2] }
-      getQuadrant     { fakeQuadrant }
+      getShip(0)         { fakeShip }
+      getQuadrant(0)     { fakeQuadrant }
+      blockedAtSector(0) { int row, int col -> assert [row, col] == [1, 2] }
+      getQuadrant(0)     { fakeQuadrant }
     }
 
     trekMock.use {
-      Repositioner rp = new Repositioner()
-      rp.trek = new Trek( ui )
+      Repositioner rp = new Repositioner(
+        trek:     new Trek(ui),
+        ship:     fakeShip,
+        ui:       ui,
+        quadrant: fakeQuadrant
+      )
       rp.repositionShip sv
-      assert rp.moveAborted == true
+      assert rp.moveAborted    == true
       assert fakeQuadrant[1,1] == Thing.ship
+      assert ui.localMsgLog    == ['blockedAtSector']
+      assert ui.argsLog        == [[Thing.star, 2, 1]]
     }
   }
 
@@ -112,14 +118,18 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     MockFor trekMock = MockFor( Trek )
     trekMock.demand.with {
-      getShip         { fakeShip }
-      getQuadrant(6)  { fakeQuadrant }
+      getShip(0)      { fakeShip }
+      getQuadrant(0)  { fakeQuadrant }
     }
 
     TestUi ui = new TestUi()
     trekMock.use {
-      Repositioner rp = new Repositioner()
-      rp.trek = new Trek( ui )
+      Repositioner rp = new Repositioner(
+        trek:     new Trek(ui),
+        ship:     fakeShip,
+        ui:       ui,
+        quadrant: fakeQuadrant
+      )
       rp.repositionShip sv
       assert rp.moveAborted == false
       assert fakeShip.size() == 2
@@ -196,14 +206,18 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     MockFor trekMock = MockFor( Trek )
     trekMock.demand.with {
-      getShip         { fakeShip }
-      getQuadrant(7)  { fakeQuadrant }
+      getShip(0)      { fakeShip }
+      getQuadrant(0)  { fakeQuadrant }
     }
 
     TestUi ui = new TestUi()
     trekMock.use {
-      Repositioner rp = new Repositioner()
-      rp.trek = new Trek( ui )
+      Repositioner rp = new Repositioner(
+        trek:     new Trek(ui),
+        ship:     fakeShip,
+        ui:       ui,
+        quadrant: fakeQuadrant
+      )
       rp.repositionShip sv
 
       assert fakeShip.size()     == 2 // energyUsedByLastMove & position
@@ -238,14 +252,18 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     MockFor trekMock = MockFor( Trek )
     trekMock.demand.with {
-      getShip         { fakeShip }
-      getQuadrant(11) { fakeQuadrant }
+      getShip(0)     { fakeShip }
+      getQuadrant(0) { fakeQuadrant }
     }
 
     TestUi ui = new TestUi()
     trekMock.use {
-      Repositioner rp = new Repositioner()
-      rp.trek = new Trek( ui )
+      Repositioner rp = new Repositioner(
+        trek:     new Trek(ui),
+        ship:     fakeShip,
+        ui:       ui,
+        quadrant: fakeQuadrant
+      )
       rp.repositionShip sv
       assert fakeShip.size()     == 2 // energyUsedByLastMove & position
       assert fakeShip.position   == targetPosition

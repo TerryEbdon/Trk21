@@ -28,14 +28,21 @@ class TrekMock {
   Galaxy galaxy;
   Quadrant quadrant;
   FederationShipMock ship;
-  boolean moveBlocked = false;
+  // boolean moveBlocked = false;
+  TestUi ui;
 
   TrekMock() {
     ship        = new FederationShipMock()
     galaxy      = new Galaxy()
     quadrant    = new Quadrant()
-    moveBlocked = false
+    ui          = new TestUi()
+    // moveBlocked = false
     log.info "Constructed with " + toString()
+  }
+
+  @TypeChecked
+  boolean isMoveBlocked() {
+    ui.localMsgLog == ['blockedAtSector']
   }
 
   @TypeChecked
@@ -83,8 +90,8 @@ class TrekMock {
     "Sector: [$entSectX, $entSectY], moveBlocked: $moveBlocked"
   }
 
-  @groovy.transform.TypeChecked
-  void blockedAtSector( final int row, final int column ) {
-    moveBlocked = true
-  }
+  // @groovy.transform.TypeChecked
+  // void blockedAtSector( final int row, final int column ) {
+  //   moveBlocked = true
+  // }
 }

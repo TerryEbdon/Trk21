@@ -43,14 +43,16 @@ final class Repositioner {
   final String msgJumpCoord         = "Jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
 
   boolean moveAborted   = false;
-  def           trek    = null;
   CourseOffset  offset  = null;
 
   float newX; // Line 1840 Stat.2
   float newY; // Line 1840 Stat.3
 
   Coords2d startSector;
-  def ship;
+  def trek;     // For quadrant and blockedAtSector()
+  def ship;     // For position and energyUsedByLastMove
+  UiBase ui;    // To replace Trek.blockedAtSector()
+  def quadrant; // To replace trek.quadrant.
 
   Repositioner( t = null ) {
     // assert t
@@ -64,7 +66,11 @@ final class Repositioner {
   }
 
   void repositionShip( final ShipVector shipVector ) {
-    ship = trek.ship
+    if ( ship == null ) {
+      ship      = trek.ship
+      quadrant  = trek.quadrant
+      ui        = trek.ui
+    }
 
     startSector = ship.position.sector
     newX = startSector.row // Line 1840 Stat.2
@@ -96,7 +102,9 @@ final class Repositioner {
     log.info 'Move step {} blocked at {}', subMoveNo, [row,col]
     log.printf Level.DEBUG,
       msgMoveBlocked, subMoveNo, trek.quadrant[row,col], [row, col]
-    trek.blockedAtSector row, col
+
+    /// @todo Localise the first agument, e.g. Thing.star
+    ui.fmtMsg 'blockedAtSector', [ quadrant[row,col], col, row ]
     moveAborted = true
   }
 

@@ -173,13 +173,18 @@ abstract class RepositionerTestBase extends GroovyTestCase {
 
       MockFor trekMock = MockFor( Trek )
       trekMock.demand.with {
-        getShip { fakeShip }
-        getQuadrant(17..23) { fakeQuadrant } // 17 calls for linear, 23 for diagonal.
+        getShip(0)     { fakeShip }
+        getQuadrant(0) { fakeQuadrant } // 17 calls for linear, 23 for diagonal.
+        // getQuadrant(17..23) { fakeQuadrant } // 17 calls for linear, 23 for diagonal.
       }
 
       trekMock.use {
-        Repositioner rp = new Repositioner()
-        rp.trek = new Trek( ui )
+        Repositioner rp = new Repositioner(
+          trek:     new Trek(ui),
+          ship:     fakeShip,
+          ui:       ui,
+          quadrant: fakeQuadrant
+        )
         rp.repositionShip sv
 
         Coords2d expectedQuadrant = getExpectedTransitCoords(
