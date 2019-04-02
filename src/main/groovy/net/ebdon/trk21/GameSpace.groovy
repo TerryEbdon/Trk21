@@ -24,19 +24,21 @@ abstract class GameSpace {
   static final int minCoord      = 1;
   static final int maxCoord      = 8;
   static final int boardSize     = (minCoord..maxCoord).size() ** 2;
-  static final topLeftCoords     = [minCoord,minCoord];
-  static final bottomRightCoords = [maxCoord,maxCoord];
+  static final Coords2d topLeftCoords     = [minCoord,minCoord];
+  static final Coords2d bottomRightCoords = [maxCoord,maxCoord];
 
   LinkedHashMap board = [:];
 
   static final float maxSectorDistance =
     distanceBetween( topLeftCoords, bottomRightCoords ); /// Sector diagonal
 
+  @TypeChecked
   def size() {
     assert validBoardSize
     boardSize
   }
 
+  @TypeChecked
   List<Integer> getRandomCoords() {
     Random rnd = new Random()
     [
@@ -57,7 +59,7 @@ abstract class GameSpace {
 
   boolean isValid() {
     def badQuadrant = board.keySet().find {
-      !insideGalaxy( it[0..1] )
+      !insideGalaxy( *(it[0..1]) )
     } // sparse = false
     // assert null == badQuadrant
     log.debug "badQuadrant: $badQuadrant, $this"
@@ -69,6 +71,7 @@ abstract class GameSpace {
     badQuadrant == null && board.size() == boardSize
   }
 
+  @TypeChecked
   String toString() {
     "board size: ${board.size()}"
   }
@@ -105,44 +108,53 @@ abstract class GameSpace {
     }
   }
 
-  static boolean insideGalaxy( final coords ) {
+  @TypeChecked
+  static boolean insideGalaxy( final Coords2d coords ) {
     insideGalaxy( coords.first(), coords.last() )
   }
 
-  static boolean insideGalaxy( final x, final y ) {
+  @TypeChecked
+  static boolean insideGalaxy( final int x, final int y ) {
     contains( x, y )
   }
 
-  static boolean contains( final x, final y ) {
+  @TypeChecked
+  static boolean contains( final Coords2d c2d ) {
+    contains c2d.row, c2d.col
+  }
+
+  @TypeChecked
+  static boolean contains( final int x, final int y ) {
     (minCoord..maxCoord).containsAll( x, y )
   }
 
-  static def logFmtCoords( final x, final y ) {
+  @TypeChecked
+  static def logFmtCoords( final int x, final int y ) {
     "${[x,y]} == $y - $x"
   }
 
   /// Distance between two sectors, calculated via Pythagorous
+  @TypeChecked
   static float distanceBetween(
-      final coordsFrom,
-      final coordsTo ) {
+      final Coords2d coordsFrom,
+      final Coords2d coordsTo ) {
 
-    assert coordsFrom && coordsTo
     assert coordsFrom != coordsTo
 
     assert sectorIsInsideQuadrant( coordsFrom )
     assert sectorIsInsideQuadrant( coordsTo )
 
-    // println "Calculating distance between $coordsFrom and $coordsTo"
-    final distance = Math.sqrt(
-      ( coordsFrom.first() - coordsTo.first() ) ** 2 +
-      ( coordsFrom.last() - coordsTo.last() ) ** 2 )
-
-    // assert distance <= maxSectorDistance
-    // println "Distance is $distance"
-    distance
+    final int rowSeparation = coordsFrom.row - coordsTo.row
+    final int colSeparation = coordsFrom.col - coordsTo.col
+    Math.sqrt( ( rowSeparation ** 2.0 + colSeparation ** 2.0 ).toDouble() )
   }
 
-  static boolean sectorIsInsideQuadrant( final coords ) {
+  @TypeChecked
+  static boolean sectorIsInsideQuadrant( final Coords2d coords ) {
     insideGalaxy( coords )
+  }
+
+  static boolean sectorIsInsideQuadrant( final List<Integer> coords ) {
+    insideGalaxy( *coords )
   }
 }

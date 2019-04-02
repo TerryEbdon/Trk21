@@ -333,10 +333,17 @@ final class Trek extends LoggingBase {
         ship.move( vector ) // set course, start engines...
 
         if ( gameContinues() ) {
-          log.trace "Ship has moved, but where is it?"
+          log.trace 'Ship has moved.'
           // Continue from line 1840...
 
-          new Repositioner( this ).repositionShip vector
+          Repositioner rp = new Repositioner(
+            // trek:     this,
+            ship:     ship,
+            ui:       ui,
+            quadrant: quadrant
+          )
+
+          rp.repositionShip vector
           repopulateSector oldQuadrant
           shortRangeScan()
         }
@@ -359,12 +366,6 @@ final class Trek extends LoggingBase {
     } else {
       log.info "Ship didn't jump quadrants."
     }
-  }
-
-  @TypeChecked
-  void blockedAtSector( final int row, final int column ) {
-    ui.localMsg 'blockedAtSector',
-      [ quadrant[row,column], column, row ] as Object[]
   }
 
   @TypeChecked

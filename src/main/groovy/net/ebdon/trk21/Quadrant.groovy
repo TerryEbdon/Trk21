@@ -3,7 +3,7 @@ package net.ebdon.trk21;
  * @file
  * @author      Terry Ebdon
  * @date        January 2019
- * @copyright
+ * @copyright   Terry Ebdon, 2019
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,7 +45,11 @@ final class Quadrant extends GameSpace {
     board[i,j] != Thing.emptySpace
   }
 
-  final Thing getAt( key ) {
+  final Thing getAt( final Coords2d c2d ) {
+    board.get c2d.toList()
+  }
+
+  final Thing getAt( List<Integer> key ) {
     board.get key
   }
 

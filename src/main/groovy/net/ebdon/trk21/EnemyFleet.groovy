@@ -131,10 +131,15 @@ final class EnemyFleet {
       numKlingonBatCrInQuad > 0
     }
 
+    @TypeChecked
+    private Coords2d shipCoords( final int shipNo ) {
+      new Coords2d( klingons[ shipNo ][1], klingons[ shipNo ][2] )
+    }
+
     /// Distance to target calculated via Pythagorous
     float distanceToTarget( final int shipNo, final Coords2d targetSectorCoords ) {
       final float distance = distanceBetween(
-        klingons[ shipNo ][1..2], targetSectorCoords
+        shipCoords( shipNo ), targetSectorCoords
       )
       log.info(
         sprintf(

@@ -52,7 +52,6 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     trekMock.use {
       Repositioner rp = new Repositioner(
-        trek:     new Trek(ui),
         ship:     fakeShip,
         ui:       ui,
         quadrant: fakeQuadrant
@@ -98,7 +97,6 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     TestUi ui = new TestUi()
     trekMock.use {
       Repositioner rp = new Repositioner(
-        trek:     new Trek(ui),
         ship:     fakeShip,
         ui:       ui,
         quadrant: fakeQuadrant
@@ -146,7 +144,6 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     TestUi ui = new TestUi()
     trekMock.use {
       Repositioner rp = new Repositioner(
-        trek:     new Trek(ui),
         ship:     fakeShip,
         ui:       ui,
         quadrant: fakeQuadrant
@@ -192,7 +189,6 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     TestUi ui = new TestUi()
     trekMock.use {
       Repositioner rp = new Repositioner(
-        trek:     new Trek(ui),
         ship:     fakeShip,
         ui:       ui,
         quadrant: fakeQuadrant

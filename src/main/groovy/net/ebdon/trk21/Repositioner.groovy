@@ -49,15 +49,9 @@ final class Repositioner {
   float newY; // Line 1840 Stat.3
 
   Coords2d startSector;
-  def trek;     // For quadrant and blockedAtSector()
   def ship;     // For position and energyUsedByLastMove
   UiBase ui;    // To replace Trek.blockedAtSector()
   def quadrant; // To replace trek.quadrant.
-
-  Repositioner( t = null ) {
-    // assert t
-    trek = t
-  }
 
   String toString() {
     "moveAborted: $moveAborted, newX: $newX, newY: $newY startSector: $startSector\n" +
@@ -66,11 +60,7 @@ final class Repositioner {
   }
 
   void repositionShip( final ShipVector shipVector ) {
-    if ( ship == null ) {
-      ship      = trek.ship
-      quadrant  = trek.quadrant
-      ui        = trek.ui
-    }
+    assert ship?.energyUsedByLastMove
 
     startSector = ship.position.sector
     newX = startSector.row // Line 1840 Stat.2
@@ -81,27 +71,24 @@ final class Repositioner {
     offset = new CourseOffset( shipVector ) // gosub 2300 @ line 1840
     log.info msgReposInfo, startSector, ship.energyUsedByLastMove, offset
     log.debug "Before move: $this"
-    ship.position.sector.with {
-      trek.quadrant[row, col] = Thing.emptySpace  // Line 1840 Stat.1
-    }
+    quadrant[ship.position.sector] = Thing.emptySpace  // Line 1840 Stat.1
 
     // 1 unit of energy = 1 warp factor & moves ship 1 quadrant?
     for ( int it = 1; !moveAborted && it <= ship.energyUsedByLastMove; ++it ) {
       moveSector it   // for each sector traversed. L.1860
     }
 
-    ship.position.with {
-      trek.quadrant[ sector.row, sector.col ] = Thing.ship // 1875
-      log.info msgArrivedInQuad,   quadrant
-      log.info msgArrivedInsector, sector
-    }
+    final shipPos = ship.position
+    quadrant[ shipPos.sector ] = Thing.ship // 1875
+    log.info msgArrivedInQuad,   shipPos.quadrant
+    log.info msgArrivedInsector, shipPos.sector
     log.debug "After move: $this"
   }
 
   private void objectAtSector( final int subMoveNo, final int row, final int col ) {
     log.info 'Move step {} blocked at {}', subMoveNo, [row,col]
     log.printf Level.DEBUG,
-      msgMoveBlocked, subMoveNo, trek.quadrant[row,col], [row, col]
+      msgMoveBlocked, subMoveNo, quadrant[row,col], [row, col]
 
     /// @todo Localise the first agument, e.g. Thing.star
     ui.fmtMsg 'blockedAtSector', [ quadrant[row,col], col, row ]
@@ -113,8 +100,8 @@ final class Repositioner {
     int z1, z2 // sector arrived at?
     (z1,z2) = [(newX += offset.x) + 0.5, (newY += offset.y) + 0.5] // Line 1860
 
-    if ( trek.quadrant.contains( z1, z2 ) ) { // Line 1870
-      if ( trek.quadrant.isOccupied( z1, z2 ) ) { // Line 1870.2
+    if ( quadrant.contains( z1, z2 ) ) { // Line 1870
+      if ( quadrant.isOccupied( z1, z2 ) ) { // Line 1870.2
         objectAtSector subMoveNo, z1, z2
         newX -= offset.x
         newY -= offset.y
