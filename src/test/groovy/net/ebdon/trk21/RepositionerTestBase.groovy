@@ -38,16 +38,6 @@ abstract class RepositionerTestBase extends GroovyTestCase {
   final String msgStepNowIn        = "$msgQstep:        now in %s";
   final String msgStepExpectIn     = "$msgQstep:  should be in %s";
   final String msgEndStepQuad      = "$msgQstep: finished with %s";
-  final String msgSetupAt          = "SetupAt $msgQuad $msgSect";
-
-  TrekMock trek;
-  Repositioner repositioner;
-
-  @groovy.transform.TypeChecked
-  final void setUp() {
-    trek = new TrekMock();
-    repositioner = new Repositioner( trek )
-  }
 
   @groovy.transform.TypeChecked
   private float getCourseFrom( final int expectedRowOffset, final int expectedColOffset ) {
@@ -67,26 +57,10 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     assert warp > 0F && warp < 13F
     assert dir  > 0F && dir  < 8.01F /// @todo Max course is weird.
 
-    trek.ship.energyUsedByLastMove = warp * 8
     new ShipVector().tap {
       course      = dir
       warpFactor  = warp
       assert isValid()
-    }
-  }
-
-  @groovy.transform.TypeChecked
-  final void setupAt( final int qRow, final int qCol, final int sRow, final int sCol ) {
-    logger.printf Level.INFO, msgSetupAt, qRow, qCol, sRow, sCol
-    trek.with {
-      entQuadX = qRow
-      entQuadY = qCol
-      entSectX = sRow
-      entSectY = sCol
-
-      galaxy.clear()
-      quadrant.clear()
-      quadrant[entSectX,entSectY] = Thing.ship
     }
   }
 
@@ -96,53 +70,8 @@ abstract class RepositionerTestBase extends GroovyTestCase {
       final int expectedRowOffset,
       final int expectedColOffset );
 
-  @groovy.transform.TypeChecked
-  final protected void transitSteps(
-      final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
-
-    transitStepsOld expectedRowOffset, expectedColOffset, maxSteps
-    transitStepsNew expectedRowOffset, expectedColOffset, maxSteps
-  }
-
-  private void transitStepsOld(
-      final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
-    logger.info "transitSteps called with $expectedRowOffset, $expectedColOffset, $maxSteps"
-    final float course = getCourseFrom( expectedRowOffset, expectedColOffset )
-    // final boolean isOneOne = expectedRowOffset * expectedColOffset
-    // ShipVector sv = isOneOne ? shipWarpDir( 12, course ) : shipWarpOne( course )
-    ShipVector sv = getTransitShipVector( course )
-
-    logger.printf Level.INFO, msgTransitTestStart, maxSteps, sv
-    setupAt 1, 1, 1, 1
-    1.upto(maxSteps) { stepNum ->
-      logger.printf Level.INFO, msgStartStepQuad, stepNum, trek.ship.position
-      logger.trace trek.ship
-
-      repositioner.repositionShip sv
-      trek.with {
-        int expectedRow, expectedCol
-        (expectedRow,expectedCol) = getExpectedTransitCoords(
-            stepNum, expectedRowOffset, expectedColOffset )
-
-        logger.printf Level.INFO, msgStepNowIn,    stepNum, ship.position
-        logger.printf Level.INFO, msgStepExpectIn, stepNum, ship.position.quadrant
-
-        final String badQuadRow = sprintf( errTransitBadPos,
-            'row',stepNum, expectedRowOffset, expectedColOffset )
-        final String badQuadCol = sprintf( errTransitBadPos,
-            'col',stepNum, expectedRowOffset, expectedColOffset )
-
-        assertEquals badQuadRow, expectedRow, entQuadX
-        assertEquals badQuadCol, expectedCol, entQuadY
-        assertEquals "In wrong quadrant col at q.step $stepNum", expectedCol, entQuadY /// @todo delete this line
-        logger.printf Level.INFO, msgEndStepQuad, stepNum, ship.position
-      }
-    }
-    logger.printf Level.INFO, msgTransitTestEnd, maxSteps, sv
-  }
-
   @Newify([MockFor,Position,Coords2d])
-  protected void transitStepsNew(
+  protected void transitSteps(
       final int expectedRowOffset, final int expectedColOffset, final int maxSteps ) {
     logger.info "transitSteps called with $expectedRowOffset, $expectedColOffset, $maxSteps"
     final float course = getCourseFrom( expectedRowOffset, expectedColOffset )
@@ -169,7 +98,7 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     TestUi ui = new TestUi()
 
     for ( int stepNum in 1..maxSteps ) {
-      logger.printf Level.INFO, msgStartStepQuad, stepNum, trek.ship.position
+      logger.printf Level.INFO, msgStartStepQuad, stepNum, fakeShip.position
 
       MockFor trekMock = MockFor( Trek )
       trekMock.demand.with {
