@@ -24,6 +24,7 @@ import static ShipDevice.DeviceType;
  */
 
 @groovy.util.logging.Log4j2('logger')
+@Newify(MockFor)
 final class TrekSetCourseTest extends TrekTestBase {
 
   private MockFor shipMock; /// @todo Duplicated in TrekLongRangeScanTest
@@ -81,11 +82,11 @@ final class TrekSetCourseTest extends TrekTestBase {
       assert vector.warpFactor == 0.2F
     }
 
-    MockFor fleetMock = new MockFor( EnemyFleet )
+    MockFor fleetMock = MockFor( EnemyFleet )
     fleetMock.demand.canAttack { false }
     fleetMock.demand.getDefeated { true }
 
-    MockFor dcMock = new MockFor( DamageControl )
+    MockFor dcMock = MockFor( DamageControl )
     dcMock.demand.isDamaged(0) { DeviceType dt -> // Note: 0 expected calls
       assert dt == DeviceType.engine
       logger.info "Called with correct DeviceType, but should NOT be called at all!"
@@ -97,11 +98,14 @@ final class TrekSetCourseTest extends TrekTestBase {
       fmtMsg 'damage.control.repair', ['hello','world']
     }
 
-    MockFor rnd = new MockFor( java.util.Random )
+    MockFor rnd = MockFor( java.util.Random )
     rnd.demand.nextFloat { ->
-      logger.info 'Bypassings the device status lottery.'
+      logger.info 'Bypassing the device status lottery.'
       1F
     }
+
+    MockFor calMock = MockFor( TrekCalendar )
+    calMock.demand.tick { 12345 }
 
     fleetMock.use {
       trek.enemyFleet = new EnemyFleet()
@@ -111,8 +115,11 @@ final class TrekSetCourseTest extends TrekTestBase {
 
         shipMock.use {
           trek.ship = new FederationShip()
-          rnd.use {
-            trek.setCourse()
+          calMock.use {
+            trek.game = new TrekCalendar()
+            rnd.use {
+              trek.setCourse()
+            }
           }
         }
       }

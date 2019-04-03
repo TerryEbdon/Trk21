@@ -71,10 +71,14 @@ final class TrekShortRangeScanTest extends TrekTestBase {
       game.use {
         trek = new Trek( ui )
         trek.quadrant.clear()
+        trek.enemyFleet = new EnemyFleet()
 
         shipMock.use {
           trek.ship = new FederationShip()
-          trek.shortRangeScan()
+          game.use {
+            trek.game = new TrekCalendar()
+            trek.shortRangeScan()
+          }
         }
       }
     }

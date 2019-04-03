@@ -1,7 +1,8 @@
 package net.ebdon.trk21;
 
-// import static Quadrant.*;
 import groovy.mock.interceptor.MockFor;
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -33,75 +34,72 @@ final class TrekTest extends GroovyTestCase {
   void setUp() {
     super.setUp()
     logger.info 'setUp'
-    trek = new Trek();
-    trek.ship = new FederationShip() /// @todo Mock this.
-  }
-
-  void testGame() {
-    logger.info 'testGame'
-
-    assert !trek.valid // No position so trek should be invalid
-    trek.with {
-      ship.position.quadrant.row  = 1
-      ship.position.quadrant.col  = 2
-      ship.position.sector.row    = 3
-      ship.position.sector.col    = 4
-
-      logger.info "Set $ship.position"
-
-      assert ship.position.quadrant.row == 1
-      assert ship.position.quadrant.col == 2
-      assert ship.position.sector.row   == 3
-      assert ship.position.sector.col   == 4
-
-      entQuadX = 1
-      entQuadY = 2
-      entSectX = 3
-      entSectY = 4
-
-      logger.info "Set $ship.position"
-
-      assert ship.position.quadrant.row == 1
-      assert ship.position.quadrant.col == 2
-      assert ship.position.sector.row   == 3
-      assert ship.position.sector.col   == 4
-
-      entQuadX = entQuadY = entSectX = entSectY = 1
-      assert ship.position.valid
-      assert valid
-    }
-    logger.info 'testGame -- OK'
+    Trek.config = true
+    trek = new Trek()
   }
 
   void testPositionEnterpriseInQuadrantGood() {
     logger.info 'testPositionEnterpriseInQuadrantGood'
-    trek.with {
-      quadrant.clear()
-      ship.position.quadrant = new Coords2d( row: 3, col: 4 )
-      logger.info 'testPositionEnterpriseInQuadrantGood set ship quadrant {}',
-          ship.position.quadrant
-      assert ship.position.quadrant.row == 3
-      assert ship.position.quadrant.col == 4
-      positionShipInQuadrant()
+    MockFor quadMock = MockFor( Quadrant )
+    MockFor shipMock = MockFor( FederationShip )
 
-      logger.info 'Expecting a ship in ' + logFmtCoords( [entSectX,entSectY] )
-      assert quadrant[entSectX,entSectY] == Quadrant.Thing.ship
-      assert quadrant.count { it.value == Quadrant.Thing.ship } == 1
+    Coords2d targetQuad = [1,2]
+    Coords2d targetSect = [3,4]
+    Position targetPos = [targetQuad.clone(), targetSect.clone()]
+
+    shipMock.demand.with {
+      getPosition(2) { targetPos }
+    }
+
+    quadMock.demand.with {
+      getRandomCoords { targetSect.toList() }
+      putAt { Coords2d sector, Quadrant.Thing newThing ->
+        assert sector == targetSect
+        assert newThing == Quadrant.Thing.ship
+      }
+      getValid { true }
+      dump {}
+    }
+
+    trek.with {
+      quadMock.use {
+        quadrant = new Quadrant()
+        shipMock.use {
+          ship = new FederationShip()
+          // quadrant.clear()
+          // ship.position.quadrant = targetQuad.clone()
+          positionShipInQuadrant()
+
+          logger.trace "Expecting a ship in $targetSect"
+          // assert quadrant[ship.position.sector] == Quadrant.Thing.ship
+          // assert quadrant.count { it.value == Quadrant.Thing.ship } == 1
+        }
+      }
     }
     logger.info 'testPositionEnterpriseInQuadrantGood -- OK'
   }
 
-  void testPositionEnterpriseInQuadrantBad() {
-    logger.info 'testPositionEnterpriseInQuadrantBad'
-    trek.with {
-      shouldFail {  // Trying to position ship in quadrant [0,0]
-        positionShipInQuadrant()
-        ship.position.quadrant = new Coords2d( row:1, col:1 )
-        logger.trace 'testPositionEnterpriseInQuadrant {}', ship.position.quadrant
-        positionShipInQuadrant() // fail: empty board.
+  void testPositionFedShipOutsideGalaxy() {
+    logger.info 'testPositionFedShipOutsideGalaxy'
+    MockFor shipMock = MockFor( FederationShip )
+    MockFor quadMock = MockFor( Quadrant )
+
+    Coords2d invalidCoords  = [0,0]
+    Position invalidPos     = [invalidCoords.clone(), invalidCoords.clone()]
+
+    shipMock.demand.with {
+      getPosition { invalidPos }
+    }
+
+    quadMock.use { // No demands as shouldn't be accessed. Fail if accessed.
+      shipMock.use {
+        trek.ship = new FederationShip()
+        shouldFail(PowerAssertionError) {
+          trek.positionShipInQuadrant() // Fail: position outside galaxy.
+        }
       }
     }
-    logger.info 'testPositionEnterpriseInQuadrantBad -- OK'
+    logger.info 'testPositionFedShipOutsideGalaxy -- OK'
   }
 
   @SuppressWarnings('ExplicitCallToGetAtMethod')
@@ -141,13 +139,13 @@ final class TrekTest extends GroovyTestCase {
   @SuppressWarnings('ExplicitCallToGetAtMethod')
   @Newify([Position,Coords2d])
   void testUpdateQuadrantAfterSkirmish() {
-    MockFor ship          = MockFor( FederationShip )
+    MockFor shipMock      = MockFor( FederationShip )
     MockFor galaxy        = MockFor( Galaxy )
     MockFor quadrantSetup = MockFor( QuadrantSetup )
     MockFor enemyFleet    = MockFor( EnemyFleet )
 
     // Start of demand required for updateNumEnemyShipsInQuad
-    ship.demand.getPosition { Position( Coords2d(1,2), Coords2d(3,4) ) }
+    shipMock.demand.getPosition { Position( Coords2d(1,2), Coords2d(3,4) ) }
     enemyFleet.demand.getNumKlingonBatCrInQuad { 3 }
     galaxy.demand.with {
       getAt { Coords2d c2d ->
@@ -164,7 +162,7 @@ final class TrekTest extends GroovyTestCase {
 
     quadrantSetup.demand.updateAfterSkirmish { }
 
-    ship.use {
+    shipMock.use {
       trek.ship = new FederationShip()
       galaxy.use {
         trek.galaxy = new Galaxy()

@@ -30,6 +30,7 @@ final class CliTest extends GroovyTestCase {
 
   @Override void setUp() {
     super.setUp()
+    TrekCli.config = false
     trekMock    = MockFor( Trek )
     scannerMock = MockFor( Scanner )
     scannerMock.demand.useDelimiter { String dlm -> assert dlm == '\n'; scannerMock }

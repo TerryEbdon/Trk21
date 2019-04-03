@@ -32,64 +32,23 @@ import static ShipDevice.*;
 */
 @groovy.util.logging.Log4j2
 final class Trek extends LoggingBase {
-  // def ui;
   UiBase ui;
   PropertyResourceBundle rb;
   MessageFormat formatter;
 
   /// @todo Rename Trek.game, it's a misleading name for TrekCalendar
-  TrekCalendar game = new TrekCalendar();
+  TrekCalendar game;
 
     static String logPositionPieces = 'Positioning game pieces {} in quadrant {}'
 
-    Galaxy    galaxy    = new Galaxy();
+    Galaxy    galaxy;
     Quadrant  quadrant  = new Quadrant();
 
     DamageControl damageControl;
 
-    EnemyFleet enemyFleet = new EnemyFleet();
+    EnemyFleet enemyFleet;
     FederationShip ship;
     int numStarBasesTotal = 0; ///< b9% in TREK.BAS
-
-  @TypeChecked
-  int getEntQuadX() {
-    ship.position.quadrant.row
-  }
-
-  @TypeChecked
-  void setEntQuadX( final int newPos ) {
-    ship.position.quadrant.row = newPos
-  }
-
-  @TypeChecked
-  int getEntSectX() {
-    ship.position.sector.row
-  }
-
-  @TypeChecked
-  void setEntSectX( final int newPos ) {
-    ship.position.sector.row = newPos
-  }
-
-  @TypeChecked
-  int getEntQuadY() {
-    ship.position.quadrant.col
-  }
-
-  @TypeChecked
-  void setEntQuadY( final int newPos ) {
-    ship.position.quadrant.col = newPos
-  }
-
-  @TypeChecked
-  int getEntSectY() {
-    ship.position.sector.col
-  }
-
-  @TypeChecked
-  void setEntSectY( final int newPos ) {
-    ship.position.sector.col = newPos
-  }
 
   @TypeChecked
   boolean isValid() {
@@ -123,6 +82,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void setupGalaxy() {
+    galaxy = new Galaxy()
     setEntStartPosition()
     distributeKlingons()
     dumpGalaxy()
@@ -243,9 +203,10 @@ final class Trek extends LoggingBase {
   void setupGame() {
     // try {
     logException {
-      ship = new FederationShip();
+      enemyFleet = new EnemyFleet()
+      ship = new FederationShip()
+      game = new TrekCalendar()
       setupGalaxy()
-      // shortRangeScan()
     }
     // } catch ( Exception ex ) {
     //   log.fatal 'Unexpected exception while setting up the game.'
