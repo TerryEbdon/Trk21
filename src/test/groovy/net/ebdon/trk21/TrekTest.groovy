@@ -177,11 +177,30 @@ final class TrekTest extends GroovyTestCase {
   }
 
   void testNavComp() {
-    MockFor navComp = MockFor( NavComp )
+    MockFor navComp       = MockFor( NavComp )
+    MockFor damageControl = MockFor( DamageControl )
+    MockFor shipMock      = MockFor( FederationShip )
+    MockFor quadMock      = MockFor( Quadrant )
+
+    damageControl.demand.isDamaged { ShipDevice.DeviceType dt ->
+      assert dt == ShipDevice.DeviceType.srSensor
+      false
+    }
+
+    shipMock.demand.getPosition { new Position() }
     navComp.demand.run { }
 
-    navComp.use {
-      trek.navComp()
+    damageControl.use {
+      trek.damageControl = new DamageControl()
+      shipMock.use {
+        trek.ship = new FederationShip()
+        quadMock.use {
+          trek.quadrant = new Quadrant()
+          navComp.use {
+            trek.navComp()
+          }
+        }
+      }
     }
   }
 }
