@@ -1,12 +1,13 @@
 package net.ebdon.trk21;
 
+import static GameSpace.*;
+import static Quadrant.*;
+import static ShipDevice.*;
+
 import java.text.MessageFormat;
 import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import groovy.transform.TypeChecked;
 
-import static GameSpace.*;
-import static Quadrant.*;
-import static ShipDevice.*;
 /**
  * @file
  * @author      Terry Ebdon
@@ -317,7 +318,8 @@ final class Trek extends LoggingBase {
     }
   }
 
-  final private void repopulateSector( final oldQuadrant ) {
+  @TypeChecked
+  private void repopulateSector( final Coords2d oldQuadrant ) {
     log.info "Quadrant was $oldQuadrant"
     log.info "Quadrant now $ship.position.quadrant"
     if ( ship.position.quadrant != oldQuadrant ) {
@@ -401,7 +403,7 @@ final class Trek extends LoggingBase {
   String displayableCondition() {
     /// @bug Should use config insteaf of HTML fonts.
     /// @todo This is incompatible with a CLI based UI.
-    def colour = ship.condition != 'DOCKED' ? ship.condition : 'GREEN'
+    final String colour = ship.condition != 'DOCKED' ? ship.condition : 'GREEN'
     "<html><font size=+2 color=$colour>${ship.condition}</font></html>"
   }
 

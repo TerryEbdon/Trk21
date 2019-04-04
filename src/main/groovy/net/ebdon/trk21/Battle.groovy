@@ -40,7 +40,7 @@ final class Battle {
     Expando rv = null
     if ( enemyFleet.numKlingonBatCrInQuad > 0 ) {
       if ( nextTargetIndex <= enemyFleet.maxKlingonBCinQuad ) {
-        final def enemyShip = enemyFleet.klingons[ nextTargetIndex ]
+        final int[] enemyShip = enemyFleet.klingons[ nextTargetIndex ]
         if ( enemyShip[3] > 0 ) {
           log.info "Creating target expando from $enemyShip"
           rv = new Expando(
@@ -63,7 +63,7 @@ final class Battle {
   }
 
   /// @todo Localise Battle.hitOnFleetShip()
-  void hitOnFleetShip( final target, final int hitAmount ) {
+  void hitOnFleetShip( final Expando target, final int hitAmount ) {
     pcReporter sprintf( '%d unit hit on %s at sector %d - %d',
       hitAmount, target.name, target.sector.last(), target.sector.first() )
 

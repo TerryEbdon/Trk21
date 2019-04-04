@@ -27,7 +27,7 @@ final class Quadrant extends GameSpace {
     base(       'B' ),
     star(       '*' )
 
-    final char symbol;
+    final String symbol;
     Thing( sym ) { symbol = sym }
   }
 
@@ -35,20 +35,21 @@ final class Quadrant extends GameSpace {
     1
   }
 
-  String symbol( final key ) {
-    // println "get key: $key"
-    // log.debug "get key: $key"
+  String symbol( final List<Integer> key ) {
     board.get( key ).symbol
   }
 
-  boolean isOccupied( i, j ) {
+  @groovy.transform.TypeChecked
+  boolean isOccupied( final int i, final int j ) {
     board[i,j] != Thing.emptySpace
   }
 
+  @groovy.transform.TypeChecked
   final Thing getAt( final Coords2d c2d ) {
     board.get c2d.toList()
   }
 
+  @groovy.transform.TypeChecked
   final Thing getAt( List<Integer> key ) {
     board.get key
   }
@@ -61,6 +62,7 @@ final class Quadrant extends GameSpace {
     board[coords.row,coords.col] = value
   }
 
+  @groovy.transform.TypeChecked
   final void clearSquare( final int row, final int col ) {
     board[row,col] = Thing.emptySpace //.ordinal()
   }

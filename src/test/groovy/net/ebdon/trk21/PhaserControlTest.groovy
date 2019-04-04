@@ -98,7 +98,7 @@ final class PhaserControlTest extends GroovyTestCase {
     logger.info 'fireAtTargets'
     setupShipForFiring()
     populateTargets()
-    battleStub.demand.hitOnFleetShip(1..99) { xp, amount ->
+    battleStub.demand.hitOnFleetShip(1..99) { Expando xp, int amount ->
       logger.trace "battleStub.hitOnFleetShip xp:$xp amount:$amount"
     }
     shipStub.demand.energyReducedByPhaserUse { amount ->

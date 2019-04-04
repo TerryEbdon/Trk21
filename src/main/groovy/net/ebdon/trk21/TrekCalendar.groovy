@@ -1,4 +1,5 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -75,7 +76,9 @@ final class TrekCalendar { // line 1110
 
     boolean outOfTime() {
       final boolean oot = remaining() <= 0
-      if ( oot ) log.info "Game timer expired.\n$this"
+      if ( oot ) {
+        log.info "Game timer expired.\n$this"
+      }
       oot
     }
     /// Force the game clock to tick. Adds one solar year to the current \ref StarDate.

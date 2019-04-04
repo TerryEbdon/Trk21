@@ -32,19 +32,17 @@ final class ShipDevice {
     damage('device.DAMAGE.CNTRL')
 
     final String id;
-    DeviceType( sym ) { id = sym}
+    DeviceType( final String sym ) { id = sym }
   }
 
-  // DeviceType.phasers.id
-
   int state = 0;
-  String id = "";
-  String name = "";
+  String id = '';
+  String name = '';
 
   @TypeChecked
   ShipDevice() {
     state = 0;
-    id = name = ""
+    id = name = ''
   }
 
   @TypeChecked
@@ -54,7 +52,7 @@ final class ShipDevice {
   }
 
   @TypeChecked
-  ShipDevice( anId ) {
+  ShipDevice( final String anId ) {
     id    = anId
     name  = id
   }
@@ -64,18 +62,19 @@ final class ShipDevice {
     state
   }
 
-  def getAt(n) {
+  def getAt( final int n) {
     assert [0,1].contains(n)
     n ? state : name
   }
 
-  def putAt(n, value) {
+  int putAt( final int n, value) {
     assert [0,1].contains(n)
     if ( n ) {
       state = value
     } else {
       name = value
     }
+    n
   }
 
   final String toString() {

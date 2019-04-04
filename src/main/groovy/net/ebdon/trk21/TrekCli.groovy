@@ -1,4 +1,5 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -19,9 +20,9 @@ package net.ebdon.trk21;
 
 class TrekCli extends UiBase {
 
-  private Scanner sc = new Scanner(System.in);
+  private final Scanner sc = new Scanner(System.in);
 
-  static main( args ) {
+  public static void main( String[] args ) {
       new TrekCli().run()
   }
 
@@ -86,7 +87,7 @@ class TrekCli extends UiBase {
 
   @Override Float getFloatInput( final String prompt ) {
     String rv = ''
-    while( !rv.isFloat() ) {
+    while ( !rv.isFloat() ) {
       rv = getLine( "  ${prompt}: " ) - '\r' ?: 0
       if ( !rv.isFloat() ) {
         outln pleaseEnterNumber()

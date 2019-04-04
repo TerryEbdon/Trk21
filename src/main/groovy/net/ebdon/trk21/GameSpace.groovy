@@ -63,7 +63,7 @@ abstract class GameSpace {
     } // sparse = false
     // assert null == badQuadrant
     log.debug "badQuadrant: $badQuadrant, $this"
-    String diag = ""
+    String diag = ''
     minCoord.upto(maxCoord) {
       diag += "[$it, $it]=${board[it,it]}, "
     }
@@ -91,17 +91,14 @@ abstract class GameSpace {
     }
   }
 
-  abstract void clearSquare( final int row, final int col ) ;
-  abstract int getCellPadding() ;
-  abstract String symbol( final key ) ;
+  abstract void clearSquare( final int row, final int col );
+  abstract int getCellPadding();
+  abstract String symbol( final List<Integer> key );
 
-  def dump() {
-    // log.debug "Dumping board:\n$board"
-    // println "Dumping board:\n$board"
+  void dump() {
     minCoord.upto(maxCoord) { i ->
       def boardRow = ''
       minCoord.upto(maxCoord) { j ->
-        // println "i,j: $i,$j"
         boardRow += "${symbol([i,j]).padLeft(cellPadding,'0')} "
       }
       log.info boardRow

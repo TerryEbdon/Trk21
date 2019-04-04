@@ -24,7 +24,8 @@ final class Galaxy extends GameSpace {
     3
   }
 
-  final String symbol( final key ) {
+  @TypeChecked
+  final String symbol( final List<Integer> key ) {
     board[key]
   }
 
@@ -33,11 +34,11 @@ final class Galaxy extends GameSpace {
     board.get key
   }
 
+  @TypeChecked
   final int getAt( final Coords2d keyCoords) {
     assert size()
     assert keyCoords?.valid
-    final List<Integer> key = [ keyCoords.row, keyCoords.col ]
-    board.get key
+    board.get keyCoords.toList()
   }
 
   @TypeChecked

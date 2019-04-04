@@ -1,11 +1,9 @@
 package net.ebdon.trk21;
 
 import groovy.swing.SwingBuilder;
-import java.awt.BorderLayout;
 import javax.swing.BorderFactory;
 import javax.swing.*;
 import java.awt.*;
-import java.text.MessageFormat;
 /**
  * @file
  * @author      Terry Ebdon
@@ -31,10 +29,10 @@ import java.text.MessageFormat;
 */
 @groovy.util.logging.Log4j2
 final class TrekGui extends UiBase {
-  def swing = new SwingBuilder();
+  private SwingBuilder swing = new SwingBuilder();
 
-  static main( args ) {
-      new TrekGui().run()
+  public static void main( String[] args ) {
+    new TrekGui().run()
   }
 
   @Override void outln( final String str ) {
@@ -45,11 +43,11 @@ final class TrekGui extends UiBase {
     swing.condition.text = displayableCondition
   }
 
-  def setDefaultFonts() {
-    // see: https://www.rgagnon.com/javadetails/java-0335.html
+  /// @ see: https://www.rgagnon.com/javadetails/java-0335.html
+  private void setDefaultFonts() {
     // Font f2 = new Font( 'monospaced', Font.BOLD, 20 ) // 28 )
     Font f2 = new Font( *(config.gui.font.standard) )
-    java.util.Enumeration keys = UIManager.getDefaults().keys();
+    Enumeration keys = UIManager.defaults().keys();
     while (keys.hasMoreElements()) {
       Object key = keys.nextElement();
       Object value = UIManager.get (key);
@@ -61,7 +59,7 @@ final class TrekGui extends UiBase {
 
   @Override Float getFloatInput( final String prompt ) {
     String rv = ''
-    while( !rv.isFloat() ) {
+    while ( !rv.isFloat() ) {
       rv = JOptionPane.showInputDialog( swing.trekFrame, btnText( prompt ) )
       if ( rv ) {
         if ( !rv.isFloat() ) {
@@ -89,7 +87,7 @@ final class TrekGui extends UiBase {
       ///       e.g. if energy > 10% && no enemy in current
       ///       or surrounding sectors.
       /// @todo Font size should be based on cong, not HTML.
-      def colour = condition != 'DOCKED' ? condition : 'GREEN'
+      String colour = condition != 'DOCKED' ? condition : 'GREEN'
       "<html><font size=+2 color=$colour>${condition}</font></html>"
     }
   }
@@ -102,7 +100,7 @@ final class TrekGui extends UiBase {
     Font f2 = new Font( *(config.gui.font.message) )
     setDefaultFonts()
 
-    javax.swing.UIManager.put("OptionPane.messageFont", f2 );
+    UIManager.put('OptionPane.messageFont', f2 );
     swing.edt {
       frame(id: 'trekFrame', title: 'Trek GUI', defaultCloseOperation: JFrame.EXIT_ON_CLOSE, pack: true, show: true) {
         vbox {
@@ -129,7 +127,5 @@ final class TrekGui extends UiBase {
     }
 
     trek.startGame()
-    // log.info "** Game Over **"
-    return
   }
 }

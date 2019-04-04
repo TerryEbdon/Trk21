@@ -1,7 +1,7 @@
 package net.ebdon.trk21;
 
-import groovy.transform.TypeChecked;
 import static net.ebdon.trk21.GameSpace.*;
+import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
@@ -21,6 +21,13 @@ import static net.ebdon.trk21.GameSpace.*;
  */
 @groovy.util.logging.Log4j2
 final class EnemyFleet {
+    /**
+    Energy level assigned to each Klingon ship. This is reset every time
+    the Enterprise enters a quadrant that contains Klingons. This is `S9%`
+    in TREK.BAS.
+    **/
+    static final int maxKlingonEnergy = 200;
+
     int numKlingonBatCrTotal  = 0; ///< k0% in TREK.BAS
     int numKlingonBatCrRemain = 0; ///< k9% in TREK.BAS
     int numKlingonBatCrInQuad = 0; ///< K3% in TREK.BAS
@@ -28,12 +35,6 @@ final class EnemyFleet {
     final int maxKlingonBCinQuad = 9;
     final int maxPossibleKlingonShips = 64 * maxKlingonBCinQuad;
 
-    /**
-    Energy level assigned to each Klingon ship. This is reset every time
-    the Enterprise enters a quadrant that contains Klingons. This is `S9%`
-    in TREK.BAS.
-    **/
-    static final int maxKlingonEnergy = 200;
 
     int[][] klingons        = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
     List<Integer> scrapHeap = []
@@ -48,6 +49,21 @@ final class EnemyFleet {
       3.28,
       6.28,
       13.28 ]; ///< r[0..9] in TREK.BAS
+
+    /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
+    @TypeChecked
+    static float energyHittingTarget(
+        final float energyReleased,
+        final float distanceToTarget ) {
+
+      assert energyReleased   > 0 && energyReleased   <= maxKlingonEnergy
+      assert distanceToTarget > 0 && distanceToTarget <= maxSectorDistance
+
+      /// @todo: Same bug as was in PhaserControl - it's possible to
+      /// hit the target with more energy than was fired at it.
+      float rnd = new Random().nextFloat()
+      ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1
+    }
 
     boolean isValid() {
       numKlingonBatCrInQuad in 0..numKlingonBatCrRemain   &&
@@ -149,21 +165,6 @@ final class EnemyFleet {
         )
       )
       distance
-    }
-
-    /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
-    @TypeChecked
-    static float energyHittingTarget(
-        final float energyReleased,
-        final float distanceToTarget ) {
-
-      assert energyReleased   > 0 && energyReleased   <= maxKlingonEnergy
-      assert distanceToTarget > 0 && distanceToTarget <= maxSectorDistance
-
-      /// @todo: Same bug as was in PhaserControl - it's possible to
-      /// hit the target with more energy than was fired at it.
-      float rnd = new Random().nextFloat()
-      ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1
     }
 
     void attack( final Coords2d targetSectorCoords, Closure reportAttack ) {
