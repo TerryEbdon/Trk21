@@ -35,11 +35,15 @@ final class FederationShip {
     Position position               = new Position();
 
     final allowedConditions = [
+final class FederationShip implements Moveable {
       'GREEN',
       'YELLOW',
       'RED',
       'DOCKED'
     ];
+
+    boolean isTracked() { true }
+    boolean weapon() { false }
 
     private void useEnergyForMove( final int energyUsedByLastMove ) { /// @bug arg name same as member variable.
       energyNow -= energyUsedByLastMove
