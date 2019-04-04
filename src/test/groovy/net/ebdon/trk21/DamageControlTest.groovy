@@ -1,10 +1,10 @@
 package net.ebdon.trk21;
 
+import static ShipDevice.*;
+
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
-
-import static ShipDevice.*;
 /**
  * @file
  * @author      Terry Ebdon
@@ -47,7 +47,6 @@ final class DamageControlTest extends GroovyTestCase {
 
   @TypeChecked
   void testFindDamagedWithNoDamage() {
-    // damage[2].state = 0
     dc.devices[2].state = 0
     assert dc.findDamagedDeviceKey() == 0
   }

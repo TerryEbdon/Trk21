@@ -1,5 +1,6 @@
 package net.ebdon.trk21;
 
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 /**
  * @file
  * @author      Terry Ebdon
@@ -41,22 +42,23 @@ final class EnemyFleetTest extends GroovyTestCase {
       }
     }
 
+    @groovy.transform.TypeChecked
     void testAttack() {
-      Closure reporterNotCalled = { attackWithEnergyAmt, msg ->
+      Closure reporterNotCalled = { int attackWithEnergyAmt, String msg ->
         assert false // Should never get here
       }
 
       enemyFleet.with {
-        shouldFail {
-          attack reporter // Fail: No Klingons in fleet.
+        shouldFail(PowerAssertionError) {
+          attack new Coords2d(2,2), reporterNotCalled // Fail: No Klingons in fleet.
         }
 
         numKlingonBatCrTotal  = 1;
         numKlingonBatCrRemain = 1;
         numKlingonBatCrInQuad = 1;
 
-        shouldFail {
-          attack reporter // Fail: 1 ship but it's not positioned.
+        shouldFail(PowerAssertionError) {
+          attack new Coords2d(2,2), reporterNotCalled // Fail: 1 ship but it's not positioned.
         }
 
         // def reporterMustbeCalled = { attackWithEnergyAmt, msg ->
@@ -76,11 +78,11 @@ final class EnemyFleetTest extends GroovyTestCase {
 
       // Test every variation of these 2 invalid arguments.
       enemyFleet.with {
-        [-1,0].permutations().eachCombination {
-          shouldFail { // Fail: invalid arguments.
+        [-1,0].permutations().eachCombination { params ->
+          shouldFail(PowerAssertionError) { // Fail: invalid arguments.
             energyHittingTarget(
-              it[0],  // energyReleased
-              it[1]   // distanceToTarget
+              params[0],  // energyReleased
+              params[1]   // distanceToTarget
             )
           }
         }
@@ -89,20 +91,21 @@ final class EnemyFleetTest extends GroovyTestCase {
       // Test every variation of 1 valid argument and 1 invalid argument.
     }
 
+    @groovy.transform.TypeChecked
     void testGoodFleetSize() {
         logger.info 'testGoodFleetSize'
         enemyFleet.with {
             log.info 'testGoodFleetSize'
-            1.upto( maxPossibleKlingonShips ) {
-                numKlingonBatCrTotal = it
-                numKlingonBatCrRemain = it
+            for ( int numEnemyShips in 1..maxPossibleKlingonShips ) {
+                numKlingonBatCrTotal = numEnemyShips
+                numKlingonBatCrRemain = numEnemyShips
             }
-            numKlingonBatCrTotal = 9
-            numKlingonBatCrRemain = 9
+            numKlingonBatCrTotal = maxKlingonBCinQuad
+            numKlingonBatCrRemain = maxKlingonBCinQuad
             assert valid
-            0.upto(9) {
-                numKlingonBatCrInQuad = it
-                assert it == numKlingonBatCrInQuad
+            for ( int numEnemyShips in 0..maxKlingonBCinQuad ) {
+                numKlingonBatCrInQuad = numEnemyShips
+                assert numEnemyShips == numKlingonBatCrInQuad
                 assert valid
             }
         }
@@ -113,13 +116,13 @@ final class EnemyFleetTest extends GroovyTestCase {
       enemyFleet = new EnemyFleet()
       enemyFleet.with {
         log.info 'testBadFleetSize'
-        shouldFail {
+        shouldFail(PowerAssertionError) {
             numKlingonBatCrRemain = 9 // Fail: 9 remain out of zero total.
         }
         assert valid
-        [ -1, 10 ].each {
-            shouldFail {
-                numKlingonBatCrInQuad = it
+        [ -1, 10 ].each { int numShips ->
+            shouldFail(PowerAssertionError) {
+                numKlingonBatCrInQuad = numShips
             }
         }
         assert valid
@@ -146,7 +149,7 @@ final class EnemyFleetTest extends GroovyTestCase {
         enemyFleet = new EnemyFleet()
         enemyFleet.with {
             log.info 'testFleetPosition'
-            shouldFail {
+            shouldFail(PowerAssertionError) {
                 positionInSector( 1, [1,1] ) // Positioning non-existent assets
             }
 
@@ -157,9 +160,9 @@ final class EnemyFleetTest extends GroovyTestCase {
             positionInSector 1, [1,1]
             assert maxKlingonEnergy == klingons[1][3]
 
-            1.upto( numKlingonBatCrInQuad ) {
-                shouldFail { // sector is already occupied.
-                    positionInSector it, [1,1]
+            for ( int shipNum in 1..numKlingonBatCrInQuad ) {
+                shouldFail(PowerAssertionError) { // sector is already occupied.
+                    positionInSector shipNum, [1,1]
                 }
             }
 
