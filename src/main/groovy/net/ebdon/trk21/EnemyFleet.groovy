@@ -35,7 +35,6 @@ final class EnemyFleet {
     final int maxKlingonBCinQuad = 9;
     final int maxPossibleKlingonShips = 64 * maxKlingonBCinQuad;
 
-
     int[][] klingons        = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
     List<Integer> scrapHeap = []
     final float[] softProbs = [

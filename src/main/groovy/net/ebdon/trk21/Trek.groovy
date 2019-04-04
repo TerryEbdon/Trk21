@@ -240,6 +240,8 @@ final class Trek extends LoggingBase {
     damageControl.report( rb.&getString, ui.&localMsg )
   }
 
+  /// @todo Eliminate this method. It's passed to Battle & klingonAttack,
+  /// but a UiBase instance could be passed instead.
   @TypeChecked
   void attackReporter( final int damageAmount, final String message ) {
     log.info "Ship under attack, $damageAmount units of damage sustained."
@@ -431,6 +433,9 @@ final class Trek extends LoggingBase {
     }
   }
 
+  /// @todo Don't pass ui.&outln and this.&attackReporter, as they're not
+  /// localised and rely on a resource bundle being passed in.
+  /// @note klingonAttack() also uses attackReporter().
   @TypeChecked
   private void attackFleetWithPhasers( final int energy ) {
     new Battle(

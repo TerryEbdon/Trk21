@@ -37,8 +37,8 @@ final class PhaserControl {
 
   /// @todo Localiser PhaserControl.phasersDisabled()
   private void phasersDisabled() {
-    log.info "Phaser control is disabled."
-    report "Phaser control is disabled."
+    log.info 'Phaser control is disabled.'
+    report 'Phaser control is disabled.'
   }
 
   /// @todo Localiser PhaserControl.phasersOnTarget()
