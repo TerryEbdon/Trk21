@@ -1,9 +1,9 @@
 package net.ebdon.trk21;
 
-import groovy.transform.TypeChecked;
-
 import static GameSpace.*;
 import static Quadrant.*;
+
+import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
@@ -66,7 +66,7 @@ final class FederationShip implements Moveable {
     private void logFuelReduction() {
       log.info "Energy reserves reduced to $energyNow"
       if ( deadInSpace() ) {
-        log.info "The ship is dead in space."
+        log.info 'The ship is dead in space.'
       }
     }
 
@@ -168,7 +168,7 @@ final class FederationShip implements Moveable {
     }
   }
 
-  private void battleStations( final numEnemyShipsHere ) {
+  private void battleStations( final int numEnemyShipsHere ) {
     log.info "There are $numEnemyShipsHere enemy craft in quadrant " +
       position.quadrant
     log.info "Condition RED: there are $numEnemyShipsHere enemy craft here!"

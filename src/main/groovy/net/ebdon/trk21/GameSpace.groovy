@@ -126,7 +126,7 @@ abstract class GameSpace {
   }
 
   @TypeChecked
-  static def logFmtCoords( final int x, final int y ) {
+  static String logFmtCoords( final int x, final int y ) {
     "${[x,y]} == $y - $x"
   }
 
