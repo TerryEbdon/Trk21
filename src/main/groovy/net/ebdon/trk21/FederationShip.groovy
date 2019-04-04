@@ -24,18 +24,18 @@ import static Quadrant.*;
 
 /// @todo consider using an enum class for #allowedConditions
 @groovy.util.logging.Log4j2
-final class FederationShip {
-    final int energyAtStart         = 3000;               ///< E0% in TREK.BAS
-    final int lowEnergyThreshold    = energyAtStart / 10; ///< Triggers condition yellow
-    int energyNow                   = energyAtStart;      ///< E% in TREK.BAS
-    String condition                = "GREEN";            ///< C$ in TREK.BAS
-    final int maxTorpedoes          = 10;
-    int numTorpedoes                = maxTorpedoes;
-    int energyUsedByLastMove        = 0 // N%
-    Position position               = new Position();
-
-    final allowedConditions = [
+@TypeChecked
 final class FederationShip implements Moveable {
+    final int energyAtStart      = 3000;               ///< E0% in TREK.BAS
+    final int lowEnergyThreshold = (energyAtStart / 10).toInteger(); ///< Triggers condition yellow
+    int energyNow                = energyAtStart;      ///< E% in TREK.BAS
+    String condition             = 'GREEN';            ///< C$ in TREK.BAS
+    final int maxTorpedoes       = 10;
+    int numTorpedoes             = maxTorpedoes;
+    int energyUsedByLastMove     = 0 // N%
+    Position position            = new Position();
+
+    final List<String> allowedConditions = [
       'GREEN',
       'YELLOW',
       'RED',
@@ -109,7 +109,7 @@ final class FederationShip implements Moveable {
       assert( sv.valid ) /// @pre The provided Shipvector is valid.
       log.info( "Ship moving: $sv" )
 
-      energyUsedByLastMove = sv.warpFactor * 8
+      energyUsedByLastMove = (sv.warpFactor * 8).toInteger()
           // 1 warp factor:
           //  - uses 1 unit of energy
           //  - moves the ship by 1 quadrant.
@@ -119,13 +119,15 @@ final class FederationShip implements Moveable {
 
     boolean deadInSpace() {
       final boolean dis = energyNow <= 0
-      if ( dis ) log.info "Ship is dead in space.\n$this"
+      if ( dis ) {
+        log.info "Ship is dead in space.\n$this"
+      }
       dis
     }
 
-    void setCondition( final newCond ) {
+    void setCondition( final String newCond ) {
         assert allowedConditions.contains( newCond )
-        final def oldCond = this.condition
+        final String oldCond = this.condition
         this.condition = newCond
         log.trace( "Conditon changed from $oldCond to ${this.condition}" )
     }
@@ -135,7 +137,7 @@ final class FederationShip implements Moveable {
   /// @pre the current sector is inside the quadrant
   /// @note It's not possible to dock with a @ref StarBase
   ///       in an adjacent quadrant.
-  def attemptDocking( final quadrant ) {
+  void attemptDocking( final Quadrant quadrant ) {
     final String logCheckForStarBase = 'Checking for star base in {}, value is {}'
     final String logNowDocked = 'Now docked in sector {} to star base in sector {}'
     final String logDockCheck = 'Checking if I can dock from sector {}'
@@ -144,11 +146,11 @@ final class FederationShip implements Moveable {
 
     position.sector.with {
       assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
-      assert quadrant.contains( [row, col] )
+      assert quadrant.contains( row, col )
       assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
       log.debug logDockCheck, logFmtCoords(row,col) /// @bug fixme!
-      for ( int i = row - 1; i <= row + 1 && condition != "DOCKED"; i++) { // 1530
-        for ( int j = col - 1; j <= col + 1 && condition != "DOCKED"; j++) { // 1530
+      for ( int i = row - 1; i <= row + 1 && condition != 'DOCKED'; i++) { // 1530
+        for ( int j = col - 1; j <= col + 1 && condition != 'DOCKED'; j++) { // 1530
           if ( quadrant.contains(i,j) ) {
             log.trace logCheckForStarBase, logFmtCoords(i,j), quadrant[i,j]
             if ( quadrant[i,j] == Thing.base ) {
@@ -170,55 +172,49 @@ final class FederationShip implements Moveable {
     log.info "There are $numEnemyShipsHere enemy craft in quadrant " +
       position.quadrant
     log.info "Condition RED: there are $numEnemyShipsHere enemy craft here!"
-    condition = "RED"
+    condition = 'RED'
   }
 
   /// @todo Remove commented out code
-  def shortRangeScan( final Galaxy galaxy ) {
-    // logException {
+  void shortRangeScan( final Galaxy galaxy ) {
+    log.debug 'shortRangeScan() called for quadrant {}', position.quadrant
+    final int minGalaxyDimension = 4                  // Galaxy must be at least this "long".
+    final int minGalaxyArea = (minGalaxyDimension ** 2).toInteger() // Galaxy is square.
 
-      log.debug "shortRangeScan() called for quadrant " + position.quadrant
-      final int minGalaxyDimension = 4                // Galaxy must be at least this "long".
-      final int minGalaxyArea = minGalaxyDimension**2 // Galaxy is square.
+    assert galaxy.boardSize >= minGalaxyArea
+    assert galaxy.insideGalaxy( position.quadrant )
 
-      assert galaxy.size() >= minGalaxyArea
-      assert galaxy.insideGalaxy( position.quadrant )
-
-      final int numEnemyShipsHere = galaxy[ position.quadrant ] / 100
-      if ( numEnemyShipsHere > 0 ) {
-        battleStations( numEnemyShipsHere )
-        // battleStations( numEnemyShipsHere, entQuadX, entQuadY )
-      } else {
-        setNonBattleCondition( galaxy )
-      }
-      // attemptDocking()
-    // }
+    final int numEnemyShipsHere = (galaxy[ position.quadrant ] / 100).toInteger()
+    if ( numEnemyShipsHere > 0 ) {
+      battleStations( numEnemyShipsHere )
+    } else {
+      setNonBattleCondition( galaxy )
+    }
   }
 
   /// @todo Refactor - Extract method setNonBattleCondition()
-  private void setNonBattleCondition( final galaxy ) {
-
+  private void setNonBattleCondition( final Galaxy galaxy ) {
     if ( energyNow > lowEnergyThreshold ) {
       log.debug "$energyNow is above threshold of $lowEnergyThreshold"
-      condition = "GREEN"
+      condition = 'GREEN'
       scanAdjacentQuadrants( galaxy )
     } else {
       log.debug "$energyNow is below threshold of $lowEnergyThreshold"
-      condition = "YELLOW"
+      condition = 'YELLOW'
       log.info "Low on energy: $this"
     }
   }
 
   /// @todo Refactor - Extract method scanAdjacentQuadrants()
-  /// @todo Remove commented out lines.
-  private void scanAdjacentQuadrants( final galaxy ) {
-
-    (position.quadrant.row - 1).upto( position.quadrant.row + 1) { i ->
-      (position.quadrant.col - 1).upto( position.quadrant.col + 1) { j ->
+  private void scanAdjacentQuadrants( final Galaxy galaxy ) {
+    Range<Integer> rowsToScan = (position.quadrant.row - 1)..( position.quadrant.row + 1)
+    Range<Integer> colsToScan = (position.quadrant.col - 1)..( position.quadrant.col + 1)
+    for ( int i in rowsToScan ) {
+      for ( int j in colsToScan ) {
         if ( insideGalaxy( i, j ) ) {
           final int quadrantStatus = galaxy[i,j]
           if ( quadrantStatus > 99 ) {
-            condition = "YELLOW"
+            condition = 'YELLOW'
             log.info "adjacent quadrant [$i,$j] = $quadrantStatus has enemy ships!"
           } else {
             log.debug "adjacent quadrant [$i,$j] = $quadrantStatus is clear."
@@ -230,12 +226,14 @@ final class FederationShip implements Moveable {
     }
   }
 
-  boolean insideGalaxy( x, y ) { /// @todo insideGalaxy() should be in a new Galaxy class.
+  @TypeChecked
+  boolean insideGalaxy( final int x, final int y ) { /// @todo insideGalaxy() should be in a new Galaxy class.
     [1..8].flatten().containsAll( [x,y] ) /// @todo insideGalaxy() uses hardcoded galaxy size
   }
 
   /// @deprecated Use Quadrant.contains()
-  private boolean inQuadrant(x,y) { /// @todo inQuadrant() should be in a new Galaxy class.
+  @TypeChecked
+  private boolean inQuadrant( final int x, final int y ) { /// @todo inQuadrant() should be in a new Galaxy class.
     insideGalaxy(x,y)
   }
 
@@ -244,9 +242,10 @@ final class FederationShip implements Moveable {
     'DOCKED' == condition
   }
 
-  void hitFromEnemy( damagelevel ) {
+  @TypeChecked
+  void hitFromEnemy( final int damagelevel ) {
     assert !isProtectedByStarBase()
-    assert 'RED' == condition
+    assert condition == 'RED'
     energyReducedByEnemyAttack damagelevel
   }
 }
