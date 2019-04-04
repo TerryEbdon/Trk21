@@ -3,7 +3,6 @@ package net.ebdon.trk21;
 import groovy.mock.interceptor.StubFor;
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 
-import static Quadrant.Thing;
 /**
  * @file
  * @author      Terry Ebdon
@@ -28,7 +27,6 @@ import static Quadrant.Thing;
 final class FederationShipTest extends GroovyTestCase {
 
     private FederationShip ship = new FederationShip();
-    private final int galaxyLength = 8;
     private def galaxy;
     private StubFor galaxyStub;
 
@@ -143,15 +141,13 @@ final class FederationShipTest extends GroovyTestCase {
 
     void testShortRangeScanBadEverything() {
       logger.info 'testShortRangeScanBadEverything'
-      // galaxy    = [:];
 
-      galaxyStub.demand.size {0}
+      galaxyStub.demand.getBoardSize { 0 }
       galaxyStub.use {
         ship.with {
           position.quadrant = new Coords2d( row: 0, col: 0 )
           shouldFail {
             shortRangeScan( galaxy ) // Everything's invalid.
-            // shortRangeScan( galaxy, 0, 0 ) // Everything's invalid.
           }
         }
       }
@@ -160,7 +156,6 @@ final class FederationShipTest extends GroovyTestCase {
 
     void testShortRangeScanBad() {
       logger.info 'testShortRangeScanBad'
-      // int quadX, quadY    = 0; ///< Q1% and Q2% in TREK.BAS
       ship.with {
         position.quadrant = new Coords2d( row: 0, col: 0 )
         shouldFail {
@@ -172,8 +167,6 @@ final class FederationShipTest extends GroovyTestCase {
         }
         position.quadrant = new Coords2d( row: 1, col: 1 )
         shouldFail {
-          // quadX = 1
-          // quadY = 1
           galaxy.remove([1,1]) // galaxy is no longer square
           shortRangeScan( galaxy ) // fail: galaxy smaller than expected
         }
@@ -181,6 +174,7 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info 'testShortRangeScanBad -- OK'
     }
 
+    @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts in scan()
     void testShortRangeScanGoodGreen() {
       logger.info 'testShortRangeScanGoodGreen'
 
@@ -219,6 +213,7 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info 'testShortRangeScanYellowLowEnergy -- OK'
     }
 
+    @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts in scan()
     void testShortRangeScanGoodYellow() {
       logger.info 'testShortRangeScanGoodYellow'
 
@@ -233,6 +228,7 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info 'testShortRangeScanGoodYellow -- OK'
     }
 
+    @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts in scan()
     void testShortRangeScanGoodRed() {
       logger.info 'testShortRangeScanGoodRed'
 
@@ -273,7 +269,7 @@ final class FederationShipTest extends GroovyTestCase {
         assert condition == 'GREEN'
         Quadrant quadrant = new Quadrant()
 
-        quadrant[4,4] = Thing.base
+        quadrant[4,4] = Quadrant.Thing.base
 
         3.upto(5) { i ->
           3.upto(5) { j ->
@@ -323,7 +319,7 @@ final class FederationShipTest extends GroovyTestCase {
 
     private String scan( final ourPosition, final expectCondition ) {
       galaxyStub.demand.with {
-        size {/*println 'returning size=64 @ 306';*/ 64}
+        getBoardSize { /*println 'returning size=64 @ 306';*/ 64}
         // insideGalaxy(1..99) { posQuad -> println "insideGalaxy[$posQuad]"; true }
         // insideGalaxy(1..99) { x,y -> println "insideGalaxy[$x,$y]"; true }
         insideGalaxy { /*println 'insideGalaxy[???] @ 309';*/ true }
@@ -341,8 +337,8 @@ final class FederationShipTest extends GroovyTestCase {
 
     private void makeRed() { //( final ourPosition ) { /// @todo Move ourPosition() into a MockGalaxy class.
       // galaxy[ ourPosition ] = 900
-      galaxyStub.demand.getAt(1..64) {900}
-  }
+      galaxyStub.demand.getAt(1..64) { 900 }
+    }
 
     private void makeYellow() { /// @todo Move makeYellow() into a MockGalaxy class.
       // getGalaxyKeySet().each { pos ->
@@ -352,22 +348,11 @@ final class FederationShipTest extends GroovyTestCase {
           // println "Called with $x, returning 000"
           000
         }
-        getAt(1..4) { final ArrayList x ->
+        getAt(1..4) { final List<Integer> x ->
           final int rv = ( x == [1,1] ? 000 : 900 )
           // println "Called with ${x.class.name} = $x, returning $rv"
           rv
         }
       }
     }
-
-    /// @deprecated
-    // private def getValidGalaxy() { /// @todo Move getValidGalaxy() into a MockGalaxy class.
-    //     def galaxy = [:]
-    //     1.upto( galaxyLength) { i->
-    //         1.upto( galaxyLength ) { j->
-    //             galaxy[i,j] = 0
-    //         }
-    //     }
-    //     galaxy
-    // }
 }

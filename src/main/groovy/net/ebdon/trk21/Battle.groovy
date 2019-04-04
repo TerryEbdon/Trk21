@@ -57,7 +57,7 @@ final class Battle {
         ++nextTargetIndex
       }
     } else {
-      log.info "Nothing to fire at; no enemy ships in this quadrant."
+      log.info 'Nothing to fire at; no enemy ships in this quadrant.'
     }
     rv
   }
@@ -99,8 +99,8 @@ final class Battle {
 
   /// @todo implement battle.fireTorpedo()
   @TypeChecked
-  void fireTorpedo( course ) {
-    pcReporter "Battle#fireTorpedo is not yet implemented"
+  void fireTorpedo( final float course ) {
+    pcReporter 'Battle#fireTorpedo is not yet implemented'
     enemyRespondsToAttack()
   }
 }

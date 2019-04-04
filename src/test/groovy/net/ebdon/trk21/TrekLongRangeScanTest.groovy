@@ -31,8 +31,8 @@ import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 final class TrekLongRangeScanTest extends TrekTestBase {
 
   private StubFor shipStub;
-  private Coords2d c2d = [row:1, col:1]
-  private Position shipPos = [c2d, c2d]
+  private final Coords2d c2d = [row:1, col:1]
+  private final Position shipPos = [c2d.clone(), c2d.clone()]
 
   @TypeChecked
   @Override void setUp() {

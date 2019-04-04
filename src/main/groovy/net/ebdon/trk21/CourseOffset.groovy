@@ -1,4 +1,5 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -28,12 +29,13 @@ Developers](https://code.tutsplus.com/tutorials/quick-tip-trigonometry-for-flash
 @groovy.util.logging.Log4j2
 @groovy.transform.TypeChecked
 final class CourseOffset {
-  final ShipVector shipVector;
-  float x;
-  float y;
   static final int precision = 6;
   static final String format1 = "%+1.${precision}f";
   static final String format2 = "x: $format1, y: $format1";
+
+  final ShipVector shipVector;
+  float x;
+  float y;
 
   CourseOffset( final ShipVector sv ) {
     shipVector = sv

@@ -1,6 +1,5 @@
 package net.ebdon.trk21;
 
-import groovy.util.logging.Log4j;
 import static GameSpace.*;
 import static ShipDevice.*;
 import groovy.mock.interceptor.StubFor;
@@ -30,19 +29,19 @@ final class PhaserControlTest extends GroovyTestCase {
   private PhaserControl pc;
   private DamageControl dc;
   private boolean damageReported;
-  private def ship;
-  private def battle;
+  private ship;
+  private battle;
   private StubFor shipStub;
   private StubFor battleStub;
-  private String reportedMsg = "";
-  private newEnergy;
+  private String reportedMsg = '';
+  private int newEnergy;
   private int energyAtStart;
 
   @Override void setUp() {
-    logger.info "setUp()"
+    super.setUp()
     dc = new DamageControl()
     shipStub = new StubFor( FederationShip )
-    shipStub.demand.deadInSpace {true}
+    shipStub.demand.deadInSpace { true }
     shipStub.use {
       ship = new FederationShip()
     }
@@ -57,9 +56,8 @@ final class PhaserControlTest extends GroovyTestCase {
     reportedMsg = ''
   }
 
-  private def getLog() { assert false }
-
-  private void reporter( msg ) {
+  @groovy.transform.TypeChecked
+  private void reporter( final String msg ) {
     reportedMsg = msg
     logger.info msg
     damageReported = true
@@ -90,12 +88,13 @@ final class PhaserControlTest extends GroovyTestCase {
     logger.info 'testCantFire -- OK'
   }
 
-  private void newEnergyReporter( newVal) {
-    energyReporterCalled = true
+  @groovy.transform.TypeChecked
+  private void newEnergyReporter( final int newVal ) {
+    // energyReporterCalled = true
     newEnergy = newVal
   }
 
-  private void fireAtTargets( Closure populateTargets, fireAmount=100 ) {
+  private void fireAtTargets( Closure populateTargets, int fireAmount = 100 ) {
     logger.info 'fireAtTargets'
     setupShipForFiring()
     populateTargets()
@@ -114,6 +113,7 @@ final class PhaserControlTest extends GroovyTestCase {
     logger.info 'fireAtTargets -- OK'
   }
 
+  @groovy.transform.TypeChecked
   void testFireAtGoodTargets() {
     logger.info 'testFireAtGoodTargets'
     final int fireAmount = 100
@@ -121,6 +121,7 @@ final class PhaserControlTest extends GroovyTestCase {
     logger.info 'testFireAtGoodTargets -- OK'
   }
 
+  @groovy.transform.TypeChecked
   void testFireAtBadTarget() {
     logger.info 'testFireAtBadtarget'
     shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
@@ -129,28 +130,23 @@ final class PhaserControlTest extends GroovyTestCase {
     logger.info 'testFireAtBadtarget -- OK' /// @todo finish this.
   }
 
+  @Newify([Position,Coords2d])
   private void setupShipForFiring() {
     final Closure energyReporter = this.&newEnergyReporter
-    final shipQuadrant = new Coords2d( row: 1, col: 1 )
+    final Coords2d shipQuadrant = [1, 1]
     energyAtStart = 3000
 
     shipStub.demand.with {
       getEnergyNow(1..99) { energyAtStart }
-
-      getPosition(1..99) {
-        new Position().tap {
-          quadrant  = shipQuadrant
-          sector    = new Coords2d( row: 1, col: 1 )
-        }
-      }
+      getPosition(1..99)  { Position( shipQuadrant, Coords2d( 1, 1 ) ) }
     }
   }
 
   private void setupTargetsIn( final Coords2d targetSector ) {
     for ( int enemyNo = 9; enemyNo > 0; enemyNo-- ) {
       logger.info "Setting up target $enemyNo"
-      final def xp = new Expando(
-        name: sprintf("Enemy ship No. %d", enemyNo ),
+      final Expando xp = new Expando(
+        name: sprintf( 'Enemy ship No. %d', enemyNo ),
         sector: targetSector.clone(),
         enemyNum: enemyNo
       )
@@ -160,13 +156,16 @@ final class PhaserControlTest extends GroovyTestCase {
     battleStub.demand.getNextTarget { null }
   }
 
+  @groovy.transform.TypeChecked
   private void setupBadTargets() {
     setupTargetsIn new Coords2d( row: 0, col: 0 )
   }
 
+  @groovy.transform.TypeChecked
   private void setupGoodTargets() {
     setupTargetsIn new Coords2d( row: 8, col: 8 )
   }
+
   // private void setupTargetsIn( final Coords2d shipQuadCoords ) {
   //   battleStub.demand.with {
   //     for ( int enemyNo = 9; enemyNo > 0; enemyNo-- ) {

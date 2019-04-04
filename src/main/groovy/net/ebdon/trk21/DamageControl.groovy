@@ -1,8 +1,8 @@
 package net.ebdon.trk21;
 
+import static ShipDevice.*;
 import groovy.transform.TypeChecked;
 
-import static ShipDevice.*;
 /**
  * @file
  * @author      Terry Ebdon

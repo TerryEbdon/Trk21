@@ -20,14 +20,15 @@ package net.ebdon.trk21;
  */
 
 @groovy.util.logging.Log4j2('logger')
+@groovy.transform.TypeChecked
 final class TrekCalendarTest extends GroovyTestCase {
     private TrekCalendar trekCalendar; // = new TrekCalendar();
 
     @Override
     void setUp() {
-        logger.trace 'setUp'
-        assert trekCalendar == null
-        trekCalendar = new TrekCalendar()
+      super.setUp()
+      logger.trace 'setUp'
+      trekCalendar = new TrekCalendar()
     }
 
     void testConstruction() {

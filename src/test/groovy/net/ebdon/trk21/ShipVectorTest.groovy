@@ -1,4 +1,5 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -18,34 +19,37 @@ package net.ebdon.trk21;
  * limitations under the License.
  */
 
+@groovy.transform.TypeChecked
 final class ShipVectorTest extends GroovyTestCase {
-  ShipVector sv;
+  private ShipVector sv;
 
   @Override void setUp() {
+    super.setUp()
     sv = new ShipVector();
   }
 
   void testRandomGoodValues() {
     def rnd = new Random()
-    for ( float course = 1; course < 9; course += rnd.nextInt( 9 ) / 10  ) {
-      for ( float warp = 0.125; warp <= 12; warp += rnd.nextInt( 9 ) / 10  ) {
+    for ( float course = 1F; course < 9F; course += rnd.nextInt( 9 ) / 10  ) {
+      for ( float warp = 0.125F; warp <= 12F; warp += rnd.nextInt( 9 ) / 10  ) {
         sv = new ShipVector( course: course, warpFactor: warp )
         assert sv.valid
       }
     }
   }
 
+  @SuppressWarnings('JUnitTestMethodWithoutAssert')
   void testStandardWarpFactors() {
     sv.with {
-      course = 1
-      0.upto(12) { baseWarp ->
+      course = 1F
+      for ( int baseWarp in 0..12 ) {
         checkGoodBaseWarp baseWarp
         checkGoodWarpSteps()
       }
     }
   }
 
-  private void checkGoodBaseWarp( baseWarp ) {
+  private void checkGoodBaseWarp( final float baseWarp ) {
     sv.warpFactor = baseWarp
     if ( baseWarp ) {
       assert sv.valid
@@ -55,9 +59,9 @@ final class ShipVectorTest extends GroovyTestCase {
   }
 
   private void checkGoodWarpSteps() {
-    1.upto(7) {
-      sv.warpFactor += 1.0 / 8.0
-      if (sv.warpFactor < 12) {
+    7.times {
+      sv.warpFactor += (1.0F / 8.0F).toFloat()
+      if (sv.warpFactor < 12F) {
         assert sv.valid
       } else {
         assert !sv.valid

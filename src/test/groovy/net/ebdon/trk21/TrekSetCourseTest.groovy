@@ -1,9 +1,9 @@
 package net.ebdon.trk21;
 
+import static ShipDevice.DeviceType;
+
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
-
-import static ShipDevice.DeviceType;
 /**
  * @file
  * @author      Terry Ebdon
@@ -89,7 +89,7 @@ final class TrekSetCourseTest extends TrekTestBase {
     MockFor dcMock = MockFor( DamageControl )
     dcMock.demand.isDamaged(0) { DeviceType dt -> // Note: 0 expected calls
       assert dt == DeviceType.engine
-      logger.info "Called with correct DeviceType, but should NOT be called at all!"
+      logger.info 'Called with correct DeviceType, but should NOT be called at all!'
       assert false
       true
     }

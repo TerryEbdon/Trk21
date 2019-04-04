@@ -1,4 +1,5 @@
 package net.ebdon.trk21;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -20,7 +21,7 @@ package net.ebdon.trk21;
 
 @groovy.util.logging.Log4j2('logger') /// @warning 'logger' not 'log' as the latter conflicts with the base class
 final class EnemyFleetTest extends GroovyTestCase {
-    EnemyFleet enemyFleet = new EnemyFleet();
+    private EnemyFleet enemyFleet = new EnemyFleet();
 
     void testFleet() {
       logger.info 'testFleet'
@@ -41,7 +42,7 @@ final class EnemyFleetTest extends GroovyTestCase {
     }
 
     void testAttack() {
-      def reporterNotCalled = { attackWithEnergyAmt, msg ->
+      Closure reporterNotCalled = { attackWithEnergyAmt, msg ->
         assert false // Should never get here
       }
 
@@ -71,11 +72,11 @@ final class EnemyFleetTest extends GroovyTestCase {
 
     //@NotYetImplemented
     void testEnergyHittingTarget() {
-      logger.info "testEnergyHittingTarget"
+      logger.info 'testEnergyHittingTarget'
 
       // Test every variation of these 2 invalid arguments.
       enemyFleet.with {
-        [-1,0].permutations().eachCombination{
+        [-1,0].permutations().eachCombination {
           shouldFail { // Fail: invalid arguments.
             energyHittingTarget(
               it[0],  // energyReleased
@@ -168,7 +169,7 @@ final class EnemyFleetTest extends GroovyTestCase {
             }
 
             assert numKlingonBatCrInQuad == klingons.count {
-              it[1] !=0 && it[2] !=0
+              it[1] != 0 && it[2] != 0
             }
 
             assert maxKlingonEnergy * numKlingonBatCrInQuad == klingons.sum {
@@ -182,7 +183,7 @@ final class EnemyFleetTest extends GroovyTestCase {
 class ReporterMock {
   static boolean reporterCalled = false;
   static int attackAmount = 0;
-  static def reporterMustbeCalled = { attackWithEnergyAmt, msg ->
+  static Closure reporterMustbeCalled = { attackWithEnergyAmt, msg ->
     log.info "reporterMustbeCalled( attackWithEnergyAmt: $attackWithEnergyAmt, msg: $msg )"
     reporterCalled = true;
     attackAmount =  attackWithEnergyAmt

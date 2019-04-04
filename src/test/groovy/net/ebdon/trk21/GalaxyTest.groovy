@@ -17,31 +17,33 @@ package net.ebdon.trk21;
  * limitations under the License.
  */
 
+ @groovy.transform.TypeChecked
 final class GalaxyTest extends GroovyTestCase {
 
-  Galaxy galaxy;
+  private Galaxy galaxy;
 
   @Override void setUp() {
+    super.setUp()
     galaxy = new Galaxy();
   }
 
   void testScanBadGalaxy() {
     shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
-      galaxy.scan( new Coords2d( 4,4 ) ) // should fail, empty galaxy
+      galaxy.scan( new Coords2d(4, 4) ) // should fail, empty galaxy
     }
   }
 
   void testOutsideScan() {
-    final def badCoords = [-1,0,9]
-    for ( row in badCoords ) {
-      for ( col in badCoords ) {
+    final List<Integer> badCoords = [-1,0,9]
+    for ( int row in badCoords ) {
+      for ( int col in badCoords ) {
         assert galaxy.scan( new Coords2d( row, col ) ) == '000'
       }
     }
   }
 
   void testInsideScan() {
-    for (scanValue in 0..999) {
+    for (int scanValue in 0..999) {
       galaxy[4,4] = scanValue
       assert galaxy.scan( new Coords2d( 4,4 ) ) == "$scanValue".padLeft(3,'0')
     }

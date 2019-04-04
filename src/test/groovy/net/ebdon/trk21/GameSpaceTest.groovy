@@ -54,7 +54,7 @@ final class GameSpaceTest extends GroovyTestCase {
     }
   }
 
-  void testDistance() {
+  void testDistance() { /// @todo This test appears to be incomplete.
     Coords2d posFrom  = new Coords2d( row: 1, col: 2 )
     Coords2d posTo    = new Coords2d( row: 8, col: 8 )
     logger.info "Calc distance from $posFrom to $posTo"
