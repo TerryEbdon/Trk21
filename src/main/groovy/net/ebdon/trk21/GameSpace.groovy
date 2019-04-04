@@ -27,13 +27,13 @@ abstract class GameSpace {
   static final Coords2d topLeftCoords     = [minCoord,minCoord];
   static final Coords2d bottomRightCoords = [maxCoord,maxCoord];
 
-  LinkedHashMap board = [:];
+  Map board = [:];
 
   static final float maxSectorDistance =
     distanceBetween( topLeftCoords, bottomRightCoords ); /// Sector diagonal
 
   @TypeChecked
-  def size() {
+  int size() {
     assert validBoardSize
     boardSize
   }
@@ -49,7 +49,7 @@ abstract class GameSpace {
 
   @TypeChecked
   private boolean isValidBoardSize() {
-    board.size() == boardSize
+    board?.size() == boardSize
   }
 
   @TypeChecked
@@ -83,7 +83,7 @@ abstract class GameSpace {
   //   board[key] = value
   // }
 
-  final def clear() {
+  final void clear() {
     minCoord.upto(maxCoord) { r1 ->
       minCoord.upto(maxCoord) { r2 ->
         clearSquare r1, r2
@@ -91,7 +91,7 @@ abstract class GameSpace {
     }
   }
 
-  abstract void clearSquare( final row, final col ) ;
+  abstract void clearSquare( final int row, final int col ) ;
   abstract int getCellPadding() ;
   abstract String symbol( final key ) ;
 

@@ -26,8 +26,6 @@ import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 @Newify(MockFor)
 final class TrekTest extends GroovyTestCase {
 
-  private final String msgPositionEnemy = 'Position enemy ships in quadrant %s: %03d';
-
   private Trek trek;
 
   @Override
@@ -58,7 +56,7 @@ final class TrekTest extends GroovyTestCase {
         assert newThing == Quadrant.Thing.ship
       }
       getValid { true }
-      dump {}
+      dump { }
     }
 
     trek.with {

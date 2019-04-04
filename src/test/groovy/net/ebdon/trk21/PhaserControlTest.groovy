@@ -114,6 +114,7 @@ final class PhaserControlTest extends GroovyTestCase {
   }
 
   @groovy.transform.TypeChecked
+  @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts in fireAtTargets()
   void testFireAtGoodTargets() {
     logger.info 'testFireAtGoodTargets'
     final int fireAmount = 100

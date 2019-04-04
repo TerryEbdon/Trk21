@@ -63,7 +63,7 @@ final class Battle {
   }
 
   /// @todo Localise Battle.hitOnFleetShip()
-  def hitOnFleetShip( final target, final int hitAmount ) {
+  void hitOnFleetShip( final target, final int hitAmount ) {
     pcReporter sprintf( '%d unit hit on %s at sector %d - %d',
       hitAmount, target.name, target.sector.last(), target.sector.first() )
 

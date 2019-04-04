@@ -61,7 +61,7 @@ final class Quadrant extends GameSpace {
     board[coords.row,coords.col] = value
   }
 
-  final void clearSquare( final row, final col ) {
+  final void clearSquare( final int row, final int col ) {
     board[row,col] = Thing.emptySpace //.ordinal()
   }
 

@@ -28,8 +28,9 @@ final class ShipVectorTest extends GroovyTestCase {
     sv = new ShipVector();
   }
 
+  @groovy.transform.TypeChecked
   void testRandomGoodValues() {
-    def rnd = new Random()
+    Random rnd = new Random()
     for ( float course = 1F; course < 9F; course += rnd.nextInt( 9 ) / 10  ) {
       for ( float warp = 0.125F; warp <= 12F; warp += rnd.nextInt( 9 ) / 10  ) {
         sv = new ShipVector( course: course, warpFactor: warp )

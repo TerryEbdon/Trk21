@@ -32,8 +32,7 @@ final class TrekKlingonAttackTest extends TrekTestBase {
     trek = new Trek( ui )
   }
 
-  /// @todo Duplicated in TrekLongRangeScanTest
-  private void resetShip( final int expectedPositionCalls ) {
+  private void resetShip() {
     shipMock = new MockFor( FederationShip )
 
     shipMock.demand.with {
@@ -42,7 +41,7 @@ final class TrekKlingonAttackTest extends TrekTestBase {
   }
 
   void testKlingonAttackProtectedByStarBase() {
-    resetShip 0
+    resetShip()
     shipMock.use {
       trek.ship = new FederationShip()
       trek.klingonAttack()
