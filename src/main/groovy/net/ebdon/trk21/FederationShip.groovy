@@ -34,7 +34,7 @@ final class FederationShip implements Moveable {
     int numTorpedoes             = maxTorpedoes;
     int energyUsedByLastMove     = 0 // N%
     Position position            = new Position();
-    String id;
+    final String id;
 
     final List<String> allowedConditions = [
       'GREEN',

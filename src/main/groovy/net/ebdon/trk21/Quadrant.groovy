@@ -25,7 +25,8 @@ final class Quadrant extends GameSpace {
     ship(       'E' ),
     enemy(      'K' ),
     base(       'B' ),
-    star(       '*' )
+    star(       '*' ),
+    torpedo(    't' )
 
     final String symbol;
     Thing( sym ) { symbol = sym }
