@@ -21,6 +21,7 @@ package net.ebdon.trk21;
 
 @groovy.transform.TypeChecked
 interface Moveable {
+  String id;  ///< Unique ID for each moveable object. Useful for testing & logging
   int getEnergyUsedByLastMove()
   Position position;
   boolean tracked;

@@ -34,6 +34,7 @@ final class FederationShip implements Moveable {
     int numTorpedoes             = maxTorpedoes;
     int energyUsedByLastMove     = 0 // N%
     Position position            = new Position();
+    String id;
 
     final List<String> allowedConditions = [
       'GREEN',
@@ -42,8 +43,8 @@ final class FederationShip implements Moveable {
       'DOCKED'
     ];
 
-    boolean isTracked() { true }
-    boolean weapon() { false }
+    boolean isTracked() { false }
+    boolean isWeapon()  { false }
 
     private void useEnergyForMove( final int energyUsedByLastMove ) { /// @bug arg name same as member variable.
       energyNow -= energyUsedByLastMove

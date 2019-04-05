@@ -25,22 +25,22 @@ import org.apache.logging.log4j.Level;
 /// @todo Move log format strings into configuration.
 @groovy.util.logging.Log4j2
 final class Repositioner {
-  final String msgMovePart          = 'Ship move part %2d -';
+  final String msgMovePart          = '%s move part %2d -';
   final String msgMoveBlocked       = "$msgMovePart object %s at sector %s";
   final String msgCrossQuadEdge     = "$msgMovePart crossing quadrant edge at %s";
-  final String msgInEmptySector     = "$msgMovePart in empty sector %s, NewX/Y: ${CourseOffset.format2}";
+  final String msgInEmptySector     = "$msgMovePart in empty sector %s, ofs: ${CourseOffset.format2}";
   final String msgTryToEnterQuad    = "$msgMovePart try to enter quadrant   %s";
   final String msgTryToEnterSect    = "$msgMovePart try to enter sector     %s";
   final String msgConstrainedToQuad = "$msgMovePart constrained to quadrant %s";
   final String msgConstrainedToSect = "$msgMovePart constrained to sector   %s";
-  final String msgArrivedInQuad     = 'Ship arrived in quadrant {}';
-  final String msgArrivedInsector   = 'Ship arrived in sector   {}';
+  final String msgArrivedInQuad     = '{} arrived in quadrant {}';
+  final String msgArrivedInsector   = '{} arrived in sector   {}';
   final String msgReposInfo         = 'Reposition from sector   {} with energy {} and offset {}';
-  final String msgJumpFrom          = 'Jumping from: quadrant:  {}';
+  final String msgJumpFrom          = '{} jumping from: quadrant:  {}';
   final String msgfloatQuadFormat   = "[${CourseOffset.format1}, ${CourseOffset.format1}]";
-  final String msgJumpTo            = "jumping to:   quadrant: $msgfloatQuadFormat";
-  final String msgJumpOffset        = 'Jumping with offset: {}';
-  final String msgJumpCoord         = "Jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
+  final String msgJumpTo            = "%s jumping to:   quadrant: $msgfloatQuadFormat";
+  final String msgJumpOffset        = '{} Jumping with offset: {}';
+  final String msgJumpCoord         = "%s jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
 
   boolean moveAborted   = false;
   CourseOffset  offset  = null;
@@ -49,49 +49,66 @@ final class Repositioner {
   float newY; // Line 1840 Stat.3
 
   Coords2d startSector;
-  def ship;     // For position and energyUsedByLastMove
-  UiBase ui;    // To replace Trek.blockedAtSector()
-  def quadrant; // To replace trek.quadrant.
+  Moveable ship;  // For position and energyUsedByLastMove
+  UiBase ui;      // To replace Trek.blockedAtSector()
+  def quadrant;   // To replace trek.quadrant.
+  private Quadrant.Thing thingMoved;
+  private boolean tracked;
+  private int energyBudget;
+  private String id ///< Id of the Moveable instance that's being repositioned.
 
   String toString() {
     "moveAborted: $moveAborted, newX: $newX, newY: $newY startSector: $startSector\n" +
     // "trek=   ${trek?.toString() ?: '???'}\n" +
+    "Moving thing: $thingMoved"
     "offset= $offset"
   }
 
   void repositionShip( final ShipVector shipVector ) {
-    assert ship?.energyUsedByLastMove
-
+    id = ship?.id
+    energyBudget = ship?.energyUsedByLastMove
+    assert energyBudget > 0
+    tracked = ship.tracked
     startSector = ship.position.sector
     newX = startSector.row // Line 1840 Stat.2
     newY = startSector.col // Line 1840 Stat.3
+    thingMoved = quadrant[ startSector.toList() ]
 
+    log.debug "quadrant: $quadrant"
+    log.debug "quadrant${startSector.toList()}: ${quadrant[*(startSector.toList())]}"
+    log.debug "startSector: $startSector"
     moveAborted = false
 
     offset = new CourseOffset( shipVector ) // gosub 2300 @ line 1840
-    log.info msgReposInfo, startSector, ship.energyUsedByLastMove, offset
+    log.debug msgReposInfo, startSector, energyBudget, offset
     log.debug "Before move: $this"
     quadrant[ship.position.sector] = Thing.emptySpace  // Line 1840 Stat.1
 
-    // 1 unit of energy = 1 warp factor & moves ship 1 quadrant?
-    for ( int it = 1; !moveAborted && it <= ship.energyUsedByLastMove; ++it ) {
+    // 1 unit of energy = 0.125 warp factor & moves ship 1 sector
+    for ( int it = 1; !moveAborted && it <= energyBudget; ++it ) {
       moveSector it   // for each sector traversed. L.1860
     }
 
     final shipPos = ship.position
-    quadrant[ shipPos.sector ] = Thing.ship // 1875
-    log.info msgArrivedInQuad,   shipPos.quadrant
-    log.info msgArrivedInsector, shipPos.sector
+    assert thingMoved
+    quadrant[ shipPos.sector ] = thingMoved // 1875
+    log.info msgArrivedInQuad,   id, shipPos.quadrant
+    log.info msgArrivedInsector, id, shipPos.sector
     log.debug "After move: $this"
   }
 
   private void objectAtSector( final int subMoveNo, final int row, final int col ) {
-    log.info 'Move step {} blocked at {}', subMoveNo, [row,col]
+    log.info 'Move step {} impact at {}', subMoveNo, [row,col]
+    final String msgId = ship.weapon ? 'impactAtSector' : 'blockedAtSector'
     log.printf Level.DEBUG,
-      msgMoveBlocked, subMoveNo, quadrant[row,col], [row, col]
+      msgMoveBlocked, subMoveNo, id, quadrant[row,col], [row, col]
 
     /// @todo Localise the first agument, e.g. Thing.star
-    ui.fmtMsg 'blockedAtSector', [ quadrant[row,col], col, row ]
+    final Quadrant.Thing thingHit = quadrant[row,col]
+    ui.fmtMsg msgId, [ thingHit, col, row ]
+    if ( ship.weapon && thingHit == Quadrant.Thing.base ) {
+      ui.localMsg baseDestroyed
+    }
     moveAborted = true
   }
 
@@ -107,32 +124,50 @@ final class Repositioner {
         newY -= offset.y
       } else {
         ship.position.sector = [z1, z2]
-        log.printf Level.DEBUG,
-            msgInEmptySector, subMoveNo, [z1, z2], newX, newY
+        // trackMove subMoveNo, z1, z2
+        trackMove subMoveNo, z1, z2, newX, newY
       }
     } else { // Line 1920 - 1925
-      log.printf Level.INFO, msgCrossQuadEdge, subMoveNo, [z1, z2]
-      moveAborted = true
-      log.info "Resetting sector to $startSector"
-      ship.position.sector = startSector
+      hitQuadrantEdge subMoveNo, z1, z2
+    }
+  }
 
-      ship.position.with {
-        quadrant.with {
-          log.info 'Resetting quadrant'
-          (row,col) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
-        }
-        // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
-        // entSectY  = bounceToSectCoord( newY, z2 ) // Line 1925, stats 4.
+  @groovy.transform.TypeChecked
+  private void hitQuadrantEdge( final int subMoveNo, final int z1, final int z2 ) {
+    log.printf Level.INFO, msgCrossQuadEdge, id, subMoveNo, [z1, z2]
+    moveAborted = true
+    log.info "Resetting sector to $startSector for $id"
+    ship.position.sector = startSector
 
-        log.printf Level.INFO, msgTryToEnterQuad, subMoveNo, quadrant
-        log.printf Level.INFO, msgTryToEnterSect, subMoveNo, sector
-      }
+    ship.position.with {
+      resetquadrant()
+      // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
+      // entSectY  = bounceToSectCoord( newY, z2 ) // Line 1925, stats 4.
 
-      ship.position.with {
-        constrain() // 1930 & 1940
-        log.printf Level.INFO, msgConstrainedToQuad, subMoveNo, quadrant
-        log.printf Level.INFO, msgConstrainedToSect, subMoveNo, sector
-      }
+      log.printf Level.INFO, msgTryToEnterQuad, id, subMoveNo, quadrant
+      log.printf Level.INFO, msgTryToEnterSect, id, subMoveNo, sector
+
+      constrain() // 1930 & 1940
+      log.printf Level.INFO, msgConstrainedToQuad, id, subMoveNo, quadrant
+      log.printf Level.INFO, msgConstrainedToSect, id, subMoveNo, sector
+    }
+  }
+
+  private void resetquadrant() {
+    ship.position.quadrant.with {
+      log.info "Resetting quadrant for $id"
+      (row,col) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
+    }
+  }
+
+  @groovy.transform.TypeChecked
+  private void trackMove(
+    final int subMoveNo, final int z1, final int z2, final float newX, final float newY ) {
+    log.printf Level.DEBUG,
+        msgInEmptySector, id, subMoveNo, [z1, z2], newX, newY
+    if ( tracked ) {
+      // ui.fmtMsg 'repositioner.position', [z1, z2]
+      ui.fmtMsg 'repositioner.position', [newX, newY]
     }
   }
 
@@ -143,7 +178,7 @@ final class Repositioner {
   /// @return A sector coordinate
   /// @bug The `+ 0.5`, to round, is pointles as integer conversion truncates.
   static int bounceToSectCoord( float compoundCoord, int quadrantCoord ) {
-    maxCoord * ( compoundCoord - quadrantCoord ) + 0.5  // Line 1925, stats 3 and 4.
+    maxCoord * ( compoundCoord - quadrantCoord ) + 0.5F  // Line 1925, stats 3 and 4.
   }
 
   /// @returns:
@@ -152,17 +187,17 @@ final class Repositioner {
   /// expressed as eights of a quadrant. e.g. 2.125 means 2 quadrants and 1
   /// sector.
   List<Float> newCoordIfOutsideQuadrantV2() {
-    log.info msgJumpFrom, ship.position.quadrant
-    log.info msgJumpOffset, offset
+    log.trace msgJumpFrom, id, ship.position.quadrant
+    log.info  msgJumpOffset, id, offset
     List rQuadCoords = []
     final float warpFactor = offset.shipVector.warpFactor
     [ [ship.position.quadrant.row, offset.x, ship.position.sector.row],
       [ship.position.quadrant.col, offset.y, ship.position.sector.col]
     ].each { int quadCoord, float offsetCoord, int sectCoord -> // Line 1920
-      log.printf Level.DEBUG, msgJumpCoord, quadCoord, offsetCoord, sectCoord
+      log.printf Level.DEBUG, msgJumpCoord, id, quadCoord, offsetCoord, sectCoord
       rQuadCoords << quadCoord + warpFactor * offsetCoord + (sectCoord - 0.5F) / 8F
     }
-    log.printf( Level.INFO, msgJumpTo, *rQuadCoords )
+    log.printf( Level.INFO, msgJumpTo, id, *rQuadCoords )
     rQuadCoords
   }
 }

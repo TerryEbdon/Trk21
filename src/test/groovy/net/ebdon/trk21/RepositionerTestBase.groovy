@@ -80,8 +80,6 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     final Coords2d c2d = [1,1]
     Position shipPos = [c2d.clone(),c2d.clone()]
 
-    Map fakeShip = [energyUsedByLastMove: 8F * sv.warpFactor, position: shipPos]
-
     Map fakeQuadrant = [
       contains   : { int z1, int z2 -> z1 in minCoord..maxCoord && z2 in minCoord..maxCoord },
       isOccupied : { int z1, int z2 -> false }, // empty quadrant
@@ -98,30 +96,36 @@ abstract class RepositionerTestBase extends GroovyTestCase {
     TestUi ui = new TestUi()
 
     for ( int stepNum in 1..maxSteps ) {
-      logger.printf Level.INFO, msgStartStepQuad, stepNum, fakeShip.position
+      logger.printf Level.INFO, msgStartStepQuad, stepNum, shipPos
 
-      MockFor trekMock = MockFor( Trek )
-      trekMock.demand.with {
-        getShip(0)     { fakeShip }
-        getQuadrant(0) { fakeQuadrant } // 17 calls for linear, 23 for diagonal.
-        // getQuadrant(17..23) { fakeQuadrant } // 17 calls for linear, 23 for diagonal.
+      MockFor trekMock = MockFor( Trek ) // No demnds, should never be accessed.
+      MockFor shipMock = MockFor( FederationShip )
+      shipMock.demand.with {
+        getId                     { 'transitSteps' }
+        getEnergyUsedByLastMove   { 8F * sv.warpFactor }
+        getTracked(1)             { false }
+        getPosition(5..99)        { shipPos }
+        getWeapon(0)              { false }   // Only called if there's a collision.
+        getPosition(0..1)         { shipPos } // 0..1, depending on the log level.
       }
 
       trekMock.use {
-        Repositioner rp = new Repositioner(
-          ship:     fakeShip,
-          ui:       ui,
-          quadrant: fakeQuadrant
-        )
-        rp.repositionShip sv
+        shipMock.use {
+          Repositioner rp = new Repositioner(
+            ship:     new FederationShip(),
+            ui:       ui,
+            quadrant: fakeQuadrant
+          )
+          rp.repositionShip sv
 
-        Coords2d expectedQuadrant = getExpectedTransitCoords(
-            stepNum, expectedRowOffset, expectedColOffset )
+          Coords2d expectedQuadrant = getExpectedTransitCoords(
+              stepNum, expectedRowOffset, expectedColOffset )
 
-        logger.printf Level.INFO, msgStepNowIn,    stepNum, fakeShip.position
-        logger.printf Level.INFO, msgStepExpectIn, stepNum, fakeShip.position.quadrant
+          logger.printf Level.INFO, msgStepNowIn,    stepNum, shipPos
+          logger.printf Level.INFO, msgStepExpectIn, stepNum, shipPos.quadrant
 
-        assert fakeShip.position.quadrant == expectedQuadrant
+          assert shipPos.quadrant == expectedQuadrant
+        }
       }
       logger.printf Level.INFO, msgTransitTestEnd, maxSteps, sv
     }

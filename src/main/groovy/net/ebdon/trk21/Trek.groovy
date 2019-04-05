@@ -205,7 +205,7 @@ final class Trek extends LoggingBase {
     // try {
     logException {
       enemyFleet = new EnemyFleet()
-      ship = new FederationShip()
+      ship = new FederationShip( id: 'Ship')
       game = new TrekCalendar()
       setupGalaxy()
     }
