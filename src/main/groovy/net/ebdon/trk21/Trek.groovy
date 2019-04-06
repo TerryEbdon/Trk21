@@ -205,7 +205,7 @@ final class Trek extends LoggingBase {
     // try {
     logException {
       enemyFleet = new EnemyFleet()
-      ship = new FederationShip( id: 'Ship')
+      ship = new FederationShip( id: 'Ship' )
       game = new TrekCalendar()
       setupGalaxy()
     }
@@ -300,8 +300,7 @@ final class Trek extends LoggingBase {
           log.trace 'Ship has moved.'
           // Continue from line 1840...
 
-          Repositioner rp = new Repositioner(
-            // trek:     this,
+          Repositioner rp = new ShipRepositioner(
             ship:     ship,
             ui:       ui,
             quadrant: quadrant

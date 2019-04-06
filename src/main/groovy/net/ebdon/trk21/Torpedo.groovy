@@ -23,7 +23,7 @@ import groovy.transform.TypeChecked;
 @TypeChecked
 final class Torpedo implements Moveable {
 
-  final String id;
+  String id;
   int getEnergyUsedByLastMove() { 8 }
   Position position;
   boolean isTracked() { true }

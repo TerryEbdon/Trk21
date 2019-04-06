@@ -24,11 +24,11 @@ import org.apache.logging.log4j.Level;
 
 /// @todo Move log format strings into configuration.
 @groovy.util.logging.Log4j2
-final class Repositioner {
+abstract class Repositioner {
   final String msgMovePart          = '%s move part %2d -';
   final String msgMoveBlocked       = "$msgMovePart object %s at sector %s";
   final String msgCrossQuadEdge     = "$msgMovePart crossing quadrant edge at %s";
-  final String msgInEmptySector     = "$msgMovePart in empty sector %s, ofs: ${CourseOffset.format2}";
+  final String msgInSector          = "$msgMovePart in sector %s, ofs: ${CourseOffset.format2}";
   final String msgTryToEnterQuad    = "$msgMovePart try to enter quadrant   %s";
   final String msgTryToEnterSect    = "$msgMovePart try to enter sector     %s";
   final String msgConstrainedToQuad = "$msgMovePart constrained to quadrant %s";
@@ -41,25 +41,28 @@ final class Repositioner {
   final String msgJumpTo            = "%s jumping to:   quadrant: $msgfloatQuadFormat";
   final String msgJumpOffset        = '{} Jumping with offset: {}';
   final String msgJumpCoord         = "%s jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
+  final String logMoveStepImpact    = '{} move step {} impact at {}'
+
 
   boolean moveAborted   = false;
-  CourseOffset  offset  = null;
 
-  float newX; // Line 1840 Stat.2
-  float newY; // Line 1840 Stat.3
+  protected CourseOffset  offset  = null;
+  protected float newX; // Line 1840 Stat.2
+  protected float newY; // Line 1840 Stat.3
+  protected Coords2d startSector;
+  protected Quadrant.Thing thingMoved;
+  protected Quadrant.Thing thingHit = Thing.emptySpace;
+  protected String id; ///< Id of the Moveable instance that's being repositioned.
 
-  Coords2d startSector;
   Moveable ship;  // For position and energyUsedByLastMove
   UiBase ui;      // To replace Trek.blockedAtSector()
   def quadrant;   // To replace trek.quadrant.
-  private Quadrant.Thing thingMoved;
+
   private boolean tracked;
   private int energyBudget;
-  private String id ///< Id of the Moveable instance that's being repositioned.
 
   String toString() {
     "moveAborted: $moveAborted, newX: $newX, newY: $newY startSector: $startSector\n" +
-    // "trek=   ${trek?.toString() ?: '???'}\n" +
     "Moving thing: $thingMoved"
     "offset= $offset"
   }
@@ -97,20 +100,7 @@ final class Repositioner {
     log.debug "After move: $this"
   }
 
-  private void objectAtSector( final int subMoveNo, final int row, final int col ) {
-    log.info 'Move step {} impact at {}', subMoveNo, [row,col]
-    final String msgId = ship.weapon ? 'impactAtSector' : 'blockedAtSector'
-    log.printf Level.DEBUG,
-      msgMoveBlocked, subMoveNo, id, quadrant[row,col], [row, col]
-
-    /// @todo Localise the first agument, e.g. Thing.star
-    final Quadrant.Thing thingHit = quadrant[row,col]
-    ui.fmtMsg msgId, [ thingHit, col, row ]
-    if ( ship.weapon && thingHit == Quadrant.Thing.base ) {
-      ui.localMsg baseDestroyed
-    }
-    moveAborted = true
-  }
+  abstract protected void objectAtSector( final int subMoveNo, final int row, final int col );
 
   private void moveSector( final int subMoveNo ) {
     assert offset
@@ -118,14 +108,11 @@ final class Repositioner {
     (z1,z2) = [(newX += offset.x) + 0.5, (newY += offset.y) + 0.5] // Line 1860
 
     if ( quadrant.contains( z1, z2 ) ) { // Line 1870
+      trackMove subMoveNo, z1, z2
       if ( quadrant.isOccupied( z1, z2 ) ) { // Line 1870.2
         objectAtSector subMoveNo, z1, z2
-        newX -= offset.x
-        newY -= offset.y
       } else {
         ship.position.sector = [z1, z2]
-        // trackMove subMoveNo, z1, z2
-        trackMove subMoveNo, z1, z2, newX, newY
       }
     } else { // Line 1920 - 1925
       hitQuadrantEdge subMoveNo, z1, z2
@@ -139,8 +126,8 @@ final class Repositioner {
     log.info "Resetting sector to $startSector for $id"
     ship.position.sector = startSector
 
+    jumpQuadrant()
     ship.position.with {
-      resetquadrant()
       // entSectX  = bounceToSectCoord( newX, z1 ) // Line 1925, stats 3.
       // entSectY  = bounceToSectCoord( newY, z2 ) // Line 1925, stats 4.
 
@@ -153,7 +140,7 @@ final class Repositioner {
     }
   }
 
-  private void resetquadrant() {
+  private void jumpQuadrant() {
     ship.position.quadrant.with {
       log.info "Resetting quadrant for $id"
       (row,col) = newCoordIfOutsideQuadrantV2() // 1920, 1925 stat 2
@@ -162,11 +149,10 @@ final class Repositioner {
 
   @groovy.transform.TypeChecked
   private void trackMove(
-    final int subMoveNo, final int z1, final int z2, final float newX, final float newY ) {
+    final int subMoveNo, final int z1, final int z2 ) {
     log.printf Level.DEBUG,
-        msgInEmptySector, id, subMoveNo, [z1, z2], newX, newY
+        msgInSector, id, subMoveNo, [z1, z2], newX, newY
     if ( tracked ) {
-      // ui.fmtMsg 'repositioner.position', [z1, z2]
       ui.fmtMsg 'repositioner.position', [newX, newY]
     }
   }

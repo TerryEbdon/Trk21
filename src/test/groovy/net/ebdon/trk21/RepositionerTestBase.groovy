@@ -111,7 +111,7 @@ abstract class RepositionerTestBase extends GroovyTestCase {
 
       trekMock.use {
         shipMock.use {
-          Repositioner rp = new Repositioner(
+          Repositioner rp = new ShipRepositioner(
             ship:     new FederationShip(),
             ui:       ui,
             quadrant: fakeQuadrant

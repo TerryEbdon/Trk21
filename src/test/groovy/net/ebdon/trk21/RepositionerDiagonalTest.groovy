@@ -2,6 +2,8 @@ package net.ebdon.trk21;
 
 import static GameSpace.*;
 import static Quadrant.*;
+import groovy.mock.interceptor.MockFor;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -22,11 +24,63 @@ import static Quadrant.*;
  */
 
 @groovy.util.logging.Log4j2('logger')
+@Newify([MockFor,Position,Coords2d])
 final class RepositionerDiagonalTest extends RepositionerTestBase {
 
   @SuppressWarnings('JUnitTestMethodWithoutAssert')
   final void testTransitDiagonal() {
     transit 1, 1
+  }
+
+  void testTrackingImpact() {
+    MockFor trekMock = MockFor( Trek )
+    ShipVector sv = new ShipVector( course: 2, warpFactor: 1 )
+    TestUi ui = new TestUi()
+    Map fakeQuadrant = [
+      contains  : { int x, int y -> (1..8).containsAll( x, y ) },
+      isOccupied: { int z1, int z2 -> z2 >= 3 },
+      [2,6]     : Thing.torpedo,
+      [1,7]     : Thing.star
+    ]
+
+    final Coords2d c2d = [1,1]
+    final Coords2d targetSector = [1,7]
+    Coords2d startSector = [2, 6]
+
+    Position torpedoPos = [ c2d.clone(), startSector.clone() ]
+
+    MockFor torpedoMock = MockFor( Torpedo )
+    torpedoMock.demand.with {
+      getId                   { 'testTrackingImpact' }
+      getEnergyUsedByLastMove { 8 }
+      getTracked(1)           { true }
+      getPosition(3)          { torpedoPos }
+      getWeapon(0)            { true }
+      getPosition(1)          { torpedoPos }
+    }
+
+    trekMock.demand.with {
+      getQuadrant(0)     { fakeQuadrant }
+      blockedAtSector(0) { int row, int col -> assert [row, col] == [1, 2] }
+      getQuadrant(0)     { fakeQuadrant }
+    }
+
+    trekMock.use {
+      torpedoMock.use {
+        Repositioner rp = new TorpedoRepositioner(
+          ship:     new Torpedo(),
+          ui:       ui,
+          quadrant: fakeQuadrant
+        )
+        rp.repositionShip sv
+        assert rp.moveAborted    == true
+        assert fakeQuadrant[startSector]  == Thing.emptySpace
+        assert fakeQuadrant[targetSector] == Thing.torpedo
+        assert rp.thingHit == Thing.star
+        assert ui.localMsgLog    == ['repositioner.position', 'impactAtSector']
+        assert ui.argsLog        == [[1.2928932F, 6.7071066F], [Thing.star, 7, 1]]
+      }
+    }
   }
 
   @Override

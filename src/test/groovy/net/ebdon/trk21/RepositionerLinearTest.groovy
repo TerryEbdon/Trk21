@@ -27,6 +27,104 @@ import groovy.mock.interceptor.MockFor;
 @groovy.util.logging.Log4j2('logger')
 final class RepositionerLinearTest extends RepositionerTestBase {
 
+  void testAdjacentImpact() {
+    MockFor trekMock = MockFor( Trek )
+    ShipVector sv = shipWarpOne( 1F )
+    TestUi ui = new TestUi()
+    Map fakeQuadrant = [
+      contains  : { int z1, int z2 -> true },
+      isOccupied: { int z1, int z2 -> true },
+      [1,1]     : Thing.torpedo,
+      [1,2]     : Thing.star
+    ]
+
+    final Coords2d c2d = [1,1]
+    final Coords2d targetSector = [1,2]
+    Position torpedoPos = [c2d.clone(),c2d.clone()]
+
+    MockFor torpedoMock = MockFor( Torpedo )
+    torpedoMock.demand.with {
+      getId                   { 'testAdjacentImpact' }
+      getEnergyUsedByLastMove { 8 }
+      getTracked(1)           { true }
+      getPosition(2)          { torpedoPos }
+      getWeapon(0)            { true }
+      getPosition(2)          { torpedoPos }
+    }
+
+    trekMock.demand.with {
+      getQuadrant(0)     { fakeQuadrant }
+      blockedAtSector(0) { int row, int col -> assert [row, col] == [1, 2] }
+      getQuadrant(0)     { fakeQuadrant }
+    }
+
+    trekMock.use {
+      torpedoMock.use {
+        Repositioner rp = new TorpedoRepositioner(
+          ship:     new Torpedo(),
+          ui:       ui,
+          quadrant: fakeQuadrant
+        )
+        rp.repositionShip sv
+        assert rp.moveAborted    == true
+        assert fakeQuadrant[c2d] == Thing.emptySpace
+        assert fakeQuadrant[targetSector] == Thing.torpedo
+        assert ui.localMsgLog    == ['repositioner.position', 'impactAtSector']
+        assert ui.argsLog        == [[1.0F, 2.0F], [Thing.star, 2, 1]]
+      }
+    }
+  }
+
+  void testTrackingImpact() {
+    MockFor trekMock = MockFor( Trek )
+    ShipVector sv = shipWarpOne( 1F )
+    TestUi ui = new TestUi()
+    Map fakeQuadrant = [
+      contains  : { int x, int y -> (1..8).containsAll( x, y ) },
+      isOccupied: { int z1, int z2 -> z2 >= 3 },
+      [1,1]     : Thing.torpedo,
+      [1,2]     : Thing.emptySpace,
+      [1,3]     : Thing.star
+    ]
+
+    final Coords2d c2d = [1,1]
+    final Coords2d targetPos = [1,3]
+    Position torpedoPos = [c2d.clone(),c2d.clone()]
+
+    MockFor torpedoMock = MockFor( Torpedo )
+    torpedoMock.demand.with {
+      getId                   { 'testTrackingImpact' }
+      getEnergyUsedByLastMove { 8 }
+      getTracked(1)           { true }
+      getPosition(3)          { torpedoPos }
+      getWeapon(0)            { true }
+      getPosition(2)          { torpedoPos }
+    }
+
+    trekMock.demand.with {
+      getQuadrant(0)     { fakeQuadrant }
+      blockedAtSector(0) { int row, int col -> assert [row, col] == [1, 2] }
+      getQuadrant(0)     { fakeQuadrant }
+    }
+
+    trekMock.use {
+      torpedoMock.use {
+        Repositioner rp = new TorpedoRepositioner(
+          ship:     new Torpedo(),
+          ui:       ui,
+          quadrant: fakeQuadrant
+        )
+        rp.repositionShip sv
+        assert rp.moveAborted    == true
+        assert fakeQuadrant[c2d] == Thing.emptySpace
+        assert fakeQuadrant[targetPos] == Thing.torpedo
+        assert rp.thingHit == Thing.star
+        assert ui.localMsgLog    == ['repositioner.position', 'repositioner.position', 'impactAtSector']
+        assert ui.argsLog        == [[1.0F, 2.0F], [1.0F, 3.0F], [Thing.star, 3, 1]]
+      }
+    }
+  }
+
   void testBlocked() {
     MockFor trekMock = MockFor( Trek )
     ShipVector sv = shipWarpOne( 1F )
@@ -47,7 +145,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
       getEnergyUsedByLastMove { 8 }
       getTracked(1)           { false }
       getPosition(2)          { shipPos }
-      getWeapon(2)            { false }
+      getWeapon(0)            { false }
       getPosition(1)          { shipPos }
     }
 
@@ -59,7 +157,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
 
     trekMock.use {
       shipMock.use {
-        Repositioner rp = new Repositioner(
+        Repositioner rp = new ShipRepositioner(
           ship:     new FederationShip(),
           ui:       ui,
           quadrant: fakeQuadrant
@@ -111,7 +209,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     TestUi ui = new TestUi()
     trekMock.use {
       shipMock.use {
-        Repositioner rp = new Repositioner(
+        Repositioner rp = new ShipRepositioner(
           ship:     new FederationShip(),
           ui:       ui,
           quadrant: fakeQuadrant
@@ -163,7 +261,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     TestUi ui = new TestUi()
     trekMock.use {
       shipMock.use {
-        Repositioner rp = new Repositioner(
+        Repositioner rp = new ShipRepositioner(
           ship:     new FederationShip(),
           ui:       ui,
           quadrant: fakeQuadrant
@@ -214,7 +312,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     TestUi ui = new TestUi()
     trekMock.use {
       shipMock.use {
-        Repositioner rp = new Repositioner(
+        Repositioner rp = new ShipRepositioner(
           ship:     new FederationShip(),
           ui:       ui,
           quadrant: fakeQuadrant
