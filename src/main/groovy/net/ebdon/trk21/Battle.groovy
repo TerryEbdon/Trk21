@@ -25,10 +25,7 @@ final class Battle {
   EnemyFleet      enemyFleet;
   FederationShip  ship;
   DamageControl   dc;
-  Closure         pcReporter;
-  Closure         fleetAttackReporter;
-
-  PropertyResourceBundle rb;
+  UiBase          ui;
 
   private int nextTargetIndex = 1;
 
@@ -62,25 +59,24 @@ final class Battle {
     rv
   }
 
-  /// @todo Localise Battle.hitOnFleetShip()
-  void hitOnFleetShip( final Expando target, final int hitAmount ) {
-    pcReporter sprintf( '%d unit hit on %s at sector %d - %d',
-      hitAmount, target.name, target.sector.last(), target.sector.first() )
+  void hitOnFleetShip( final Expando target, final int hitAmount = EnemyFleet.maxKlingonEnergy ) {
+    ui.fmtMsg 'battle.hitOntargetAt',
+      [hitAmount, target.name, target.sector.row, target.sector.col]
 
     enemyFleet.with {
       hitOnShip( target.id, hitAmount )
       if (shipExists(target.id)) {
-        pcReporter sprintf( '\t(%d left)%n', energy(target.id) )
+        ui.fmtMsg 'battle.targetEnergyLeft', [energy(target.id)]
       } else {
-        pcReporter rb.getString( 'battle.enemy.destroyed' )
+        ui.localMsg 'battle.enemy.destroyed'
       }
     }
   }
 
   void phaserAttackFleet( final int energy ) {
     assert energy > 0
-    assert enemyFleet && ship && dc && pcReporter && fleetAttackReporter
-    new PhaserControl( dc, pcReporter, ship, this ).fire( energy )
+    assert enemyFleet && ship && dc // && fleetAttackReporter
+    new PhaserControl( dc, ui, ship, this ).fire( energy )
     enemyRespondsToAttack()
   }
 
@@ -89,10 +85,9 @@ final class Battle {
     enemyFleet.regroup()
     if ( enemyFleet.canAttack() ) {
       if ( ship.isProtectedByStarBase() ) {
-        /// @todo localise this with 'starbase.shields'
-        fleetAttackReporter 'Star Base shields protect the Enterprise.'
+        ui.localMsg 'battle.shieldedByBase'
       } else {
-        enemyFleet.attack( ship.position.sector, fleetAttackReporter )
+        enemyFleet.attack( ship.position.sector, ui.&fmtMsg )
       }
     }
   }

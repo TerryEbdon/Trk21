@@ -24,33 +24,25 @@ import static GameSpace.*;
 final class PhaserControl {
 
   final DamageControl damageControl;
-  Closure report;
+  UiBase ui;
   FederationShip ship;  /// @todo Break the dependency on FederationShip
   Battle battle;
 
-  PhaserControl( final DamageControl aDc, final Closure reporter, aShip, aBattle ) {
+  PhaserControl( final DamageControl aDc, final UiBase reporter, aShip, aBattle ) {
     damageControl = aDc
-    report = reporter
+    ui = reporter
     ship = aShip
     battle = aBattle
   }
 
-  /// @todo Localiser PhaserControl.phasersDisabled()
   private void phasersDisabled() {
     log.info 'Phaser control is disabled.'
-    report 'Phaser control is disabled.'
+    ui.localMsg 'phaserControl.disabled'
   }
 
-  /// @todo Localiser PhaserControl.phasersOnTarget()
   private void phasersOnTarget() {
     log.info "Phaser control is enabled. Energy available $ship.energyNow"
-    report "Phasers locked in on target. Energy available $ship.energyNow"
-  }
-
-  /// @todo Localiser PhaserControl.commandRefused()
-  private void commandRefused() {
-    log.warn "Command refused; insufficient energy available."
-    report   "Command refused; insufficient energy available."
+    ui.fmtMsg 'phaserControl.onTarget', [ship.energyNow]
   }
 
   private def phaserVariance() {
@@ -77,7 +69,6 @@ final class PhaserControl {
       "Calculating hit on %s with %d units, range %+1.3f sectors",
       target.name, energyAmount, distance )
     assert distance > 0
-    // final float energyHit = energyAmount / distance * phaserVariance()
     final int energyHit = targetDamageAmount( energyAmount, distance )
 
     log.info '{} hit with {} of the {} units fired at it.',
@@ -88,21 +79,17 @@ final class PhaserControl {
 
   void fire( final int energyAmount ) {
     log.info "Firing phasers with $energyAmount units."
-    assert damageControl && report
-    assert energyAmount > 0
+    assert damageControl //&& report
+    assert energyAmount in 1..ship.energyNow // Trek.firePhasers() should ensure this.
 
     if ( damageControl.isDamaged( DeviceType.phasers ) ) {
         phasersDisabled()
     } else {
       phasersOnTarget()
-      if (energyAmount > ship.energyNow) {
-        commandRefused()
-      } else {
-        ship.energyReducedByPhaserUse energyAmount
-        Expando target
-        while ( target = battle.getNextTarget() ) {
-          fireAt energyAmount, target
-        }
+      ship.energyReducedByPhaserUse energyAmount
+      Expando target
+      while ( target = battle.getNextTarget() ) {
+        fireAt energyAmount, target
       }
     }
     log.info 'Firing phasers -- complete'
