@@ -28,6 +28,7 @@ class BattleTest extends GroovyTestCase {
   private EnemyFleet enemyFleet;
   private FederationShip ship;
   private DamageControl dc;
+  private TestUi ui;
 
   private StubFor fleetStub;
   private StubFor dcStub;
@@ -43,8 +44,8 @@ class BattleTest extends GroovyTestCase {
 
     fleetStub = new StubFor( EnemyFleet )
     fleetStub.use { enemyFleet = new EnemyFleet() }
-
-    battle = new Battle( enemyFleet, ship, dc, this.&reporter, this.&attackReporter )
+    ui = new TestUi()
+    battle = new Battle( enemyFleet, ship, dc, ui )
   }
 
   private void reporter() { }

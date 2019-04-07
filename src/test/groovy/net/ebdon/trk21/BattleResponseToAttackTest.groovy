@@ -33,6 +33,7 @@ class BattleResponseToAttackTest extends GroovyTestCase {
   private StubFor dcStub;
   private MockFor shipMock;
   private List<String> attackReporterMessages;
+  private TestUi ui;
 
   @Override void setUp() {
     super.setUp()
@@ -45,8 +46,8 @@ class BattleResponseToAttackTest extends GroovyTestCase {
 
     fleetMock = new MockFor( EnemyFleet )
     fleetMock.use { enemyFleet = new EnemyFleet() }
-
-    battle = new Battle( enemyFleet, ship, dc, reporter, this.&attackReporter )
+    ui = new TestUi()
+    battle = new Battle( enemyFleet, ship, dc, ui )
   }
 
   @groovy.transform.TypeChecked
@@ -66,7 +67,7 @@ class BattleResponseToAttackTest extends GroovyTestCase {
       battle.enemyRespondsToAttack()
     }
 
-    assert attackReporterMessages.size() == 0
+    assert ui.empty
   }
 
   void testEnemyRespondsToAttack() {
@@ -87,7 +88,7 @@ class BattleResponseToAttackTest extends GroovyTestCase {
       }
     }
 
-    assert attackReporterMessages.size() == 0
+    assert ui.empty
   }
 
   void testResponseWhenShipDocked() {
@@ -106,6 +107,6 @@ class BattleResponseToAttackTest extends GroovyTestCase {
       }
     }
 
-    assert attackReporterMessages.size() == 1
+    assert ui.localMsgLog == ['battle.shieldedByBase']
   }
 }

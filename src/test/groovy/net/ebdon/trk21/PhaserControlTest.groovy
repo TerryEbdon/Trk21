@@ -3,6 +3,7 @@ package net.ebdon.trk21;
 import static GameSpace.*;
 import static ShipDevice.*;
 import groovy.mock.interceptor.StubFor;
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 /**
  * @file
  * @author      Terry Ebdon
@@ -28,7 +29,7 @@ final class PhaserControlTest extends GroovyTestCase {
 
   private PhaserControl pc;
   private DamageControl dc;
-  private boolean damageReported;
+  // private boolean damageReported;
   private ship;
   private battle;
   private StubFor shipStub;
@@ -36,6 +37,7 @@ final class PhaserControlTest extends GroovyTestCase {
   private String reportedMsg = '';
   private int newEnergy;
   private int energyAtStart;
+  private TestUi ui;
 
   @Override void setUp() {
     super.setUp()
@@ -50,32 +52,37 @@ final class PhaserControlTest extends GroovyTestCase {
     battleStub.use {
       battle = new Battle()
     }
-    pc = new PhaserControl( dc, this.&reporter, ship, battle )
-    damageReported = false
+    ui = new TestUi()
+    pc = new PhaserControl( dc, ui, ship, battle )
+    // damageReported = false
     newEnergy = 0
     reportedMsg = ''
   }
-
-  @groovy.transform.TypeChecked
-  private void reporter( final String msg ) {
-    reportedMsg = msg
-    logger.info msg
-    damageReported = true
-  }
+  //
+  // @groovy.transform.TypeChecked
+  // private void reporter( final String msg ) {
+  //   reportedMsg = msg
+  //   logger.info msg
+  //   damageReported = true
+  // }
 
   void testEnergyValue() {
     logger.info 'testEnergyValue'
     [0,-1].each { energyValue ->
-      shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
-        pc.fire energyValue
+      shipStub.demand.getEnergyNow { 3000 }
+      shipStub.use {
+        shouldFail( PowerAssertionError ) {
+          pc.fire energyValue
+        }
       }
     }
-    shipStub.demand.getEnergyNow(1..99) { 0 }
+    shipStub.demand.getEnergyNow { 3000 }
     shipStub.use {
-      pc.fire 1 + ship.energyNow
+      shouldFail( PowerAssertionError ) {
+        pc.fire 3001
+      }
     }
-    assert damageReported
-    assert reportedMsg.contains( 'Command refused' )
+    assert ui.empty
     logger.info 'testEnergyValue -- OK'
   }
 
@@ -125,7 +132,7 @@ final class PhaserControlTest extends GroovyTestCase {
   @groovy.transform.TypeChecked
   void testFireAtBadTarget() {
     logger.info 'testFireAtBadtarget'
-    shouldFail( org.codehaus.groovy.runtime.powerassert.PowerAssertionError ) {
+    shouldFail( PowerAssertionError ) {
       fireAtTargets this.&setupBadTargets
     }
     logger.info 'testFireAtBadtarget -- OK' /// @todo finish this.
