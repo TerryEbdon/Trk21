@@ -53,9 +53,7 @@ final class RepositionerDiagonalTest extends RepositionerTestBase {
     torpedoMock.demand.with {
       getId                   { 'testTrackingImpact' }
       getEnergyUsedByLastMove { 8 }
-      getTracked(1)           { true }
       getPosition(3)          { torpedoPos }
-      getWeapon(0)            { true }
       getPosition(1)          { torpedoPos }
     }
 

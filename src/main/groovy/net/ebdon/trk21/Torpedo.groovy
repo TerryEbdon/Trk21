@@ -26,6 +26,4 @@ final class Torpedo implements Moveable {
   String id;
   int getEnergyUsedByLastMove() { 8 }
   Position position;
-  boolean isTracked() { true }
-  boolean isWeapon()  { true }
 }

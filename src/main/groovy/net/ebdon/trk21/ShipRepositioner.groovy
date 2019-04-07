@@ -25,7 +25,9 @@ import org.apache.logging.log4j.Level;
 @groovy.util.logging.Log4j2
 final class ShipRepositioner extends Repositioner {
 
+  /// @todo quadrant should not be a dynamic member.
   @Override
+  // @groovy.transform.TypeChecked
   protected void objectAtSector( final int subMoveNo, final int row, final int col ) {
     log.info logMoveStepImpact, id, subMoveNo, [row,col]
 
@@ -44,4 +46,9 @@ final class ShipRepositioner extends Repositioner {
     moveAborted = true
   }
 
+  @groovy.transform.TypeChecked
+  @Override void trackMove(
+      final int subMoveNo, final int z1, final int z2 ) {
+    super.trackMove subMoveNo, z1, z2
+  }
 }

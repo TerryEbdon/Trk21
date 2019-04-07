@@ -22,7 +22,14 @@ import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 
 @groovy.util.logging.Log4j2('logger') /// @warning 'logger' not 'log' as the latter conflicts with the base class
 final class EnemyFleetTest extends GroovyTestCase {
-    private EnemyFleet enemyFleet = new EnemyFleet();
+    private EnemyFleet enemyFleet;
+    TestUi ui;
+
+    @Override void setUp() {
+      super.setUp()
+      enemyFleet = new EnemyFleet();
+      ui = new TestUi()
+    }
 
     void testFleet() {
       logger.info 'testFleet'
@@ -43,33 +50,40 @@ final class EnemyFleetTest extends GroovyTestCase {
     }
 
     @groovy.transform.TypeChecked
-    void testAttack() {
-      Closure reporterNotCalled = { int attackWithEnergyAmt, String msg ->
-        assert false // Should never get here
+    void setFleetSize( final int numShips ) {
+      logger.info "Setting fleet size to $numShips"
+      enemyFleet.with {
+        numKlingonBatCrTotal  = numShips
+        numKlingonBatCrRemain = numShips
+        numKlingonBatCrInQuad = numShips
       }
+    }
 
+    @groovy.transform.TypeChecked
+    void testAttackBad() {
+      fleetSize = 1
       enemyFleet.with {
         shouldFail(PowerAssertionError) {
-          attack new Coords2d(2,2), reporterNotCalled // Fail: No Klingons in fleet.
+          attack new Coords2d(2,2), ui.&fmtMsg // Fail: No Klingons in fleet.
         }
-
-        numKlingonBatCrTotal  = 1;
-        numKlingonBatCrRemain = 1;
-        numKlingonBatCrInQuad = 1;
 
         shouldFail(PowerAssertionError) {
-          attack new Coords2d(2,2), reporterNotCalled // Fail: 1 ship but it's not positioned.
+          attack new Coords2d(2,2), ui.&fmtMsg // Fail: 1 ship but it's not positioned.
         }
-
-        // def reporterMustbeCalled = { attackWithEnergyAmt, msg ->
-        //   static called = false;
-        // }
-
-        positionInSector( 1, [1,1] )
-        attack( new Coords2d(2,2), ReporterMock.reporterMustbeCalled )
-        assert ReporterMock.reporterCalled
-        assert ReporterMock.attackAmount > 0
       }
+    }
+
+    void testAttack() {
+      logger.info 'testAttack()'
+      fleetSize = 1
+      List<Integer> enemyShipSector = [1,1]
+      enemyFleet.with {
+        positionInSector( 1, enemyShipSector )
+        attack( new Coords2d(2,2), ui.&fmtMsg )
+      }
+      logger.error ui
+      assert ui.argsLog == [enemyShipSector]
+      assert ui.localMsgLog == ['enemyFleet.hitOnFedShip']
     }
 
     //@NotYetImplemented

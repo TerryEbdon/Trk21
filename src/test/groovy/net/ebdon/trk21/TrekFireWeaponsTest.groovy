@@ -82,29 +82,55 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     assert ui.empty
   }
 
+  @Newify([MockFor, Coords2d])
   void testFireTorpedoWithCourse() {
     final float torpedoCourse = 1F
 
     ui.inputValues = [torpedoCourse]
 
-    // fleetMock = new MockFor( EnemyFleet )
-
-    battleMock.demand.fireTorpedo { float course ->
+    battleMock.demand.fireTorpedo { float course, Quadrant quadrant ->
       assert course == torpedoCourse
     }
-
-    battleMock.use {
-      // shipMock.use { // No demands, shouldn't be accessed
-        // trek.ship = new FederationShip()
-        // dcMock.use {
-          // fleetMock.use {
-            trek.fireTorpedo()
-          // }
-        // }
-      // }
+    Position shipPos = [Coords2d(1,1), Coords2d(1,1)]
+    shipMock.demand.with {
+      getNumTorpedoes { 3000 }
+      getPosition     { shipPos }
     }
 
-    assert ui.empty
+    galaxyMock.demand.with {
+      getAt(2) { Coords2d shipQuad -> assert shipQuad == shipPos.quadrant; 200 }
+      putAt    { Coords2d shpQd, int val -> assert shpQd == shipPos.quadrant && val == 0 }
+      getAt(1) { Coords2d shipQuad -> assert shipQuad == shipPos.quadrant; 0 }
+      putAt    { Coords2d shpQd, int val -> assert shpQd == shipPos.quadrant && val == 100 }
+    }
+
+    MockFor qvMock = MockFor( QuadrantValue )
+    qvMock.demand.getEnemy { 2 }
+
+    quadrantSetupMock.demand.updateAfterSkirmish { }
+
+    fleetMock = MockFor( EnemyFleet )
+    fleetMock.demand.getNumKlingonBatCrInQuad { 1 }
+
+    battleMock.use {
+      shipMock.use {
+        trek.ship = new FederationShip()
+        galaxyMock.use {
+          trek.galaxy = new Galaxy()
+          fleetMock.use {
+            trek.enemyFleet = new EnemyFleet()
+            qvMock.use {
+              quadrantSetupMock.use {
+                trek.fireTorpedo()
+              }
+            }
+          }
+        }
+      }
+    }
+
+    assert ui.inputValues.empty
+    assert ui.localMsgLog.empty
   }
 
   void testFirePhasersWithTooMuchEnergy() {

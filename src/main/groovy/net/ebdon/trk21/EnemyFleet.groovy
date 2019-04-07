@@ -35,9 +35,9 @@ final class EnemyFleet {
     final int maxKlingonBCinQuad = 9;
     final int maxPossibleKlingonShips = 64 * maxKlingonBCinQuad;
 
-    int[][] klingons        = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
-    List<Integer> scrapHeap = []
-    final float[] softProbs = [
+    private int[][] klingons = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
+    private List<Integer> scrapHeap = []
+    private final float[] softProbs = [
       0,
       0.0001,
       0.01,
@@ -51,8 +51,8 @@ final class EnemyFleet {
 
     /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
     @TypeChecked
-    static float energyHittingTarget(
-        final float energyReleased,
+    static int energyHittingTarget(
+        final int energyReleased,
         final float distanceToTarget ) {
 
       assert energyReleased   > 0 && energyReleased   <= maxKlingonEnergy
@@ -61,7 +61,7 @@ final class EnemyFleet {
       /// @todo: Same bug as was in PhaserControl - it's possible to
       /// hit the target with more energy than was fired at it.
       float rnd = new Random().nextFloat()
-      ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1
+      ( ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1 ).toInteger()
     }
 
     boolean isValid() {
@@ -166,31 +166,51 @@ final class EnemyFleet {
       distance
     }
 
-    void attack( final Coords2d targetSectorCoords, Closure reportAttack ) {
-      assert sectorIsInsideQuadrant( targetSectorCoords)
+    @TypeChecked
+    void attack( final Coords2d targetSector, Closure reportAttack ) {
+      assert sectorIsInsideQuadrant( targetSector)
       assert canAttack()
       assert reportAttack != null
       assert klingons.count { it[1] && it[2] } == numKlingonBatCrInQuad
 
-      log.info "Fleet is beginning an attack with $numKlingonBatCrInQuad ships." // 1740 IF K3%>0 THEN GOSUB 2370
-      log.info "Target is in sector $targetSectorCoords"
-      1.upto( maxKlingonBCinQuad ) { int shipNo ->
-        final int attackerEnergy = klingons[ shipNo ][3]
-        if ( attackerEnergy > 0 ) {
-          log.info "Ship $shipNo is attacking. It's energy level is: $attackerEnergy"
+      log.debug 'Attack with {} ships out of a max {} ships', // 1740 IF K3%>0 THEN GOSUB 2370
+        numKlingonBatCrInQuad, maxKlingonBCinQuad
+      log.debug "Target is in sector $targetSector"
 
-          final float distance = distanceToTarget( shipNo, targetSectorCoords )
-          final int hitWithEnergy = energyHittingTarget( attackerEnergy, distance )
-
-          reportAttack(
-            hitWithEnergy,
-            'Hit from Klingon at sector ' +
-              GameSpace.logFmtCoords( *(klingons[shipNo][1..2]) ) // Line 2410
-          )
-        } else {
-          log.trace "Ship $shipNo is dead or never existed."
-        }
+      for ( int shipNo in 1..maxKlingonBCinQuad ) {
+        attackWithShip shipNo, targetSector, reportAttack
       }
+      log.debug 'Finished attack run.'
+    }
+
+    @TypeChecked
+    private void attackWithShip(
+        final int shipNo, final Coords2d targetSector, Closure reportAttack ) {
+      final int attackerEnergy = klingons[ shipNo ][3]
+      log.trace 'Inspecting ship {} it has {} units of energy', shipNo, attackerEnergy
+
+      if ( attackerEnergy > 0 ) {
+        log.info 'Ship {} is attacking with energy level {}',
+            shipNo, attackerEnergy
+        final float distance = distanceToTarget( shipNo, targetSector )
+        final int hitWithEnergy = energyHittingTarget( attackerEnergy, distance )
+
+        log.info "Fed Ship hit with $hitWithEnergy units of energy."
+        reportAttack 'enemyFleet.hitOnFedShip', klingons[shipNo][1..2]
+      } else {
+        log.trace "Ship $shipNo is dead or never existed."
+      }
+    }
+
+    // @TypeChecked
+    void shipHitByTorpedo( final Coords2d shipSector ) {
+      log.info 'Ship at {} has been hit with a torpedo', shipSector
+      int[] deadShip = klingons.find {
+        it[1..2] == shipSector.toList()
+      }
+      assert deadShip
+      log.info "Dead ship details: $deadShip"
+      scrapShip deadShip[0]
     }
 
     @TypeChecked
@@ -208,10 +228,11 @@ final class EnemyFleet {
 
     @TypeChecked
     void scrapShip( final int shipNum ) {
+      assert shipNumIsValid( shipNum )
       scrapHeap << shipNum
       log.info "Ship $shipNum destroyed."
       log.info "There are ${scrapHeap.size()} scrapped ships in this quadrant."
-      assert scrapHeap.size() <= maxKlingonBCinQuad
+      assert scrapHeap.size() in 1..maxKlingonBCinQuad
     }
 
     @TypeChecked
@@ -223,13 +244,14 @@ final class EnemyFleet {
     }
 
     @TypeChecked
-    private void launchIntoStar(final int shipNum) {
+    private void launchIntoStar( final int shipNum ) {
+      assert shipNumIsValid( shipNum )
       log.debug "Launching ship $shipNum into a star."
-        klingons[shipNum] = [shipNum,0,0,0]
+      klingons[shipNum] = [shipNum,0,0,0]
     }
 
     @TypeChecked
-    private void removeShip(final int shipNum) {
+    private void removeShip( final int shipNum ) {
       launchIntoStar shipNum
       --numKlingonBatCrInQuad
       --numKlingonBatCrRemain
@@ -237,12 +259,18 @@ final class EnemyFleet {
 
     @TypeChecked
     int energy( final int shipNum ) {
-      assert shipNum in 1..9
+      assert shipNumIsValid( shipNum )
       klingons[ shipNum ][3]
     }
 
     @TypeChecked
-    boolean shipExists(final int shipNum) {
+    private boolean shipNumIsValid( final int shipNum ) {
+      shipNum in 1..maxKlingonBCinQuad
+    }
+
+    @TypeChecked
+    boolean shipExists( final int shipNum ) {
+      assert shipNumIsValid( shipNum )
       klingons[ shipNum ][3] > 0
     }
 }

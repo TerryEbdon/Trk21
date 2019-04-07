@@ -51,12 +51,12 @@ abstract class Repositioner {
   protected float newY; // Line 1840 Stat.3
   protected Coords2d startSector;
   protected Quadrant.Thing thingMoved;
-  protected Quadrant.Thing thingHit = Thing.emptySpace;
+  protected Quadrant.Thing thingHit = Quadrant.Thing.emptySpace;
   protected String id; ///< Id of the Moveable instance that's being repositioned.
 
   Moveable ship;  // For position and energyUsedByLastMove
   UiBase ui;      // To replace Trek.blockedAtSector()
-  def quadrant;   // To replace trek.quadrant.
+  def quadrant;   ///> @todo Fix tests so that a static type can be used.
 
   private boolean tracked;
   private int energyBudget;
@@ -71,7 +71,6 @@ abstract class Repositioner {
     id = ship?.id
     energyBudget = ship?.energyUsedByLastMove
     assert energyBudget > 0
-    tracked = ship.tracked
     startSector = ship.position.sector
     newX = startSector.row // Line 1840 Stat.2
     newY = startSector.col // Line 1840 Stat.3
@@ -148,13 +147,10 @@ abstract class Repositioner {
   }
 
   @groovy.transform.TypeChecked
-  private void trackMove(
-    final int subMoveNo, final int z1, final int z2 ) {
+  protected void trackMove(
+      final int subMoveNo, final int z1, final int z2 ) {
     log.printf Level.DEBUG,
         msgInSector, id, subMoveNo, [z1, z2], newX, newY
-    if ( tracked ) {
-      ui.fmtMsg 'repositioner.position', [newX, newY]
-    }
   }
 
   /// @arg compoundCoord - float of form q.sss where q is a quadrantt No.

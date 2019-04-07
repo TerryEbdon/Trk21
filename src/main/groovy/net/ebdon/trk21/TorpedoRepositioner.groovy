@@ -46,4 +46,11 @@ final class TorpedoRepositioner extends Repositioner {
     ship.position.sector = [row, col]
     moveAborted = true
   }
+
+  @groovy.transform.TypeChecked
+  @Override void trackMove(
+      final int subMoveNo, final int z1, final int z2 ) {
+    super.trackMove subMoveNo, z1, z2
+    ui.fmtMsg 'repositioner.position', [newX, newY]
+  }
 }

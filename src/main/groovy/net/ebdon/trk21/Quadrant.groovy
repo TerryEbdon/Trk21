@@ -107,8 +107,8 @@ final class Quadrant extends GameSpace {
   }
 
   def removeEnemy( key ) {
-    assert board[key] == Thing.enemy
-    board[key] = Thing.emptySpace
+    assert board[key] == Thing.enemy || board[key] == Thing.torpedo
+    clearSquare key
   }
 
   int count( Closure closure ) {

@@ -92,10 +92,28 @@ final class Battle {
     }
   }
 
-  /// @todo implement battle.fireTorpedo()
   @TypeChecked
-  void fireTorpedo( final float course ) {
-    pcReporter 'Battle#fireTorpedo is not yet implemented'
+  void fireTorpedo( final float course, Quadrant quadrant ) {
+    Torpedo torpedo = ship.torpedo
+    quadrant[ torpedo.position.sector ] = Quadrant.Thing.torpedo
+    Repositioner rp = new TorpedoRepositioner(
+      ship:     torpedo,
+      ui:       ui,
+      quadrant: quadrant
+    )
+
+    rp.repositionShip new ShipVector( course: course )
+    quadrant[ ship.position.sector ] = Quadrant.Thing.ship
+
+    if ( rp.thingHit == Quadrant.Thing.enemy ) {
+      enemyFleet.with {
+        shipHitByTorpedo torpedo.position.sector
+        // pcReporter rb.getString( 'battle.enemy.destroyed' )
+        ui.localMsg 'battle.enemy.destroyed'
+        // quadrant[ torpedo.position.sector ] = Quadrant.Thing.emptySpace
+        quadrant[ ship.position.sector ] = Quadrant.Thing.ship
+      }
+    }
     enemyRespondsToAttack()
   }
 }

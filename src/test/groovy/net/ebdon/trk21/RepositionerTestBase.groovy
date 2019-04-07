@@ -103,9 +103,7 @@ abstract class RepositionerTestBase extends GroovyTestCase {
       shipMock.demand.with {
         getId                     { 'transitSteps' }
         getEnergyUsedByLastMove   { 8F * sv.warpFactor }
-        getTracked(1)             { false }
         getPosition(5..99)        { shipPos }
-        getWeapon(0)              { false }   // Only called if there's a collision.
         getPosition(0..1)         { shipPos } // 0..1, depending on the log level.
       }
 

@@ -46,9 +46,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     torpedoMock.demand.with {
       getId                   { 'testAdjacentImpact' }
       getEnergyUsedByLastMove { 8 }
-      getTracked(1)           { true }
       getPosition(2)          { torpedoPos }
-      getWeapon(0)            { true }
       getPosition(2)          { torpedoPos }
     }
 
@@ -95,9 +93,7 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     torpedoMock.demand.with {
       getId                   { 'testTrackingImpact' }
       getEnergyUsedByLastMove { 8 }
-      getTracked(1)           { true }
       getPosition(3)          { torpedoPos }
-      getWeapon(0)            { true }
       getPosition(2)          { torpedoPos }
     }
 
@@ -143,9 +139,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     shipMock.demand.with {
       getId                   { 'testBlocked' }
       getEnergyUsedByLastMove { 8 }
-      getTracked(1)           { false }
+      // geTracked(1)           { false }
       getPosition(2)          { shipPos }
-      getWeapon(0)            { false }
+      // getWeapon(0)            { false }
       getPosition(1)          { shipPos }
     }
 
@@ -200,9 +196,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     shipMock.demand.with {
       getId                   { 'testIntraQuadrant' }
       getEnergyUsedByLastMove { energyUse }
-      getTracked(1)           { false }
+      // geTracked(1)           { false }
       getPosition(5)          { shipPos }
-      getWeapon(0)            { false }   // Only called if there's a collision.
+      // getWeapon(0)            { false }   // Only called if there's a collision.
       getPosition(0..1)       { shipPos } // 0..1, depending on the log level.
     }
 
@@ -244,9 +240,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     shipMock.demand.with {
       getId                   { 'testSlowBoundaryTransition' }
       getEnergyUsedByLastMove { 4 }
-      getTracked(1)           { false }
+      // geTracked(1)           { false }
       getPosition(5)          { shipPos }
-      getWeapon(0)            { false }   // Only called if there's a collision.
+      // getWeapon(0)            { false }   // Only called if there's a collision.
       getPosition(7)          { shipPos }
     }
     final ShipVector sv = [course: 7F, warpFactor: 0.5F]
@@ -301,9 +297,9 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     shipMock.demand.with {
       getId                   { 'testExtraQuadrant' }
       getEnergyUsedByLastMove { 8 }
-      getTracked(1)           { false }
+      // geTracked(1)           { false }
       getPosition(14)         { shipPos }
-      getWeapon(0)            { false }   // Only called if there's a collision.
+      // getWeapon(0)            { false }   // Only called if there's a collision.
       getPosition(0..1)       { shipPos } // 0..1, depending on the log level.
     }
 

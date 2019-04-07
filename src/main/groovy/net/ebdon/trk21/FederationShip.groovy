@@ -43,9 +43,6 @@ final class FederationShip implements Moveable {
       'DOCKED'
     ];
 
-    boolean isTracked() { false }
-    boolean isWeapon()  { false }
-
     private void useEnergyForMove( final int energyUsedByLastMove ) { /// @bug arg name same as member variable.
       energyNow -= energyUsedByLastMove
       log.info "Ship's movement used $energyUsedByLastMove units of energy."
@@ -58,6 +55,13 @@ final class FederationShip implements Moveable {
       logFuelReduction()
     }
 
+    Torpedo getTorpedo() {
+      assert numTorpedoes > 0
+      new Torpedo(
+        id: "Torpedo ${Integer.toHexString( numTorpedoes-- )}",
+        position: position.clone()
+      )
+    }
     void energyReducedByPhaserUse( final int phaserEnergyUsed ) {
       energyNow -= phaserEnergyUsed
       log.info "Firing phasers used $phaserEnergyUsed units of energy."

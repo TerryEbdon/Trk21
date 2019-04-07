@@ -240,19 +240,10 @@ final class Trek extends LoggingBase {
     damageControl.report( rb.&getString, ui.&localMsg )
   }
 
-  /// @todo Eliminate this method. It's passed to Battle & klingonAttack,
-  /// but a UiBase instance could be passed instead.
-  @TypeChecked
-  void attackReporter( final int damageAmount, final String message ) {
-    log.info "Ship under attack, $damageAmount units of damage sustained."
-    ui.outln message
-    //:E% -= damageAmount // Line 2410
-  }
-
   @TypeChecked
   void klingonAttack() {
-    if ( !ship.isProtectedByStarBase() ) {
-      enemyFleet.attack( ship.position.sector, this.&attackReporter )
+    if ( !ship.protectedByStarBase ) {
+      enemyFleet.attack ship.position.sector, ui.&fmtMsg
     } else {
       ui.localMsg 'starbase.shields'
     }
@@ -432,14 +423,10 @@ final class Trek extends LoggingBase {
     }
   }
 
-  /// @todo Don't pass ui.&outln and this.&attackReporter, as they're not
-  /// localised and rely on a resource bundle being passed in.
-  /// @note klingonAttack() also uses attackReporter().
   @TypeChecked
   private void attackFleetWithPhasers( final int energy ) {
     new Battle(
-      enemyFleet, ship, damageControl,
-      ui.&outln, this.&attackReporter, rb
+      enemyFleet, ship, damageControl, ui
     ).phaserAttackFleet( energy )
   }
 
@@ -453,10 +440,14 @@ final class Trek extends LoggingBase {
 
     float course = getCourse()
     if ( course ) {
-      new Battle(
-        enemyFleet, ship, damageControl,
-        ui.&outln, this.&attackReporter, rb
-      ).fireTorpedo( course )
+      if ( ship.numTorpedoes ) {
+        new Battle(
+          enemyFleet, ship, damageControl, ui
+        ).fireTorpedo( course, quadrant )
+        updateQuadrantAfterSkirmish()
+      } else {
+        ui.fmtMsg 'torpedo.unavailable'
+      }
     }
     log.info "Fire torpedo completed - available: ${ship.numTorpedoes}"
   }

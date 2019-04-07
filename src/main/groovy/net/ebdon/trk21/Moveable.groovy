@@ -24,6 +24,4 @@ interface Moveable {
   String id;  ///< Unique ID for each moveable object. Useful for testing & logging
   int getEnergyUsedByLastMove()
   Position position;
-  boolean tracked;
-  boolean weapon;
 }
