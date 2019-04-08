@@ -48,9 +48,6 @@ class BattleTest extends GroovyTestCase {
     battle = new Battle( enemyFleet, ship, dc, ui )
   }
 
-  private void reporter() { }
-  private void attackReporter() { }
-
   void testBattleHitOnFleetShip() {
     if ( notYetImplemented() ) return
     assert false
