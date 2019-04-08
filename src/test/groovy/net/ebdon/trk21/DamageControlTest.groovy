@@ -108,26 +108,16 @@ final class DamageControlTest extends GroovyTestCase {
 
     MockFor damageReporterMock = new MockFor( DamageReporter )
     damageReporterMock.demand.with {
-      report { Map devices, Closure rbStringCl, Closure localMsgCl ->
-        logger.debug 'in mock report()'
+      report { Map devices, UiBase uiToUse ->
+        logger.trace 'in mock report()'
         assert devices.isEmpty() == false
-        final String msg = rbStringCl( 'wibble' )
-        assert msg == localisedDeviceName
-        localMsgCl msg
-        logger.debug 'About to exit from DamageReporter.report()'
       }
     }
 
-    Closure localDeviceName = { String key ->
-      logger.debug 'localDeviceName closure called with key {}', key
-      localisedDeviceName
-    }
-
     damageReporterMock.use {
-      dc.report( localDeviceName, ui.&localMsg )
+      dc.report( ui )
     }
 
-    assert ui.localMsgLog.size() == 1
-    assert ui.localMsgLog.first() == localisedDeviceName
+    assert ui.empty
   }
 }

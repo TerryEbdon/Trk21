@@ -125,7 +125,7 @@ final class DamageControl {
     devices[key].state -= amount
   }
 
-  void report( Closure rbGetString, Closure localMsg ) {
-    new DamageReporter().report( devices, rbGetString, localMsg )
+  void report( UiBase ui ) {
+    new DamageReporter().report( devices, ui )
   }
 }

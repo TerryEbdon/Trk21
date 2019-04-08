@@ -32,7 +32,7 @@ abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for c
   }
 
   @groovy.transform.TypeChecked
-  private String getPrompt( final String key ) {
+  String getPrompt( final String key ) {
     trek.rb.getString key
   }
 

@@ -41,7 +41,7 @@ final class TorpedoRepositioner extends Repositioner {
     ui.fmtMsg msgId, [ thingHit, col, row ]
 
     if ( thingHit == Quadrant.Thing.base ) {
-      ui.localMsg baseDestroyed
+      ui.localMsg 'baseDestroyed'
     }
     ship.position.sector = [row, col]
     moveAborted = true

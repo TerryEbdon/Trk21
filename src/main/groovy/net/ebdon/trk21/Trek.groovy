@@ -240,7 +240,7 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void reportDamage() {
-    damageControl.report( rb.&getString, ui.&localMsg )
+    damageControl.report( ui )
   }
 
   @TypeChecked

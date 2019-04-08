@@ -21,15 +21,13 @@ package net.ebdon.trk21;
 @groovy.transform.TypeChecked
 class DamageReporter {
   Map<Integer, ShipDevice> devices;
-  Closure<String> rbString;
-  Closure localMsg;
+  UiBase ui;
 
-  void report( Map<Integer, ShipDevice> damage, Closure<String> rbStrCl, Closure localMsgCl ) {
+  void report( Map<Integer, ShipDevice> damage, UiBase uib ) {
     log.trace 'In DamageReporter.report() -- begin'
 
     devices  = damage
-    rbString = rbStrCl
-    localMsg = localMsgCl
+    ui = uib
 
     if ( !devices[6].isDamaged() ) {
       header()
@@ -41,25 +39,29 @@ class DamageReporter {
   }
 
   private void header() {
-    localMsg 'damage.control.report.h0'
-    localMsg 'damage.control.report.h1'
-    localMsg 'damage.control.report.h2'
-    localMsg 'damage.control.report.h3'
+    ui.localMsg 'damage.control.report.h0'
+    ui.localMsg 'damage.control.report.h1'
+    ui.localMsg 'damage.control.report.h2'
+    ui.localMsg 'damage.control.report.h3'
   }
 
   private void offline() {
-    localMsg 'damage.control.offline' // Damage Control is damaged!
+    ui.localMsg 'damage.control.offline' // Damage Control is damaged!
   }
 
   private void body() {
     devices.values().each { device ->
-      Object[] msgArgs = [
-        rbString( device.id ).padRight(15),
-        sprintf( '%2d', device.state)
-      ]
+      // Object[] msgArgs = [
+      //   rbString( device.id ).padRight(15),
+      //   sprintf( '%2d', device.state)
+      // ]
 
-      localMsg 'damage.control.report.line', msgArgs
+      // ui.localMsg 'damage.control.report.line', msgArgs
+      // device.WARP.ENGINES = warp engines
+
+      ui.fmtMsg 'damage.control.report.line',
+        [ ui.getPrompt( device.id ), device.state ]
     }
-    localMsg 'damage.control.report.footer'
+    ui.localMsg 'damage.control.report.footer'
   }
 }

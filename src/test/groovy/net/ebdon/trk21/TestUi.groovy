@@ -39,6 +39,11 @@ final class TestUi extends UiBase {
     localMsgLog.empty
   }
 
+  @groovy.transform.TypeChecked
+  @Override String getPrompt( final String key ) {
+    key
+  }
+
   void outln( String str ) {
     msgLog << str
   }
