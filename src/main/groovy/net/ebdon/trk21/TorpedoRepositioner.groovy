@@ -51,6 +51,13 @@ final class TorpedoRepositioner extends Repositioner {
   @Override void trackMove(
       final int subMoveNo, final int z1, final int z2 ) {
     super.trackMove subMoveNo, z1, z2
-    ui.fmtMsg 'repositioner.position', [newX, newY]
+    ui.fmtMsg 'repositioner.position', constrain( [newX, newY] )
+  }
+
+  @groovy.transform.TypeChecked
+  private List<Float> constrain( List<Float> coords ) {
+    coords.collect { Float coord ->
+      [coord, 8F].min()
+    }
   }
 }
