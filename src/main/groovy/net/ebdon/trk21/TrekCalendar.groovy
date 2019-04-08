@@ -25,6 +25,7 @@ package net.ebdon.trk21;
 */
 @groovy.transform.TypeChecked
 @groovy.util.logging.Log4j2
+@SuppressWarnings('InsecureRandom')
 final class TrekCalendar { // line 1110
     final int missionLifeInSolarYears   = 40;
     final int gameStartSolarYear        = ( new Random().nextInt(20) + 20 ) * 100; // T%, T0%

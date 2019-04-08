@@ -23,12 +23,12 @@ import groovy.transform.TypeChecked;
 @groovy.util.logging.Log4j2
 final class DamageControl {
 
-  Map<Integer,ShipDevice> devices = [
-    1: new ShipDevice('device.WARP.ENGINES'), 2: new ShipDevice('device.S.R..SENSORS'),
-    3: new ShipDevice('device.L.R..SENSORS'), 4: new ShipDevice('device.PHASER.CNTRL'),
-    5: new ShipDevice('device.PHOTON.TUBES'), 6: new ShipDevice('device.DAMAGE.CNTRL')
-  ]; ///< D%[] and D$[] in TREK.BAS.
-     ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
+  Map<Integer,ShipDevice> devices =
+    [ 1: new ShipDevice('device.WARP.ENGINES'), 2: new ShipDevice('device.S.R..SENSORS'),
+      3: new ShipDevice('device.L.R..SENSORS'), 4: new ShipDevice('device.PHASER.CNTRL'),
+      5: new ShipDevice('device.PHOTON.TUBES'), 6: new ShipDevice('device.DAMAGE.CNTRL')
+    ]; ///< D%[] and D$[] in TREK.BAS.
+       ///< @note elements [n][0] are keys to the Language resource bundle, via #rb.
 
   @Override final String toString() {
     String str = ''

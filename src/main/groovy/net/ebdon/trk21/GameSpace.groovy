@@ -39,6 +39,7 @@ abstract class GameSpace {
   }
 
   @TypeChecked
+  @SuppressWarnings('InsecureRandom')
   List<Integer> getRandomCoords() {
     Random rnd = new Random()
     [

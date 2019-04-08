@@ -2,6 +2,7 @@ package net.ebdon.trk21;
 
 import static ShipDevice.*;
 import static GameSpace.*;
+import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
@@ -45,6 +46,7 @@ final class PhaserControl {
     ui.fmtMsg 'phaserControl.onTarget', [ship.energyNow]
   }
 
+  @SuppressWarnings('InsecureRandom')
   private def phaserVariance() {
     2 + new Random().nextFloat()
   }
@@ -54,14 +56,14 @@ final class PhaserControl {
     distanceBetween( ship.position.sector, target.sector )
   }
 
-  private int targetDamageAmount( fired, distance ) {
+  private int targetDamageAmount( final int fired, final float distance ) {
     [fired, fired / distance * phaserVariance()].min()
   }
 
   private void fireAt( final int energyAmount, final Expando target ) {
     log.debug 'in fireAt()'
-    assert ship.position.isValid()
-    assert target.sector.isValid()
+    assert ship.position.valid
+    assert target.sector.valid
     assert energyAmount > 0
 
     final float distance = rangeTo( target )

@@ -38,6 +38,7 @@ final class DeviceStatusLottery {
     }
   }
 
+  @SuppressWarnings('InsecureRandom')
   int getRandomDamageAmount( ) {
     new Random().nextInt( 5 ) + 1
   }

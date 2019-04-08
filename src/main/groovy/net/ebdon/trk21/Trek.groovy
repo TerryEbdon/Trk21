@@ -90,6 +90,7 @@ final class Trek extends LoggingBase {
     setupQuadrant()
   }
 
+  @SuppressWarnings('InsecureRandom')
   void setEntStartPosition() {
     ship.position.quadrant = new Coords2d( *(galaxy.randomCoords) )
   }
@@ -142,10 +143,12 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
+  @SuppressWarnings('InsecureRandom')
   private int numberOfStarsToBirth() { // fnr%()
     new Random().nextInt(8) + 1
   }
 
+  @SuppressWarnings('InsecureRandom')
   void distributeKlingons() {
     int totalStars = 0
     int starsInQuad = 0
@@ -264,6 +267,7 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
+  @SuppressWarnings('InsecureRandom')
   void setCourse() {
     final Tuple2<Boolean, ShipVector> rv = getShipCourse()
     final ShipVector vector = rv.second

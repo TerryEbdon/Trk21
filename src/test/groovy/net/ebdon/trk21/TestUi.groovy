@@ -27,11 +27,12 @@ final class TestUi extends UiBase {
   List argsLog = [];
   String conditionText;
 
-  /// Empty constructor to prevent configuration from loading.
   /// Required as loading config is expensive & only currently used
   /// by the GUI.
   /// @todo Consider moving config loading into the TrekGui class.
-  TestUi() { }
+  TestUi() {
+    LoggingBase.config = true
+  }
   boolean isEmpty() {
     inputValues.empty &&
     msgLog.empty      &&
