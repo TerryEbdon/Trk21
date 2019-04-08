@@ -26,6 +26,7 @@ final class DeviceStatusLottery {
   DamageControl damageControl;
   Closure localMsg;
 
+  @SuppressWarnings('InsecureRandom')
   static void run( DamageControl dc, Closure uiClosure ) {
     log.debug 'deviceStatusLottery()'
     new DeviceStatusLottery( dc, uiClosure ).with {
