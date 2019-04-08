@@ -44,4 +44,10 @@ final class QuadrantValue {
   private int calcNumStars() {
     value - enemy * 100 - bases * 10
   }
+
+  @groovy.transform.TypeChecked( groovy.transform.TypeCheckingMode.SKIP )
+  int num( Quadrant.Thing thing ) {
+    assert thing.multiplier
+    this.((thing.name() + 's')[0..4])
+  }
 }

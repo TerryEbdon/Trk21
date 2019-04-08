@@ -26,7 +26,7 @@ final class Battle {
   FederationShip  ship;
   DamageControl   dc;
   UiBase          ui;
-
+  Quadrant.Thing thingDestroyed;
   private int nextTargetIndex = 1;
 
   Expando getNextTarget() {
@@ -108,12 +108,15 @@ final class Battle {
     if ( rp.thingHit == Quadrant.Thing.enemy ) {
       enemyFleet.with {
         shipHitByTorpedo torpedo.position.sector
-        // pcReporter rb.getString( 'battle.enemy.destroyed' )
         ui.localMsg 'battle.enemy.destroyed'
-        // quadrant[ torpedo.position.sector ] = Quadrant.Thing.emptySpace
-        quadrant[ ship.position.sector ] = Quadrant.Thing.ship
+      }
+    } else {
+      if ( rp.thingHit != Quadrant.Thing.emptySpace ) {
+        quadrant[ torpedo.position.sector ] = Quadrant.Thing.emptySpace
+        thingDestroyed = rp.thingHit
       }
     }
+
     enemyRespondsToAttack()
   }
 }

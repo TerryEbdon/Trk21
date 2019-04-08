@@ -123,10 +123,20 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   private void updateNumEnemyShipsInQuad() {
-    final Coords2d shipQuadrant = ship.position.quadrant
-    final QuadrantValue qv = new QuadrantValue( galaxy[shipQuadrant] )
-    galaxy[shipQuadrant] -= 100 * qv.enemy
-    galaxy[shipQuadrant] += 100 * enemyFleet.numKlingonBatCrInQuad
+    final Coords2d shipQuad = ship.position.quadrant
+    final QuadrantValue qv = new QuadrantValue( galaxy[shipQuad] )
+    galaxy[shipQuad] -= Thing.enemy.multiplier * qv.enemy
+    galaxy[shipQuad] += Thing.enemy.multiplier * enemyFleet.numKlingonBatCrInQuad
+  }
+
+  private void updateNumInQuad( final Thing thingHit ) {
+    if ( thingHit != Thing.enemy ) {
+      final Coords2d shipQuad = ship.position.quadrant
+      final QuadrantValue qv = new QuadrantValue( galaxy[shipQuad] )
+      int numInQuad = qv.num( thingHit )
+      galaxy[shipQuad] -= thingHit.multiplier * numInQuad--
+      galaxy[shipQuad] += thingHit.multiplier * numInQuad
+    }
   }
 
   @TypeChecked
@@ -434,7 +444,10 @@ final class Trek extends LoggingBase {
     ).phaserAttackFleet( energy )
   }
 
-  void updateQuadrantAfterSkirmish() {
+  void updateQuadrantAfterSkirmish( final Thing thingDestroyed = Thing.emptySpace ) {
+    if ( thingDestroyed != Thing.emptySpace ) {
+      updateNumInQuad( thingDestroyed )
+    }
     updateNumEnemyShipsInQuad()
     new QuadrantSetup( quadrant, enemyFleet ).updateAfterSkirmish()
   }
