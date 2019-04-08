@@ -35,20 +35,21 @@ final class EnemyFleet {
     final int maxKlingonBCinQuad = 9;
     final int maxPossibleKlingonShips = 64 * maxKlingonBCinQuad;
 
-    private int[][] klingons = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
+    private final int[][] klingons = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
 
     final private int idIdx     = 0;
-    final private int rowIdx    = 1
-    final private int colIdx    = 2
-    final private int energyIdx = 3
+    final private int rowIdx    = 1;
+    final private int colIdx    = 2;
+    final private int energyIdx = 3;
 
-    private List<Integer> scrapHeap = []
+    private final List<Integer> scrapHeap = [];
 
     /// @bug A private array was being accessed from in Trek.distributeKlingons()
-    protected final float[] softProbs = ///< r[0..9] in TREK.BAS
+    final float[] softProbs = ///< r[0..9] in TREK.BAS
         [ 0, 0.0001, 0.01, 0.03, 0.08, 0.28, 1.28, 3.28, 6.28, 13.28 ];
 
     /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
+    @SuppressWarnings('InsecureRandom')
     @TypeChecked
     static int energyHittingTarget(
         final int energyReleased,
@@ -86,7 +87,7 @@ final class EnemyFleet {
     }
 
     void setNumKlingonBatCrInQuad( final int newNumKbcIq ) {
-      assert newNumKbcIq in 0..9
+      assert newNumKbcIq in 0..maxPossibleKlingonShips
       assert newNumKbcIq <= numKlingonBatCrRemain
 
       log.trace( "numKlingonBatCrInQuad changed from $numKlingonBatCrInQuad to $newNumKbcIq" )
@@ -110,7 +111,7 @@ final class EnemyFleet {
     // @TypeChecked
     boolean isShipAt( List<Integer> key ) {
       klingons.find {
-        key.first() == it[1] && key.last() == it[2]
+        key.first() == it[rowIdx] && key.last() == it[colIdx]
       }
     }
 
@@ -119,9 +120,9 @@ final class EnemyFleet {
       assert sectorIsInsideQuadrant( klingonPosition )
 
       /// @pre Target sector must be empty
-      assert null == klingons.find {
+      assert klingons.find {
         it[rowIdx] == klingonPosition[0] && it[colIdx] == klingonPosition[1]
-      }
+      } == null
 
       log.debug "Klingon $klingonShipNo is at sector " +
         GameSpace.logFmtCoords( *klingonPosition )
@@ -211,7 +212,7 @@ final class EnemyFleet {
       }
       assert deadShip
       log.info "Dead ship details: $deadShip"
-      scrapShip deadShip[0]
+      scrapShip deadShip[idIdx]
     }
 
     @TypeChecked
