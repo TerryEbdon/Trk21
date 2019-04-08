@@ -23,7 +23,7 @@ import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 @groovy.util.logging.Log4j2('logger') /// @warning 'logger' not 'log' as the latter conflicts with the base class
 final class EnemyFleetTest extends GroovyTestCase {
     private EnemyFleet enemyFleet;
-    TestUi ui;
+    private TestUi ui;
 
     @Override void setUp() {
       super.setUp()
@@ -50,7 +50,7 @@ final class EnemyFleetTest extends GroovyTestCase {
     }
 
     @groovy.transform.TypeChecked
-    void setFleetSize( final int numShips ) {
+    private void setupFleetSize( final int numShips ) {
       logger.info "Setting fleet size to $numShips"
       enemyFleet.with {
         numKlingonBatCrTotal  = numShips
@@ -61,7 +61,7 @@ final class EnemyFleetTest extends GroovyTestCase {
 
     @groovy.transform.TypeChecked
     void testAttackBad() {
-      fleetSize = 1
+      setupFleetSize 1
       enemyFleet.with {
         shouldFail(PowerAssertionError) {
           attack new Coords2d(2,2), ui.&fmtMsg // Fail: No Klingons in fleet.
@@ -75,7 +75,7 @@ final class EnemyFleetTest extends GroovyTestCase {
 
     void testAttack() {
       logger.info 'testAttack()'
-      fleetSize = 1
+      setupFleetSize 1
       List<Integer> enemyShipSector = [1,1]
       enemyFleet.with {
         positionInSector( 1, enemyShipSector )
