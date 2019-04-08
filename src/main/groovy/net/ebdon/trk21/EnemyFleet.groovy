@@ -36,8 +36,16 @@ final class EnemyFleet {
     final int maxPossibleKlingonShips = 64 * maxKlingonBCinQuad;
 
     private int[][] klingons = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
+
+    final private int idIdx     = 0;
+    final private int rowIdx    = 1
+    final private int colIdx    = 2
+    final private int energyIdx = 3
+
     private List<Integer> scrapHeap = []
-    private final float[] softProbs = ///< r[0..9] in TREK.BAS
+
+    /// @bug A private array was being accessed from in Trek.distributeKlingons()
+    protected final float[] softProbs = ///< r[0..9] in TREK.BAS
         [ 0, 0.0001, 0.01, 0.03, 0.08, 0.28, 1.28, 3.28, 6.28, 13.28 ];
 
     /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
@@ -112,16 +120,16 @@ final class EnemyFleet {
 
       /// @pre Target sector must be empty
       assert null == klingons.find {
-        it[1] == klingonPosition[0] && it[2] == klingonPosition[1]
+        it[rowIdx] == klingonPosition[0] && it[colIdx] == klingonPosition[1]
       }
 
       log.debug "Klingon $klingonShipNo is at sector " +
         GameSpace.logFmtCoords( *klingonPosition )
       /// @todo replace array with new EnemyShip class.
-      klingons[klingonShipNo][0] = klingonShipNo
-      klingons[klingonShipNo][1] = klingonPosition[0]
-      klingons[klingonShipNo][2] = klingonPosition[1]
-      klingons[klingonShipNo][3] = maxKlingonEnergy
+      klingons[klingonShipNo][idIdx]     = klingonShipNo
+      klingons[klingonShipNo][rowIdx]    = klingonPosition[0]
+      klingons[klingonShipNo][colIdx]    = klingonPosition[1]
+      klingons[klingonShipNo][energyIdx] = maxKlingonEnergy
     }
 
     @TypeChecked
@@ -139,7 +147,9 @@ final class EnemyFleet {
 
     @TypeChecked
     private Coords2d shipCoords( final int shipNo ) {
-      new Coords2d( klingons[ shipNo ][1], klingons[ shipNo ][2] )
+      final int row = klingons[ shipNo ][rowIdx]
+      final int col = klingons[ shipNo ][colIdx]
+      new Coords2d( row, col )
     }
 
     /// Distance to target calculated via Pythagorous
@@ -150,7 +160,7 @@ final class EnemyFleet {
       log.info(
         sprintf(
           'Ship %d in %d - %d is %1.3f sectors from target %d - %d',
-          shipNo, *(klingons[shipNo][2..1]),distance,
+          shipNo, *(klingons[shipNo][colIdx..rowIdx]),distance,
           targetSectorCoords.col, targetSectorCoords.row
         )
       )
@@ -162,7 +172,7 @@ final class EnemyFleet {
       assert sectorIsInsideQuadrant( targetSector)
       assert canAttack()
       assert reportAttack != null
-      assert klingons.count { it[1] && it[2] } == numKlingonBatCrInQuad
+      assert klingons.count { it[rowIdx] && it[colIdx] } == numKlingonBatCrInQuad
 
       log.debug 'Attack with {} ships out of a max {} ships', // 1740 IF K3%>0 THEN GOSUB 2370
         numKlingonBatCrInQuad, maxKlingonBCinQuad
@@ -177,7 +187,7 @@ final class EnemyFleet {
     @TypeChecked
     private void attackWithShip(
         final int shipNo, final Coords2d targetSector, Closure reportAttack ) {
-      final int attackerEnergy = klingons[ shipNo ][3]
+      final int attackerEnergy = klingons[ shipNo ][energyIdx]
       log.trace 'Inspecting ship {} it has {} units of energy', shipNo, attackerEnergy
 
       if ( attackerEnergy > 0 ) {
@@ -187,7 +197,7 @@ final class EnemyFleet {
         final int hitWithEnergy = energyHittingTarget( attackerEnergy, distance )
 
         log.info "Fed Ship hit with $hitWithEnergy units of energy."
-        reportAttack 'enemyFleet.hitOnFedShip', klingons[shipNo][1..2]
+        reportAttack 'enemyFleet.hitOnFedShip', klingons[shipNo][rowIdx..colIdx]
       } else {
         log.trace "Ship $shipNo is dead or never existed."
       }
@@ -197,7 +207,7 @@ final class EnemyFleet {
     void shipHitByTorpedo( final Coords2d shipSector ) {
       log.info 'Ship at {} has been hit with a torpedo', shipSector
       int[] deadShip = klingons.find {
-        it[1..2] == shipSector.toList()
+        it[rowIdx..colIdx] == shipSector.toList()
       }
       assert deadShip
       log.info "Dead ship details: $deadShip"
@@ -211,7 +221,7 @@ final class EnemyFleet {
 
       assert energy( shipNum ) > 0
       final int nrg = energy( shipNum ) - hitAmount
-      klingons[ shipNum ][3] = [0,nrg].max()
+      klingons[ shipNum ][energyIdx] = [0,nrg].max()
       if (!shipExists(shipNum)) {
         scrapShip(shipNum)
       }
@@ -251,7 +261,7 @@ final class EnemyFleet {
     @TypeChecked
     int energy( final int shipNum ) {
       assert shipNumIsValid( shipNum )
-      klingons[ shipNum ][3]
+      klingons[ shipNum ][energyIdx]
     }
 
     @TypeChecked
@@ -262,6 +272,6 @@ final class EnemyFleet {
     @TypeChecked
     boolean shipExists( final int shipNum ) {
       assert shipNumIsValid( shipNum )
-      klingons[ shipNum ][3] > 0
+      klingons[ shipNum ][energyIdx] > 0
     }
 }
