@@ -193,12 +193,12 @@ final class FederationShip implements Moveable {
     if ( numEnemyShipsHere > 0 ) {
       battleStations( numEnemyShipsHere )
     } else {
-      setNonBattleCondition( galaxy )
+      nonBattleCondition( galaxy )
     }
   }
 
-  /// @todo Refactor - Extract method setNonBattleCondition()
-  private void setNonBattleCondition( final Galaxy galaxy ) {
+  /// @todo Refactor - Extract method nonBattleCondition()
+  private void nonBattleCondition( final Galaxy galaxy ) {
     if ( energyNow > lowEnergyThreshold ) {
       log.debug "$energyNow is above threshold of $lowEnergyThreshold"
       condition = 'GREEN'
