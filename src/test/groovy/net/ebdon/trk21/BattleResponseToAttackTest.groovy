@@ -27,8 +27,6 @@ class BattleResponseToAttackTest extends GroovyTestCase {
   private FederationShip ship;
   private DamageControl dc;
 
-  private final Closure reporter = { };
-
   private MockFor fleetMock;
   private StubFor dcStub;
   private MockFor shipMock;
@@ -49,12 +47,6 @@ class BattleResponseToAttackTest extends GroovyTestCase {
     ui = new TestUi()
     battle = new Battle( enemyFleet, ship, dc, ui )
   }
-
-  @groovy.transform.TypeChecked
-  private void attackReporter( final String msg ) {
-    assert msg.size()
-    attackReporterMessages << msg
-  };
 
   void testEnemyCanNotRespondToAttack() {
     fleetMock.demand.with {
