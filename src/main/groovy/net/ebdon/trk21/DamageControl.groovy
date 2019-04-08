@@ -78,6 +78,7 @@ final class DamageControl {
   }
 
   @TypeChecked
+  @SuppressWarnings('InsecureRandom')
   int getRandomDeviceKey() {
     new Random().nextInt( devices.size() ) + 1
   }
@@ -108,6 +109,7 @@ final class DamageControl {
   }
 
   @TypeChecked
+  @SuppressWarnings('InsecureRandom')
   private int randomRepairAmount( final int key ) {
     final int offset = new Random().nextInt(
         devices[key].state.abs() ) + 1
