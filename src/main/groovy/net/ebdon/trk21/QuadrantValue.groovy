@@ -1,5 +1,7 @@
 package net.ebdon.trk21;
 
+import static Quadrant.Thing;
+
 /**
  * @file
  * @author      Terry Ebdon
@@ -34,19 +36,19 @@ final class QuadrantValue {
   }
 
   private int calcNumEnemy() {
-    (value / 100).toInteger()
+    (value / Thing.enemy.multiplier).toInteger()
   }
 
   private int calcNumBases() {
-    (value / 10 - 10 * enemy).toInteger()
+    ( (value - enemy * Thing.enemy.multiplier) / Thing.base.multiplier ).toInteger()
   }
 
   private int calcNumStars() {
-    value - enemy * 100 - bases * 10
+    value - enemy * Thing.enemy.multiplier - bases * Thing.base.multiplier
   }
 
   @groovy.transform.TypeChecked( groovy.transform.TypeCheckingMode.SKIP )
-  int num( Quadrant.Thing thing ) {
+  int num( Thing thing ) {
     assert thing.multiplier
     this.((thing.name() + 's')[0..4])
   }

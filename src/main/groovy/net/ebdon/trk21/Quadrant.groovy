@@ -31,7 +31,7 @@ final class Quadrant extends GameSpace {
     private final List<Integer> multipliers = [0, 0, 100, 10, 1, 0]
     final String symbol;
     Thing( sym ) { symbol = sym }
-    int getMultiplier() { multipliers[ordinal()]}
+    int getMultiplier() { multipliers[ordinal()] }
   }
 
   int getCellPadding() {

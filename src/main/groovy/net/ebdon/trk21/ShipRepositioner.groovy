@@ -45,10 +45,4 @@ final class ShipRepositioner extends Repositioner {
     newY -= offset.y
     moveAborted = true
   }
-
-  @groovy.transform.TypeChecked
-  @Override void trackMove(
-      final int subMoveNo, final int z1, final int z2 ) {
-    super.trackMove subMoveNo, z1, z2
-  }
 }

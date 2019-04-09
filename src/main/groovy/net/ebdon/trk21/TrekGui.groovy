@@ -29,9 +29,9 @@ import java.awt.*;
 */
 @groovy.util.logging.Log4j2
 final class TrekGui extends UiBase {
-  private SwingBuilder swing = new SwingBuilder();
+  private final SwingBuilder swing = new SwingBuilder();
 
-  public static void main( String[] args ) {
+  static void main( String[] args ) {
     new TrekGui().run()
   }
 

@@ -22,7 +22,7 @@ class TrekCli extends UiBase {
 
   private final Scanner sc = new Scanner(System.in);
 
-  public static void main( String[] args ) {
+  static void main( String[] args ) {
       new TrekCli().run()
   }
 

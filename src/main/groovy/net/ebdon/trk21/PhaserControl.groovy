@@ -68,7 +68,7 @@ final class PhaserControl {
 
     final float distance = rangeTo( target )
     log.debug sprintf(
-      "Calculating hit on %s with %d units, range %+1.3f sectors",
+      'Calculating hit on %s with %d units, range %+1.3f sectors',
       target.name, energyAmount, distance )
     assert distance > 0
     final int energyHit = targetDamageAmount( energyAmount, distance )
@@ -81,7 +81,7 @@ final class PhaserControl {
 
   void fire( final int energyAmount ) {
     log.info "Firing phasers with $energyAmount units."
-    assert damageControl //&& report
+    assert damageControl
     assert energyAmount in 1..ship.energyNow // Trek.firePhasers() should ensure this.
 
     if ( damageControl.isDamaged( DeviceType.phasers ) ) {

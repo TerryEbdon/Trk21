@@ -58,7 +58,6 @@ abstract class Repositioner {
   UiBase ui;      // To replace Trek.blockedAtSector()
   def quadrant;   ///> @todo Fix tests so that a static type can be used.
 
-  private boolean tracked;
   private int energyBudget;
 
   String toString() {
@@ -91,7 +90,7 @@ abstract class Repositioner {
       moveSector it   // for each sector traversed. L.1860
     }
 
-    final shipPos = ship.position
+    final Position shipPos = ship.position
     assert thingMoved
     quadrant[ shipPos.sector ] = thingMoved // 1875
     log.info msgArrivedInQuad,   id, shipPos.quadrant

@@ -64,7 +64,7 @@ final class Trek extends LoggingBase {
     "Sector     : $ship.position.sector"
   }
 
-  Trek( theUi = null ) {
+  Trek( UiBase theUi = null ) {
     ui = theUi
     formatter = new MessageFormat('')
     formatter.locale = Locale.default
