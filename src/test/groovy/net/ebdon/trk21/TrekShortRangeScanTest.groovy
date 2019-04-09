@@ -62,10 +62,33 @@ final class TrekShortRangeScanTest extends TrekTestBase {
     }
   }
 
-  @TypeChecked
+  @Newify(MockFor)
+  void testOffline() {
+    MockFor dcMock = MockFor( DamageControl )
+    dcMock.demand.isDamaged { true }
+
+    MockFor quadMock = MockFor( Quadrant ) // No demands, shouldn't be called.
+    shipMock = MockFor( FederationShip )   // No demands, shouldn't be called.
+    dcMock.use {
+      trek = new Trek( ui )
+      trek.damageControl = new DamageControl()
+      quadMock.use {
+        trek.quadrant = new Quadrant()
+        shipMock.use {
+          trek.ship = new FederationShip()
+          trek.shortRangeScan()
+        }
+      }
+    }
+    assert ui.localMsgLog == ['sensors.shortRange.offline']
+  }
+
+  @Newify(MockFor)
   @SuppressWarnings('JUnitTestMethodWithoutAssert')
   void testShortRangeScan() {
     resetShip()
+    MockFor dcMock = MockFor( DamageControl )
+    dcMock.demand.isDamaged { false }
 
     enemyFleet.use {
       game.use {
@@ -77,7 +100,10 @@ final class TrekShortRangeScanTest extends TrekTestBase {
           trek.ship = new FederationShip()
           game.use {
             trek.game = new TrekCalendar()
-            trek.shortRangeScan()
+            dcMock.use {
+              trek.damageControl = new DamageControl()
+              trek.shortRangeScan()
+            }
           }
         }
       }

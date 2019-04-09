@@ -416,22 +416,26 @@ final class Trek extends LoggingBase {
   /// Perform a @ref TrekShortRangeSensors "short-range sensor scan"
   void shortRangeScan() {
     logException {
-      ship.shortRangeScan( galaxy )
-      ship.attemptDocking( quadrant )
-      // @todo Is this methode code-complete?
-      // GOSUB 2370 UNLESS A%
-      // 1570 IF D%(2%) THEN &"SHORT RANGE SENSORS ARE INOPERABLE":GOTO1650
+      if ( damageControl.isDamaged( ShipDevice.DeviceType.srSensor ) ) {
+        ui.localMsg 'sensors.shortRange.offline'
+      } else {
+        ship.shortRangeScan( galaxy )
+        ship.attemptDocking( quadrant )
+        // @todo Is this methode code-complete?
+        // GOSUB 2370 UNLESS A%
+        // 1570 IF D%(2%) THEN &"SHORT RANGE SENSORS ARE INOPERABLE":GOTO1650
 
-      ui.localMsg 'sensors.shortRange.header'
-      quadrant.displayOn ui.&outln
-      ui.localMsg 'sensors.shortRange.divider'
+        ui.localMsg 'sensors.shortRange.header'
+        quadrant.displayOn ui.&outln
+        ui.localMsg 'sensors.shortRange.divider'
 
-      showCondition()
-      ship.position.sector.with {
-        ui.fmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
-        ui.fmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
-        ui.fmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
-        ui.fmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
+        showCondition()
+        ship.position.sector.with {
+          ui.fmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
+          ui.fmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
+          ui.fmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
+          ui.fmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
+        }
       }
       log.info game.toString()
     }
