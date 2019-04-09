@@ -30,7 +30,6 @@ final class TorpedoRepositioner extends Repositioner {
     log.info logMoveStepImpact, id, subMoveNo, [row,col]
 
     assert thingMoved == Quadrant.Thing.torpedo
-    final String msgId = 'impactAtSector'
     thingHit = quadrant[row, col]
 
     log.printf Level.DEBUG,
@@ -38,7 +37,7 @@ final class TorpedoRepositioner extends Repositioner {
 
     /// @todo Localise the first agument, e.g. Thing.star
     final Quadrant.Thing thingHit = quadrant[row,col]
-    ui.fmtMsg msgId, [ thingHit, col, row ]
+    ui.fmtMsg 'impactAtSector', [ thingHit, col, row ]
 
     if ( thingHit == Quadrant.Thing.base ) {
       ui.localMsg 'baseDestroyed'

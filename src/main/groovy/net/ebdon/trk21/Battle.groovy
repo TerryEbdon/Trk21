@@ -104,16 +104,16 @@ final class Battle {
 
     rp.repositionShip new ShipVector( course: course )
     quadrant[ ship.position.sector ] = Quadrant.Thing.ship
-
-    if ( rp.thingHit == Quadrant.Thing.enemy ) {
-      enemyFleet.with {
-        shipHitByTorpedo torpedo.position.sector
-        ui.localMsg 'battle.enemy.destroyed'
-      }
+    final Thing thingHit = rp.thingHit
+    if ( thingHit == Quadrant.Thing.enemy ) {
+      log.info 'Torpedo hit on enemy ship.'
+      enemyFleet.shipHitByTorpedo torpedo.position.sector
+      ui.localMsg 'battle.enemy.destroyed'
     } else {
-      if ( rp.thingHit != Quadrant.Thing.emptySpace ) {
+      if ( thingHit != Quadrant.Thing.emptySpace ) {
         quadrant[ torpedo.position.sector ] = Quadrant.Thing.emptySpace
-        thingDestroyed = rp.thingHit
+        thingDestroyed = thingHit
+        log.info 'Torpedo hit on {}', thingDestroyed
       }
     }
 
