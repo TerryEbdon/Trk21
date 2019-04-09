@@ -397,6 +397,23 @@ final class Trek extends LoggingBase {
     ui.conditionText = displayableCondition()
   }
 
+  @TypeChecked
+  private void scanSummary() {
+    ship.position.sector.with {
+      ui.fmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
+      ui.fmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
+      ui.fmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
+      ui.fmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
+    }
+  }
+
+  @TypeChecked
+  private void scanQuadrant() {
+    ui.localMsg 'sensors.shortRange.header'
+    quadrant.displayOn ui.&outln
+    ui.localMsg 'sensors.shortRange.divider'
+  }
+
   /// @return A localised display string for the ship's condition
   /// @todo Move displayableCondition() into FederationShip
   /// @todo Localise via the #rb resource bundle.
@@ -421,21 +438,9 @@ final class Trek extends LoggingBase {
       } else {
         ship.shortRangeScan( galaxy )
         ship.attemptDocking( quadrant )
-        // @todo Is this methode code-complete?
-        // GOSUB 2370 UNLESS A%
-        // 1570 IF D%(2%) THEN &"SHORT RANGE SENSORS ARE INOPERABLE":GOTO1650
-
-        ui.localMsg 'sensors.shortRange.header'
-        quadrant.displayOn ui.&outln
-        ui.localMsg 'sensors.shortRange.divider'
-
+        scanQuadrant()
         showCondition()
-        ship.position.sector.with {
-          ui.fmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
-          ui.fmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
-          ui.fmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
-          ui.fmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
-        }
+        scanSummary()
       }
       log.info game.toString()
     }
