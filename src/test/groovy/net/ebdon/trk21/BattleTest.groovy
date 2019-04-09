@@ -48,15 +48,62 @@ class BattleTest extends GroovyTestCase {
     battle = new Battle( enemyFleet, ship, dc, ui )
   }
 
-  void testBattleHitOnFleetShip() {
-    if ( notYetImplemented() ) return
-    assert false
+  private void fleetTarget( final String name ) {
+    target = [id: 9, name: name, sector: new Coords2d(1,1)]
   }
 
-  /// @todo implement testBattleFireTorpedo()
-  void testBattleFireTorpedo() {
-    if ( notYetImplemented() ) return
-    assert false
+  private void hitOnFleetMock( boolean fleetShipExists, final int hitAmount ) {
+    fleetMock = new MockFor( EnemyFleet ).tap {
+      demand.hitOnShip { int id, int amount ->
+        assert id == target.id
+        assert amount == hitAmount
+      }
+      demand.shipExists { int id ->
+        assert id == target.id
+        fleetShipExists
+      }
+      if ( fleetShipExists ) {
+        demand.energy { id ->
+          assert id == target.id
+          hitAmount // Assume remaining == hitAmount to simplify the test.
+        }
+      }
+    }
+  }
+
+  void testHitOnFleetShipNotDestroyed() {
+    fleetTarget 'testHitOnFleetShipNotDestroyed'
+    final int hitAmount = 100
+    final int targetEnergyRemaining = hitAmount
+
+    hitOnFleetMock true, hitAmount
+    runHitOnFleet hitAmount
+
+    assert ui.localMsgLog == ['battle.hitOntargetAt','battle.targetEnergyLeft']
+    assert ui.argsLog[0] == [hitAmount, target.name, target.sector.row, target.sector.col]
+    assert ui.argsLog[1] == [targetEnergyRemaining]
+  }
+
+  @groovy.transform.TypeChecked
+  private void runHitOnFleet( final int hitAmount ) {
+    fleetMock.use {
+      new Battle(
+        enemyFleet: new EnemyFleet(),
+        ui: ui
+      ).hitOnFleetShip( target, hitAmount )
+    }
+  }
+
+  void testHitOnFleetShipDestroyed() {
+    fleetTarget 'testHitOnFleetShipDestroyed'
+    final int hitAmount = 200
+
+    hitOnFleetMock false, hitAmount
+    runHitOnFleet hitAmount
+
+    assert ui.localMsgLog == ['battle.hitOntargetAt','battle.enemy.destroyed']
+    assert ui.argsLog[0] == [hitAmount, target.name, target.sector.row, target.sector.col]
+    assert ui.argsLog[1] == []
   }
 
   void testBattlePhaserAttackFleet() {
