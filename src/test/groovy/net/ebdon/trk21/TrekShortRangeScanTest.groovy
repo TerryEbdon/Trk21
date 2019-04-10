@@ -88,6 +88,7 @@ final class TrekShortRangeScanTest extends TrekTestBase {
   void testShortRangeScan() {
     resetShip()
     MockFor dcMock = MockFor( DamageControl )
+    MockFor galaxy = MockFor( Galaxy )
     dcMock.demand.isDamaged { false }
 
     enemyFleet.use {
@@ -102,7 +103,10 @@ final class TrekShortRangeScanTest extends TrekTestBase {
             trek.game = new TrekCalendar()
             dcMock.use {
               trek.damageControl = new DamageControl()
-              trek.shortRangeScan()
+              galaxy.use {
+                trek.galaxy = new Galaxy()
+                trek.shortRangeScan()
+              }
             }
           }
         }

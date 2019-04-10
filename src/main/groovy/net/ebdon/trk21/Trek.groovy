@@ -392,55 +392,16 @@ final class Trek extends LoggingBase {
     new NavComp( ui, srSensorDamaged, ship.position, quadrant ).run()
   }
 
-  @TypeChecked
-  void showCondition() {
-    ui.conditionText = displayableCondition()
-  }
-
-  @TypeChecked
-  private void scanSummary() {
-    ship.position.sector.with {
-      ui.fmtMsg 'sensors.shipStatus.1', [ game.currentSolarYear, ship.condition ]
-      ui.fmtMsg 'sensors.shipStatus.2', [ currentQuadrant(), col, row ]
-      ui.fmtMsg 'sensors.shipStatus.3', [ ship.energyNow, ship.numTorpedoes ]
-      ui.fmtMsg 'sensors.shipStatus.4', [ enemyFleet.numKlingonBatCrRemain ]
-    }
-  }
-
-  @TypeChecked
-  private void scanQuadrant() {
-    ui.localMsg 'sensors.shortRange.header'
-    quadrant.displayOn ui.&outln
-    ui.localMsg 'sensors.shortRange.divider'
-  }
-
-  /// @return A localised display string for the ship's condition
-  /// @todo Move displayableCondition() into FederationShip
-  /// @todo Localise via the #rb resource bundle.
-  /// @bug  Code assumes that all condition values, other than "DOCKED",
-  ///       are also valid HTML colours. This is currently true for ENGLISH
-  ///       locales, but will fail for other languages. Colours and language
-  ///       should be orthogonal.
-  /// @todo Consider splitting into two methods, to allow use where HTML is
-  ///       not appropriate.
-  String displayableCondition() {
-    /// @bug Should use config insteaf of HTML fonts.
-    /// @todo This is incompatible with a CLI based UI.
-    final String colour = ship.condition != 'DOCKED' ? ship.condition : 'GREEN'
-    "<html><font size=+2 color=$colour>${ship.condition}</font></html>"
-  }
-
   /// Perform a @ref TrekShortRangeSensors "short-range sensor scan"
+  @TypeChecked
   void shortRangeScan() {
     logException {
       if ( damageControl.isDamaged( ShipDevice.DeviceType.srSensor ) ) {
         ui.localMsg 'sensors.shortRange.offline'
       } else {
-        ship.shortRangeScan( galaxy )
-        ship.attemptDocking( quadrant )
-        scanQuadrant()
-        showCondition()
-        scanSummary()
+        new ShortRangeScan(
+          ship, quadrant, galaxy, ui, game.currentSolarYear,
+          enemyFleet.numKlingonBatCrRemain ).scan()
       }
       log.info game.toString()
     }
