@@ -75,7 +75,7 @@ final class ShortRangeScan {
   }
 
   void scan() {
-    ship.shortRangeScan( galaxy )
+    ship.shortRangeScan( galaxy ) // Performs a LR scan to set ship's condition.
     ship.attemptDocking( quadrant )
     scanQuadrant()
     showCondition()
