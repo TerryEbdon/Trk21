@@ -2,7 +2,9 @@ package net.ebdon.trk21;
 
 import static GameSpace.*;
 import static ShipDevice.*;
+
 import groovy.mock.interceptor.StubFor;
+import groovy.mock.interceptor.MockFor;
 /**
  * @file
  * @author      Terry Ebdon
@@ -33,6 +35,16 @@ class BattleTest extends GroovyTestCase {
   private StubFor fleetStub;
   private StubFor dcStub;
   private StubFor shipStub;
+  private Expando target;
+  private MockFor fleetMock;
+
+  private static int convertToRow( final int shipNo ) {
+    1 + (shipNo / 8).toInteger()
+  }
+
+  private static int convertToCol( final int shipNo ) {
+    1 + shipNo % 8
+  }
 
   @Override void setUp() {
     super.setUp()
@@ -111,8 +123,8 @@ class BattleTest extends GroovyTestCase {
     assert false
   }
 
-  void testBattleGetNextTarget() {
-    logger.info 'testBattleGetNextTarget'
+  void testGetNextTarget() {
+    logger.info 'testGetNextTarget -- BEGIN'
     fleetStub.demand.with {
       getNumKlingonBatCrInQuad(1..18) { 9 }
       getMaxKlingonBCinQuad(1..18)    { 9 }
@@ -129,22 +141,47 @@ class BattleTest extends GroovyTestCase {
       }
     }
 
-    1.upto(9) { targetExpected ->
-      def target = battle.getNextTarget()
+    for ( int targetExpected in 1..9 ) {
+      final Expando target = battle.getNextTarget()
 
       assert target.name.contains( "$targetExpected" )
       assert convertToRow( targetExpected ) == target.sector.row
       assert convertToCol( targetExpected ) == target.sector.col
       assert targetExpected == target.id
     }
-    logger.info 'testBattleGetNextTarget -- OK'
+    logger.info 'testGetNextTarget -- END'
   }
 
-  private static int convertToRow( final int shipNo ) {
-    1 + (shipNo / 8).toInteger()
+  void testGetNextTargetEmptyFleet() {
+    logger.info 'testGetNextTargetEmptyFleet -- BEGIN'
+    fleetStub.demand.with {
+      getMaxKlingonBCinQuad          { 1 }
+      getNumKlingonBatCrInQuad(1..2) { 0 } // 2nd call depends on log level
+    }
+
+    final Expando target = battle.getNextTarget()
+
+    assert target == null
+    assert ui.empty
+    logger.info 'testGetNextTargetEmptyFleet -- END'
   }
 
-  private static int convertToCol( final int shipNo ) {
-    1 + shipNo % 8
+  void testGetNextTargetDeadShip() {
+    logger.info 'testGetNextTargetDeadShip -- BEGIN'
+    fleetStub.demand.with {
+      getMaxKlingonBCinQuad          { 1 }
+      getNumKlingonBatCrInQuad(2..4) { 1 } // Extra 2 calls depends on log level
+      getKlingons(1..2) {
+        int[][] ships = new int[2][4]
+        ships[1] = [1,1,1,0]  // 1 ship; it's dead.
+        ships
+      }
+    }
+
+    final Expando target = battle.getNextTarget()
+
+    assert target == null
+    assert ui.empty
+    logger.info 'testGetNextTargetDeadShip -- END'
   }
 }

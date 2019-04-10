@@ -81,7 +81,7 @@ final class EnemyFleetTest extends GroovyTestCase {
         positionInSector( 1, enemyShipSector )
         attack( new Coords2d(2,2), ui.&fmtMsg )
       }
-      logger.error ui
+      logger.debug ui
       assert ui.argsLog == [enemyShipSector]
       assert ui.localMsgLog == ['enemyFleet.hitOnFedShip']
     }

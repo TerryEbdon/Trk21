@@ -69,7 +69,7 @@ class BattleResponseToAttackTest extends GroovyTestCase {
       attack { Coords2d sector, Closure fleetAttackReporter -> }
     }
 
-    shipMock.demand.isProtectedByStarBase { false }
+    shipMock.demand.getProtectedByStarBase { false }
     shipMock.demand.getPosition { new Position() }
 
     fleetMock.use {
@@ -89,7 +89,7 @@ class BattleResponseToAttackTest extends GroovyTestCase {
       canAttack { true }
     }
 
-    shipMock.demand.isProtectedByStarBase { true }
+    shipMock.demand.getProtectedByStarBase { true }
 
     fleetMock.use {
       battle.enemyFleet = new EnemyFleet()

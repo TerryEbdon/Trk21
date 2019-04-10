@@ -1,5 +1,6 @@
 package net.ebdon.trk21;
 
+import static Quadrant.Thing;
 import groovy.transform.*;
 /**
  * @file
@@ -26,17 +27,18 @@ final class Battle {
   FederationShip  ship;
   DamageControl   dc;
   UiBase          ui;
-  Quadrant.Thing thingDestroyed;
+  Thing thingDestroyed = Thing.emptySpace;
   private int nextTargetIndex = 1;
+  private int maxEnemyShips = 0;
 
   Expando getNextTarget() {
-    log.trace "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
-    log.trace "Getting target $nextTargetIndex"
-    assert nextTargetIndex >= 0
-    assert nextTargetIndex <= 1 + enemyFleet.maxKlingonBCinQuad
+    log.error "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
+    log.error "Getting target $nextTargetIndex"
+    maxEnemyShips = maxEnemyShips ?: enemyFleet.maxKlingonBCinQuad
+    assert nextTargetIndex in 0..(1 + maxEnemyShips)
     Expando rv = null
     if ( enemyFleet.numKlingonBatCrInQuad > 0 ) {
-      if ( nextTargetIndex <= enemyFleet.maxKlingonBCinQuad ) {
+      if ( nextTargetIndex <= maxEnemyShips ) {
         final int[] enemyShip = enemyFleet.klingons[ nextTargetIndex ]
         if ( enemyShip[3] > 0 ) {
           log.info "Creating target expando from $enemyShip"
@@ -63,13 +65,11 @@ final class Battle {
     ui.fmtMsg 'battle.hitOntargetAt',
       [hitAmount, target.name, target.sector.row, target.sector.col]
 
-    enemyFleet.with {
-      hitOnShip( target.id, hitAmount )
-      if (shipExists(target.id)) {
-        ui.fmtMsg 'battle.targetEnergyLeft', [energy(target.id)]
-      } else {
-        ui.localMsg 'battle.enemy.destroyed'
-      }
+    enemyFleet.hitOnShip( target.id, hitAmount )
+    if ( enemyFleet.shipExists(target.id) ) {
+      ui.fmtMsg 'battle.targetEnergyLeft', [enemyFleet.energy(target.id)]
+    } else {
+      ui.localMsg 'battle.enemy.destroyed'
     }
   }
 
@@ -82,14 +82,19 @@ final class Battle {
 
   @TypeChecked
   void enemyRespondsToAttack() {
+    log.debug 'enemyRespondsToAttack -- BEGIN'
     enemyFleet.regroup()
     if ( enemyFleet.canAttack() ) {
-      if ( ship.isProtectedByStarBase() ) {
+      log.trace 'enemyFleet can not attack'
+      if ( ship.protectedByStarBase ) {
+        log.trace 'ship *IS* not protected by a star base'
         ui.localMsg 'battle.shieldedByBase'
       } else {
+        log.trace 'ship is *NOT* protected by a star base'
         enemyFleet.attack( ship.position.sector, ui.&fmtMsg )
       }
     }
+    log.debug 'enemyRespondsToAttack -- END'
   }
 
   @TypeChecked
