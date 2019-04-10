@@ -7,6 +7,7 @@ import static ShipDevice.*;
 import java.text.MessageFormat;
 import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import groovy.transform.TypeChecked;
+import org.apache.logging.log4j.Level;
 
 /**
  * @file
@@ -192,9 +193,9 @@ final class Trek extends LoggingBase {
         log.trace 'galaxy[{},{}] = {}', i, j, galaxy.scan(i,j)
       }
     }
-    log.info "Total number of Klingon BC: ${enemyFleet.numKlingonBatCrRemain.toString().padLeft(3)}"
-    log.info "Total number of star bases: ${numStarBasesTotal.toString().padLeft(3)}"
-    log.info "Total number stars:         ${totalStars.toString().padLeft(3)}"
+    log.printf Level.INFO, 'Total number of Klingon BC: %3d', enemyFleet.numKlingonBatCrRemain
+    log.printf Level.INFO, 'Total number of star bases: %3d', numStarBasesTotal
+    log.printf Level.INFO, 'Total number stars:         %3d', totalStars
     log.info enemyFleet.toString()
   }
 
