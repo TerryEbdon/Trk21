@@ -43,7 +43,6 @@ abstract class Repositioner {
   final String msgJumpCoord         = "%s jump: quadCoord: %d offset: ${CourseOffset.format1} sectCoord: %d";
   final String logMoveStepImpact    = '{} move step {} impact at {}'
 
-
   boolean moveAborted   = false;
 
   protected CourseOffset  offset  = null;

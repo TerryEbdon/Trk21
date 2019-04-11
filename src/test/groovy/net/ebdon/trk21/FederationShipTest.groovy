@@ -26,13 +26,14 @@ import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 /// @warning 'logger' not 'log' as the latter conflicts with the base class
 final class FederationShipTest extends GroovyTestCase {
 
-    private FederationShip ship = new FederationShip();
-    private def galaxy;
+    private FederationShip ship;
+    private Galaxy galaxy;
     private StubFor galaxyStub;
 
     @Override void setUp() {
       super.setUp()
       logger.info 'setUp'
+      ship = new FederationShip()
       galaxyStub = new StubFor( Galaxy )
       galaxyStub.use { galaxy = new Galaxy() }
       logger.info 'setUp -- OK'
@@ -180,9 +181,7 @@ final class FederationShipTest extends GroovyTestCase {
 
       // galaxy.keySet().each {
       galaxyStub.demand.getAt(1..548) {
-        // println 'returning 000 @ 178'
-        000
-        /// @todo 64 should be more than enough... but isn't
+        000 /// @todo 64 should be more than enough... but isn't
       }
       galaxyKeySet.each {
         scan it, 'GREEN'
@@ -197,7 +196,6 @@ final class FederationShipTest extends GroovyTestCase {
           ks << [i,j]
         }
       }
-
       ks
     }
 
@@ -216,15 +214,12 @@ final class FederationShipTest extends GroovyTestCase {
     @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts in scan()
     void testShortRangeScanGoodYellow() {
       logger.info 'testShortRangeScanGoodYellow'
-
-      // getGalaxyKeySet().each {
-        ship.position = new Position().tap {
-          quadrant = new Coords2d(row: 1, col: 1)
-          sector   = new Coords2d(row: 1, col: 1)
-        }
-        makeYellow()
-        scan ship.position.quadrant, 'YELLOW'
-      // }
+      ship.position = new Position().tap {
+        quadrant = new Coords2d(row: 1, col: 1)
+        sector   = new Coords2d(row: 1, col: 1)
+      }
+      makeYellow()
+      scan ship.position.quadrant, 'YELLOW'
       logger.info 'testShortRangeScanGoodYellow -- OK'
     }
 
@@ -234,7 +229,6 @@ final class FederationShipTest extends GroovyTestCase {
 
       makeRed()
       galaxyKeySet.each {
-          // makeRed it
         scan it, 'RED'
       }
       logger.info 'testShortRangeScanGoodRed -- OK'
@@ -276,7 +270,6 @@ final class FederationShipTest extends GroovyTestCase {
             if ( [4,4] != [i,j] ) { // can't be in same sector as a @ref StarBase
               position.sector = new Coords2d( row: i, col: j )
               attemptDocking quadrant
-              // attemptDocking( quadrant, i, j )
               assert condition == 'DOCKED'
             }
           }
@@ -287,15 +280,8 @@ final class FederationShipTest extends GroovyTestCase {
 
     void testMove() {
       logger.info 'testMove'
-      // if (notYetImplemented()) return
 
       ShipVector sv = new ShipVector()
-      //
-      // galaxyStub.demand.with {
-      //   insideGalaxy(1..99) { x -> println 'insideGalaxy @ 279'; true }
-      //   insideGalaxy(1..99) { x,y -> println 'insideGalaxy @ 280'; true }
-      //   getAt { 4 } // 4 stars
-      // }
 
       galaxyStub.use {
         ship.with {
@@ -317,12 +303,10 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info 'testMove -- OK'
     }
 
-    private String scan( final ourPosition, final expectCondition ) {
+    private String scan( final ourPosition, final String expectCondition ) {
       galaxyStub.demand.with {
-        getBoardSize { /*println 'returning size=64 @ 306';*/ 64}
-        // insideGalaxy(1..99) { posQuad -> println "insideGalaxy[$posQuad]"; true }
-        // insideGalaxy(1..99) { x,y -> println "insideGalaxy[$x,$y]"; true }
-        insideGalaxy { /*println 'insideGalaxy[???] @ 309';*/ true }
+        getBoardSize { 64 }
+        insideGalaxy { true }
       }
 
       ship.with {
@@ -330,27 +314,21 @@ final class FederationShipTest extends GroovyTestCase {
           galaxyStub.use {
             shortRangeScan galaxy
           }
-          // shortRangeScan( galaxy, *ourPosition )
           assert condition == expectCondition
       }
     }
 
-    private void makeRed() { //( final ourPosition ) { /// @todo Move ourPosition() into a MockGalaxy class.
-      // galaxy[ ourPosition ] = 900
+    private void makeRed() {
       galaxyStub.demand.getAt(1..64) { 900 }
     }
 
-    private void makeYellow() { /// @todo Move makeYellow() into a MockGalaxy class.
-      // getGalaxyKeySet().each { pos ->
-        // galaxy[ pos ] =
+    private void makeYellow() {
       galaxyStub.demand.with {
         getAt { final Coords2d x ->
-          // println "Called with $x, returning 000"
           000
         }
         getAt(1..4) { final List<Integer> x ->
           final int rv = ( x == [1,1] ? 000 : 900 )
-          // println "Called with ${x.class.name} = $x, returning $rv"
           rv
         }
       }

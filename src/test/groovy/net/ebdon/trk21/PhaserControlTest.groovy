@@ -29,9 +29,8 @@ final class PhaserControlTest extends GroovyTestCase {
 
   private PhaserControl pc;
   private DamageControl dc;
-  // private boolean damageReported;
-  private ship;
-  private battle;
+  private FederationShip ship;
+  private Battle battle;
   private StubFor shipStub;
   private StubFor battleStub;
   private String reportedMsg = '';

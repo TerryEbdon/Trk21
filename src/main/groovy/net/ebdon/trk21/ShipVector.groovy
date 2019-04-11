@@ -43,8 +43,7 @@ final class ShipVector {
 
   boolean isValid() {
     isValidCourse( course ) &&
-    isValidWarpFactor( warpFactor ) &&
-    course * warpFactor > 0F
+    isValidWarpFactor( warpFactor )
   }
 
   String toString() {

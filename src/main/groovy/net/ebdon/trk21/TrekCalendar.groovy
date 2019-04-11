@@ -37,8 +37,8 @@ final class TrekCalendar { // line 1110
         currentSolarYear <= gameStartSolarYear + missionLifeInSolarYears
     }
 
-  	/// Standard method for getting a string description of the class.
-  	/// @return String representation of the class instance.
+    /// Standard method for getting a string description of the class.
+    /// @return String representation of the class instance.
     String toString() {
         "* DT: $currentSolarYear, " +
         "Start: $gameStartSolarYear, " +

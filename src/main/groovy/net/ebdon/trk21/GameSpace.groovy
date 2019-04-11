@@ -33,6 +33,56 @@ abstract class GameSpace {
     distanceBetween( topLeftCoords, bottomRightCoords ); /// Sector diagonal
 
   @TypeChecked
+  static boolean insideGalaxy( final Coords2d coords ) {
+    insideGalaxy( coords.first(), coords.last() )
+  }
+
+  @TypeChecked
+  static boolean insideGalaxy( final int x, final int y ) {
+    contains( x, y )
+  }
+
+  @TypeChecked
+  static boolean contains( final Coords2d c2d ) {
+    contains c2d.row, c2d.col
+  }
+
+  @TypeChecked
+  static boolean contains( final int x, final int y ) {
+    (minCoord..maxCoord).containsAll( x, y )
+  }
+
+  @TypeChecked
+  static String logFmtCoords( final int x, final int y ) {
+    "${[x,y]} == $y - $x"
+  }
+
+  /// Distance between two sectors, calculated via Pythagorous
+  @TypeChecked
+  static float distanceBetween(
+      final Coords2d coordsFrom,
+      final Coords2d coordsTo ) {
+
+    assert coordsFrom != coordsTo
+
+    assert sectorIsInsideQuadrant( coordsFrom )
+    assert sectorIsInsideQuadrant( coordsTo )
+
+    final int rowSeparation = coordsFrom.row - coordsTo.row
+    final int colSeparation = coordsFrom.col - coordsTo.col
+    Math.sqrt( ( rowSeparation ** 2.0 + colSeparation ** 2.0 ).toDouble() )
+  }
+
+  @TypeChecked
+  static boolean sectorIsInsideQuadrant( final Coords2d coords ) {
+    insideGalaxy( coords )
+  }
+
+  static boolean sectorIsInsideQuadrant( final List<Integer> coords ) {
+    insideGalaxy( *coords )
+  }
+
+  @TypeChecked
   int size() {
     assert validBoardSize
     boardSize
@@ -104,55 +154,5 @@ abstract class GameSpace {
       }
       log.info boardRow
     }
-  }
-
-  @TypeChecked
-  static boolean insideGalaxy( final Coords2d coords ) {
-    insideGalaxy( coords.first(), coords.last() )
-  }
-
-  @TypeChecked
-  static boolean insideGalaxy( final int x, final int y ) {
-    contains( x, y )
-  }
-
-  @TypeChecked
-  static boolean contains( final Coords2d c2d ) {
-    contains c2d.row, c2d.col
-  }
-
-  @TypeChecked
-  static boolean contains( final int x, final int y ) {
-    (minCoord..maxCoord).containsAll( x, y )
-  }
-
-  @TypeChecked
-  static String logFmtCoords( final int x, final int y ) {
-    "${[x,y]} == $y - $x"
-  }
-
-  /// Distance between two sectors, calculated via Pythagorous
-  @TypeChecked
-  static float distanceBetween(
-      final Coords2d coordsFrom,
-      final Coords2d coordsTo ) {
-
-    assert coordsFrom != coordsTo
-
-    assert sectorIsInsideQuadrant( coordsFrom )
-    assert sectorIsInsideQuadrant( coordsTo )
-
-    final int rowSeparation = coordsFrom.row - coordsTo.row
-    final int colSeparation = coordsFrom.col - coordsTo.col
-    Math.sqrt( ( rowSeparation ** 2.0 + colSeparation ** 2.0 ).toDouble() )
-  }
-
-  @TypeChecked
-  static boolean sectorIsInsideQuadrant( final Coords2d coords ) {
-    insideGalaxy( coords )
-  }
-
-  static boolean sectorIsInsideQuadrant( final List<Integer> coords ) {
-    insideGalaxy( *coords )
   }
 }

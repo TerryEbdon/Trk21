@@ -2,7 +2,6 @@ package net.ebdon.trk21;
 
 import static ShipDevice.*;
 import static GameSpace.*;
-import groovy.transform.TypeChecked;
 /**
  * @file
  * @author      Terry Ebdon
@@ -51,7 +50,7 @@ final class PhaserControl {
     2 + new Random().nextFloat()
   }
 
-  private float rangeTo( target ) {
+  private float rangeTo( final Expando target ) {
     log.info "Fire from ${ship.position.sector} at $target"
     distanceBetween( ship.position.sector, target.sector )
   }

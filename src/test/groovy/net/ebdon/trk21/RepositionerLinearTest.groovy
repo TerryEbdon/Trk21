@@ -290,7 +290,6 @@ final class RepositionerLinearTest extends RepositionerTestBase {
     final Coords2d targetSector   = [4,endSectorCol]
     final Coords2d targetQuadrant = [4,5]
     final Position targetPosition = [quadrant: targetQuadrant, sector: targetSector]
-    final int energyUse = 8
     final ShipVector sv = shipWarpOne( 1F )
 
     MockFor shipMock = MockFor( FederationShip )
