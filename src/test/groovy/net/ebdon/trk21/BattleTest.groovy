@@ -3,6 +3,7 @@ package net.ebdon.trk21;
 import static GameSpace.*;
 import static ShipDevice.*;
 
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 import groovy.mock.interceptor.StubFor;
 import groovy.mock.interceptor.MockFor;
 /**
@@ -118,9 +119,98 @@ class BattleTest extends GroovyTestCase {
     assert ui.argsLog[1] == []
   }
 
-  void testBattlePhaserAttackFleet() {
-    if ( notYetImplemented() ) return
-    assert false
+  void testPhaserAttackFleetNoEnergy() {
+    shouldFail( PowerAssertionError ) {
+      battle.phaserAttackFleet( 0 )
+    }
+  }
+
+  void testPhaserAttackFleetPreConFail() {
+    List<Boolean> truthTable = preConDemands()
+    final MockFor phaserControl = new MockFor( PhaserControl )
+    phaserControl.demand.fire( truthTable.size() ) { }
+
+    dcStub.use {
+      battle.dc = new DamageControl()
+      shipStub.use {
+        battle.ship = new FederationShip()
+        fleetStub.use {
+          battle.enemyFleet = new EnemyFleet()
+          phaserControl.with {
+            truthTable.eachWithIndex { List values, int index ->
+              logger.trace beginPreConFailMsg( index, values )
+              shouldFail( PowerAssertionError ) {
+                battle.phaserAttackFleet( 100 )
+              }
+              logger.trace "  END Test $index"
+            }
+          }
+        }
+      }
+    }
+
+    dcStub.verify()
+    shipStub.verify()
+    fleetStub.verify()
+  }
+
+  private List<Boolean> preConDemands() {
+    List<Boolean> truthTable = preConTruthTable()
+    truthTable.each { booleanResult ->
+      logger.trace "Stubbing with ${booleanResult}"
+      fleetStub.demand.asBoolean  { logger.trace "fleet: ${booleanResult[0]}"; booleanResult[0] }
+      if ( booleanResult[0] ) { // short-circuitng ensures ship & dc aren't checked
+        shipStub.demand.asBoolean { logger.trace "ship:  ${booleanResult[1]}"; booleanResult[1] }
+        if ( booleanResult[1] ) { // short-circuitng ensures dc isn't checked
+          dcStub.demand.asBoolean { logger.trace "dc:    ${booleanResult[2]}"; booleanResult[2] }
+        }
+      }
+    }
+    truthTable
+  }
+
+  @groovy.transform.TypeChecked
+  private List<Boolean> preConTruthTable() {
+    List<Boolean> truthTable = [false,false,true].permutations().
+      combinations().unique().sort() // every variation of three assertions
+    truthTable.pop() // eliminate [true, true, true]
+    truthTable
+  }
+
+  @groovy.transform.TypeChecked
+  private String beginPreConFailMsg( final int index, final List<Boolean> values ) {
+    String msg = "BEGIN Test $index "
+    values.each { value ->
+        msg += String.format( '%6s', value )
+    }
+    msg
+  }
+
+  @SuppressWarnings('JUnitTestMethodWithoutAssert')
+  void testPhaserAttackFleet() {
+    MockFor phaserControl = new MockFor( PhaserControl )
+    phaserControl.demand.fire { }
+
+    dcStub.demand.asBoolean     { true }
+    shipStub.demand.asBoolean   { true }
+    fleetStub.demand.asBoolean  { true }
+    fleetStub.demand.regroup    { }
+    fleetStub.demand.canAttack  { false }
+
+    // See also the BattleResponseToAttackTest class.
+
+    fleetStub.use {
+      shipStub.use {
+        dcStub.use {
+          phaserControl.use {
+            battle.dc         = new DamageControl()
+            battle.ship       = new FederationShip()
+            battle.enemyFleet = new EnemyFleet()
+            battle.phaserAttackFleet( 100 )
+          }
+        }
+      }
+    }
   }
 
   void testGetNextTarget() {
@@ -142,7 +232,7 @@ class BattleTest extends GroovyTestCase {
     }
 
     for ( int targetExpected in 1..9 ) {
-      final Expando target = battle.getNextTarget()
+      final Expando target = battle.nextTarget
 
       assert target.name.contains( "$targetExpected" )
       assert convertToRow( targetExpected ) == target.sector.row
@@ -159,7 +249,7 @@ class BattleTest extends GroovyTestCase {
       getNumKlingonBatCrInQuad(1..2) { 0 } // 2nd call depends on log level
     }
 
-    final Expando target = battle.getNextTarget()
+    final Expando target = battle.nextTarget
 
     assert target == null
     assert ui.empty
@@ -178,7 +268,7 @@ class BattleTest extends GroovyTestCase {
       }
     }
 
-    final Expando target = battle.getNextTarget()
+    final Expando target = battle.nextTarget
 
     assert target == null
     assert ui.empty
