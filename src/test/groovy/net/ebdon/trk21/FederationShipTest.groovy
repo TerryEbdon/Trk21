@@ -41,6 +41,7 @@ final class FederationShipTest extends GroovyTestCase {
 
     void testDeadInSpace() {
       ship.with {
+        id = 'testDeadInSpace'
         assert !deadInSpace()
 
         energyNow = 0
@@ -51,6 +52,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testShipConstruction() {
       logger.info 'testShipConstruction'
       ship.with {
+        id = 'testShipConstruction'
         assert !valid   // Position is invalid.
         positionShip()
         assert valid    // Position is valid.
@@ -71,6 +73,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testBadConditionChanges() {
       logger.info 'testBadConditionChanges'
       ship.with {
+        id = 'testBadConditionChanges'
         condition = allowedConditions[0]
         assert condition == allowedConditions[0]
 
@@ -90,8 +93,9 @@ final class FederationShipTest extends GroovyTestCase {
     }
 
     void testGoodConditionChanges() {
-      ship.with {
       logger.info 'testGoodConditionChanges'
+      ship.with {
+        id = 'testGoodConditionChanges'
         positionShip()
         assert valid
         allowedConditions.each { newCond ->
@@ -107,9 +111,11 @@ final class FederationShipTest extends GroovyTestCase {
     void testProtectedByStarBase() {
       logger.info 'testProtectedByStarBase'
       ship.with {
+        id = 'testProtectedByStarBase'
         assert condition == 'GREEN'
         assert !isProtectedByStarBase()
         condition = 'DOCKED'
+        condV2 = FederationShip.Condition.docked
         assert isProtectedByStarBase()
       }
       logger.info 'testProtectedByStarBase -- OK'
@@ -118,11 +124,13 @@ final class FederationShipTest extends GroovyTestCase {
     void testHitFromEnemy() {
       logger.info 'testHitFromEnemy'
       ship.with {
+        id = 'testHitFromEnemy'
         shouldFail( PowerAssertionError ) {
           hitFromEnemy energyAtStart // fail, not in condition red.
         }
 
         condition = 'RED'
+        condV2 = FederationShip.Condition.red
         hitFromEnemy energyAtStart // Succeed: Ship is in condition red.
         assert energyNow == 0
       }
@@ -133,6 +141,7 @@ final class FederationShipTest extends GroovyTestCase {
       logger.info 'testHitWhileprotectedByStarBase'
       shouldFail {
         ship.with {
+          id = 'testHitWhileprotectedByStarBase'
           condition = 'DOCKED'
           hitFromEnemy energyAtStart // Fail: protected by SB
         }
@@ -146,6 +155,7 @@ final class FederationShipTest extends GroovyTestCase {
       galaxyStub.demand.getBoardSize { 0 }
       galaxyStub.use {
         ship.with {
+          id = 'testShortRangeScanBadEverything'
           position.quadrant = new Coords2d( row: 0, col: 0 )
           shouldFail {
             shortRangeScan( galaxy ) // Everything's invalid.
@@ -158,6 +168,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testShortRangeScanBad() {
       logger.info 'testShortRangeScanBad'
       ship.with {
+        id = 'testShortRangeScanBad'
         position.quadrant = new Coords2d( row: 0, col: 0 )
         shouldFail {
           shortRangeScan( galaxy ) // valid galaxy, bad coords.
@@ -202,6 +213,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testShortRangeScanYellowLowEnergy() {
       logger.info 'testShortRangeScanYellowLowEnergy'
       ship.with {
+        id = 'testShortRangeScanYellowLowEnergy'
         assert condition == 'GREEN'
         assert energyNow == energyAtStart
         energyNow = lowEnergyThreshold
@@ -214,6 +226,7 @@ final class FederationShipTest extends GroovyTestCase {
     @SuppressWarnings('JUnitTestMethodWithoutAssert') // asserts in scan()
     void testShortRangeScanGoodYellow() {
       logger.info 'testShortRangeScanGoodYellow'
+      ship.id = 'testShortRangeScanGoodYellow'
       ship.position = new Position().tap {
         quadrant = new Coords2d(row: 1, col: 1)
         sector   = new Coords2d(row: 1, col: 1)
@@ -237,6 +250,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testDockingBad() {
       logger.info 'testDockingBad'
       ship.with {
+        id = 'testDockingBad'
         assert condition == 'GREEN'
         Quadrant quadrant = new Quadrant() //galaxy
 
@@ -260,6 +274,7 @@ final class FederationShipTest extends GroovyTestCase {
     void testDockingGood() {
       logger.info 'testDockingGood'
       ship.with {
+        id = 'testDockingGood'
         assert condition == 'GREEN'
         Quadrant quadrant = new Quadrant()
 
@@ -270,6 +285,7 @@ final class FederationShipTest extends GroovyTestCase {
             if ( [4,4] != [i,j] ) { // can't be in same sector as a @ref StarBase
               position.sector = new Coords2d( row: i, col: j )
               attemptDocking quadrant
+              assert condV2 == FederationShip.Condition.docked
               assert condition == 'DOCKED'
             }
           }
@@ -285,6 +301,7 @@ final class FederationShipTest extends GroovyTestCase {
 
       galaxyStub.use {
         ship.with {
+          id = 'testMove'
           shouldFail( PowerAssertionError ) {
             move( sv ) // Fail: invalid course.
           }

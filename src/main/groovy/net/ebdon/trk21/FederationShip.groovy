@@ -30,6 +30,7 @@ final class FederationShip implements Moveable {
     final int lowEnergyThreshold = (energyAtStart / 10).toInteger(); ///< Triggers condition yellow
     int energyNow                = energyAtStart;      ///< E% in TREK.BAS
     String condition             = 'GREEN';            ///< C$ in TREK.BAS
+    private Condition condV2 = Condition.green;
     final int maxTorpedoes       = 10;
     int numTorpedoes             = maxTorpedoes;
     int energyUsedByLastMove     = 0 // N%
@@ -42,6 +43,14 @@ final class FederationShip implements Moveable {
       'RED',
       'DOCKED'
     ];
+
+    enum Condition {
+      green, yellow, red, docked
+    }
+
+    String getCondition() {
+      condV2.toString().toUpperCase()
+    }
 
     private void useEnergyForMove( final int energyUsedByLastMove ) { /// @bug arg name same as member variable.
       energyNow -= energyUsedByLastMove
@@ -92,7 +101,7 @@ final class FederationShip implements Moveable {
     }
 
     String toString() {
-        "energy: $energyNow, condition: $condition, " +
+        "energy: $energyNow, condition: $condV2, " +
         "torpedoes: $numTorpedoes, " +
         "energyUsedByLastMove: $energyUsedByLastMove, " +
         "energyAtStart: $energyAtStart, $position"
@@ -134,7 +143,14 @@ final class FederationShip implements Moveable {
         assert allowedConditions.contains( newCond )
         final String oldCond = this.condition
         this.condition = newCond
-        log.trace( "Conditon changed from $oldCond to ${this.condition}" )
+        log.error( "$id Conditon changed from $oldCond to ${this.condition}" )
+    }
+
+    void setCondition( final Condition newCond ) {
+        final Condition oldCond = condV2
+        condV2 = newCond
+        this.@condition = condV2.toString().toUpperCase()
+        log.error( "$id CondV2 changed from $oldCond to ${condV2}" )
     }
 
   /// Attempt to dock if adjacent to a @ref StarBase.
@@ -144,7 +160,7 @@ final class FederationShip implements Moveable {
   ///       in an adjacent quadrant.
   void attemptDocking( final Quadrant quadrant ) {
     final String logCheckForStarBase = 'Checking for star base in {}, value is {}'
-    final String logNowDocked = 'Now docked in sector {} to star base in sector {}'
+    final String logNowDocked = '{} now docked in sector {} to star base in sector {}'
     final String logDockCheck = 'Checking if I can dock from sector {}'
     final String logAtEdge = 'Ship at board edge, sector {} is outside quadrant.'
     log.debug 'attemptDocking'
@@ -154,16 +170,19 @@ final class FederationShip implements Moveable {
       assert quadrant.contains( row, col )
       assert quadrant[ row, col ] != Thing.base  // Ship can't be in same sector as a star base.
       log.debug logDockCheck, logFmtCoords(row,col) /// @bug fixme!
-      for ( int i = row - 1; i <= row + 1 && condition != 'DOCKED'; i++) { // 1530
-        for ( int j = col - 1; j <= col + 1 && condition != 'DOCKED'; j++) { // 1530
+      // for ( int i = row - 1; i <= row + 1 && condition != 'DOCKED'; i++) { // 1530
+      //   for ( int j = col - 1; j <= col + 1 && condition != 'DOCKED'; j++) { // 1530
+      for ( int i = row - 1; i <= row + 1 && condV2 != Condition.docked; i++) { // 1530
+        for ( int j = col - 1; j <= col + 1 && condV2 != Condition.docked; j++) { // 1530
           if ( quadrant.contains(i,j) ) {
             log.trace logCheckForStarBase, logFmtCoords(i,j), quadrant[i,j]
             if ( quadrant[i,j] == Thing.base ) {
-              condition       = 'DOCKED'
-              numTorpedoes    = maxTorpedoes
-              energyNow       = energyAtStart
-              log.info logNowDocked,
-                logFmtCoords(row,col), logFmtCoords(i,j)
+              condV2       = Condition.docked
+              condition = 'DOCKED'
+              numTorpedoes = maxTorpedoes
+              energyNow    = energyAtStart
+              log.error logNowDocked,
+                id, logFmtCoords(row,col), logFmtCoords(i,j)
             }
           } else {
             log.debug logAtEdge, logFmtCoords(i,j)
@@ -177,7 +196,7 @@ final class FederationShip implements Moveable {
     log.info "There are $numEnemyShipsHere enemy craft in quadrant " +
       position.quadrant
     log.info "Condition RED: there are $numEnemyShipsHere enemy craft here!"
-    condition = 'RED'
+    condV2 = Condition.red
   }
 
   /// @todo Remove commented out code
@@ -201,11 +220,11 @@ final class FederationShip implements Moveable {
   private void nonBattleCondition( final Galaxy galaxy ) {
     if ( energyNow > lowEnergyThreshold ) {
       log.debug "$energyNow is above threshold of $lowEnergyThreshold"
-      condition = 'GREEN'
+      condV2 = Condition.green
       scanAdjacentQuadrants( galaxy )
     } else {
       log.debug "$energyNow is below threshold of $lowEnergyThreshold"
-      condition = 'YELLOW'
+      condV2 = Condition.yellow
       log.info "Low on energy: $this"
     }
   }
@@ -219,7 +238,7 @@ final class FederationShip implements Moveable {
         if ( insideGalaxy( i, j ) ) {
           final int quadrantStatus = galaxy[i,j]
           if ( quadrantStatus > 99 ) {
-            condition = 'YELLOW'
+            condV2 = Condition.yellow
             log.info "adjacent quadrant [$i,$j] = $quadrantStatus has enemy ships!"
           } else {
             log.debug "adjacent quadrant [$i,$j] = $quadrantStatus is clear."
@@ -244,13 +263,13 @@ final class FederationShip implements Moveable {
 
   @TypeChecked
   boolean isProtectedByStarBase() {
-    'DOCKED' == condition
+    condV2 == Condition.docked
   }
 
   @TypeChecked
   void hitFromEnemy( final int damagelevel ) {
     assert !isProtectedByStarBase()
-    assert condition == 'RED'
+    assert condV2 == Condition.red
     energyReducedByEnemyAttack damagelevel
   }
 }
