@@ -32,8 +32,8 @@ final class Battle {
   private int maxEnemyShips = 0;
 
   Expando getNextTarget() {
-    log.error "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
-    log.error "Getting target $nextTargetIndex"
+    log.debug "There are ${enemyFleet.numKlingonBatCrInQuad} enemy ships here."
+    log.trace "Getting target $nextTargetIndex"
     maxEnemyShips = maxEnemyShips ?: enemyFleet.maxKlingonBCinQuad
     assert nextTargetIndex in 0..(1 + maxEnemyShips)
     Expando rv = null
@@ -75,7 +75,7 @@ final class Battle {
 
   void phaserAttackFleet( final int energy ) {
     assert energy > 0
-    assert enemyFleet && ship && dc // && fleetAttackReporter
+    assert enemyFleet && ship && dc
     new PhaserControl( dc, ui, ship, this ).fire( energy )
     enemyRespondsToAttack()
   }
@@ -85,7 +85,7 @@ final class Battle {
     log.debug 'enemyRespondsToAttack -- BEGIN'
     enemyFleet.regroup()
     if ( enemyFleet.canAttack() ) {
-      log.trace 'enemyFleet can not attack'
+      log.trace 'enemyFleet can attack'
       if ( ship.protectedByStarBase ) {
         log.trace 'ship *IS* not protected by a star base'
         ui.localMsg 'battle.shieldedByBase'
