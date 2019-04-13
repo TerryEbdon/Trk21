@@ -31,7 +31,6 @@ final class ShortRangeScan {
   int currentSolarYear;
   int numKlingonBatCrRemain;
 
-  @TypeChecked
   private void scanSummary() {
     ship.position.sector.with {
       ui.fmtMsg 'sensors.shipStatus.1', [ currentSolarYear, ship.condition ]
@@ -41,12 +40,10 @@ final class ShortRangeScan {
     }
   }
 
-  @TypeChecked
   String currentQuadrant() {
     "${ship.position.quadrant.col} - ${ship.position.quadrant.row}"
   }
 
-  @TypeChecked
   private void showCondition() {
     ui.conditionText = displayableCondition()
   }
@@ -67,7 +64,6 @@ final class ShortRangeScan {
     "<html><font size=+2 color=$colour>${ship.condition}</font></html>"
   }
 
-  @TypeChecked
   private void scanQuadrant() {
     ui.localMsg 'sensors.shortRange.header'
     quadrant.displayOn ui.&outln
