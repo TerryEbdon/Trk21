@@ -242,13 +242,6 @@ final class Trek extends LoggingBase {
     text
   }
 
-  void msgBox( final String msg, boolean logIt = true ) {
-    ui.outln msg
-    if ( logIt ) {
-      log.info msg
-    }
-  }
-
   @TypeChecked
   void reportDamage() {
     damageControl.report( ui )
@@ -338,19 +331,7 @@ final class Trek extends LoggingBase {
     }
   }
 
-  @TypeChecked
-  String logFmtCoords( final int x, final int y ) {
-    "${[x,y]} == $y - $x"
-  }
-
-  /// @todo Reverse the coordinates? i.e. i,j or j,i?
-  /// @deprecated
-  @TypeChecked
-  boolean sectorIsOccupied( final int i, final int j ) {
-    quadrant.isOccupied(i,j)
-  }
-
-  float getCourse() {
+  private float requestCourse() {
     ui.getFloatInput( rb.getString( 'input.course' ) ) // C1
   }
 
@@ -363,7 +344,7 @@ final class Trek extends LoggingBase {
 
     log.trace '''Getting ship's course'''
 
-    course = getCourse()
+    course = requestCourse()
     if ( ShipVector.isValidCourse( course ) ) {
       sv.course = course
       warpFactor = ui.getFloatInput( rb.getString( 'input.speed' ) ) // W1
@@ -426,7 +407,7 @@ final class Trek extends LoggingBase {
   final void fireTorpedo() {
     log.info "Fire torpedo - available: ${ship.numTorpedoes}"
 
-    float course = getCourse()
+    float course = requestCourse()
     if ( course ) {
       if ( ship.numTorpedoes ) {
         new Battle(
