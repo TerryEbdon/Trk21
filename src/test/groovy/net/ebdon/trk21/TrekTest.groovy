@@ -201,4 +201,80 @@ final class TrekTest extends GroovyTestCase {
       }
     }
   }
+
+  @SuppressWarnings('JUnitTestMethodWithoutAssert')
+  void testReportDamage() {
+    MockFor damageControl = MockFor( DamageControl )
+    damageControl.demand.report { UiBase -> }
+
+    damageControl.use {
+      trek.damageControl = new DamageControl()
+      trek.reportDamage()
+    }
+  }
+
+  void testStartGame() {
+    UiBase ui = new TestUi()
+    MockFor damageControl = MockFor( DamageControl )
+    damageControl.demand.isDamaged { true }
+
+    damageControl.use {
+      trek.damageControl = new DamageControl()
+      trek.ui = ui
+      trek.startGame()
+    }
+
+    assert ui.localMsgLog == ['sensors.shortRange.offline']
+  }
+
+  void testVictory() {
+    final int solarYear = 12345
+    final int numEnemyDestroyed = 20
+    final int timePlayed = 10
+    final int rating = numEnemyDestroyed / timePlayed * 1000
+
+    UiBase ui = new TestUi()
+    MockFor gameMock = MockFor( TrekCalendar )
+    MockFor fleetMock = MockFor( EnemyFleet )
+    gameMock.demand.getCurrentSolarYear { solarYear }
+    gameMock.demand.elapsed(3) { timePlayed }
+    fleetMock.demand.getNumKlingonBatCrTotal(2) { numEnemyDestroyed }
+
+    trek.ui = ui
+    gameMock.use {
+      trek.game = new TrekCalendar()
+      fleetMock.use {
+        trek.enemyFleet = new EnemyFleet()
+        trek.victoryDance()
+      }
+    }
+
+    assert ui.localMsgLog == ['trek.victoryDance']
+    assert ui.argsLog.first() == [solarYear, numEnemyDestroyed, timePlayed, rating]
+  }
+
+  void testFuneral() {
+    final int solarYear = 12345
+    final int numEnemyNotDestroyed = 20
+    final int timePlayed = 10
+
+    UiBase ui         = new TestUi()
+    MockFor gameMock  = MockFor( TrekCalendar )
+    MockFor fleetMock = MockFor( EnemyFleet )
+    gameMock.demand.getCurrentSolarYear { solarYear }
+    gameMock.demand.elapsed { timePlayed }
+    fleetMock.demand.getNumKlingonBatCrRemain { numEnemyNotDestroyed }
+
+    trek.ui = ui
+    gameMock.use {
+      trek.game = new TrekCalendar()
+      fleetMock.use {
+        trek.enemyFleet = new EnemyFleet()
+        trek.shipDestroyed()
+      }
+    }
+
+    assert ui.localMsgLog == ['trek.funeral']
+    assert ui.argsLog.first() == [solarYear, timePlayed, numEnemyNotDestroyed]
+  }
 }
