@@ -83,7 +83,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
   }
 
   @Newify([MockFor, Coords2d])
-  void testFireTorpedoWithCourse() {
+  void testFireTorpedoMissed() {
     final float torpedoCourse = 1F
 
     ui.inputValues = [torpedoCourse]
@@ -91,6 +91,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     battleMock.demand.fireTorpedo { float course, Quadrant quadrant ->
       assert course == torpedoCourse
     }
+    battleMock.demand.getThingDestroyed { Quadrant.Thing.emptySpace }
     Position shipPos = [Coords2d(1,1), Coords2d(1,1)]
     shipMock.demand.with {
       getNumTorpedoes { 3000 }

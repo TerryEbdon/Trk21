@@ -397,11 +397,16 @@ final class Trek extends LoggingBase {
   }
 
   void updateQuadrantAfterSkirmish( final Thing thingDestroyed = Thing.emptySpace ) {
+    log.debug 'updateQuadrantAfterSkirmish BEGIN'
     if ( thingDestroyed != Thing.emptySpace ) {
+      log.debug 'Calling updateNumInQuad( {} )', thingDestroyed
       updateNumInQuad( thingDestroyed )
+    } else {
+      log.debug 'Destroyed {}, nothing to do. )', thingDestroyed
     }
     updateNumEnemyShipsInQuad()
     new QuadrantSetup( quadrant, enemyFleet ).updateAfterSkirmish()
+    log.debug 'updateQuadrantAfterSkirmish END'
   }
 
   final void fireTorpedo() {
@@ -410,10 +415,11 @@ final class Trek extends LoggingBase {
     float course = requestCourse()
     if ( course ) {
       if ( ship.numTorpedoes ) {
-        new Battle(
+        Battle battle = new Battle(
           enemyFleet, ship, damageControl, ui
-        ).fireTorpedo( course, quadrant )
-        updateQuadrantAfterSkirmish()
+        )
+        battle.fireTorpedo course, quadrant
+        updateQuadrantAfterSkirmish battle.thingDestroyed
       } else {
         ui.fmtMsg 'torpedo.unavailable'
       }
