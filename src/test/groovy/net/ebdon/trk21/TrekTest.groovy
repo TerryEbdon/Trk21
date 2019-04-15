@@ -205,7 +205,7 @@ final class TrekTest extends GroovyTestCase {
   @SuppressWarnings('JUnitTestMethodWithoutAssert')
   void testReportDamage() {
     MockFor damageControl = MockFor( DamageControl )
-    damageControl.demand.report { UiBase -> }
+    damageControl.demand.report { }
 
     damageControl.use {
       trek.damageControl = new DamageControl()
