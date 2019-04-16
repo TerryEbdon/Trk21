@@ -79,9 +79,8 @@ class BattleTorpedoTest extends GroovyTestCase {
   private void torpedoDemand( final Thing thingHit ) {
     torpMock.demand.with {
       getPosition { shipPos }
-      if ( thingHit != Thing.emptySpace ) {
-        getPosition { targetPos }
-      }
+      getPosition { targetPos }
+      getId { this.name }
     }
   }
 
@@ -158,12 +157,16 @@ class BattleTorpedoTest extends GroovyTestCase {
     logger.info 'testTorpedoHitOnStar -- END'
   }
 
-  @TypeChecked
-  @SuppressWarnings('JUnitTestMethodWithoutAssert')
   void testTorpedoHitOnEnemy() {
-    logger.info 'testTorpedoHitOnEnemy -- BEGIN'
+    logger.info '{} -- BEGIN', name
+    quadMock.demand.putAt { Coords2d sector, Thing thing ->
+      logger.debug 'put {} at sector {}', thing, sector
+      assert thing  == Thing.enemy  // replace torpedo with the enemy it hit.
+      assert sector == targetPos.sector
+    }
+
     runTestAndCheckUi Thing.enemy, ['battle.enemy.destroyed'], []
-    logger.info 'testTorpedoHitOnEnemy -- END'
+    logger.info '{} -- END', name
   }
 
   @TypeChecked

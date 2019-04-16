@@ -87,7 +87,7 @@ final class Battle {
     if ( enemyFleet.canAttack() ) {
       log.trace 'enemyFleet can attack'
       if ( ship.protectedByStarBase ) {
-        log.trace 'ship *IS* not protected by a star base'
+        log.trace 'ship *IS* protected by a star base'
         ui.localMsg 'battle.shieldedByBase'
       } else {
         log.trace 'ship is *NOT* protected by a star base'
@@ -108,17 +108,29 @@ final class Battle {
     )
 
     rp.repositionShip new ShipVector( course: course )
-    quadrant[ ship.position.sector ] = Quadrant.Thing.ship
-    final Thing thingHit = rp.thingHit
+
+    final Coords2d shipSector    = ship.position.sector
+    final Thing thingHit         = rp.thingHit
+    final Coords2d torpedoSector = torpedo.position.sector
+    final String torpedoId       = torpedo.id
+
+    quadrant[ shipSector ] = Quadrant.Thing.ship
+
     if ( thingHit == Quadrant.Thing.enemy ) {
-      log.info 'Torpedo hit on enemy ship.'
-      enemyFleet.shipHitByTorpedo torpedo.position.sector
+      log.info 'Torpedo {} hit on enemy ship at {} from Fed ship at {}.',
+        torpedoId, torpedoSector, shipSector
+      enemyFleet.shipHitByTorpedo torpedoSector
+      quadrant[ torpedoSector ] =
+        Quadrant.Thing.enemy // Will be cleaned up later by Quadrant.removeEnemy()
       ui.localMsg 'battle.enemy.destroyed'
     } else {
       if ( thingHit != Quadrant.Thing.emptySpace ) {
-        quadrant[ torpedo.position.sector ] = Quadrant.Thing.emptySpace
+        quadrant[ torpedoSector ] = Quadrant.Thing.emptySpace
         thingDestroyed = thingHit
-        log.info 'Torpedo hit on {}', thingDestroyed
+        log.info 'Torpedo {} hit on {} at {} from ship at {}',
+            torpedoId, thingDestroyed, torpedoSector, shipSector
+      } else {
+        log.info 'Torpedo {} missed, out of range at {}', torpedoId, torpedoSector
       }
     }
 
