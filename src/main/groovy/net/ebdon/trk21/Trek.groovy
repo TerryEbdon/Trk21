@@ -96,61 +96,14 @@ final class Trek extends LoggingBase {
     ship.position.quadrant = new Coords2d( *(galaxy.randomCoords) )
   }
 
-  @TypeChecked
+  // @TypeChecked
   void setupQuadrant() {
-    enemyFleet.numKlingonBatCrInQuad = 0
-    quadrant.clear()
-    positionShipInQuadrant()
-    positionGamePieces()
-  }
-
-  /// The ship has a arrived in a new quadrant, and already knows this.
-  /// Now it needs to be allocated a sector in it's new quadrant.
-  /// @todo A random sector is allocated. Should the sector instead be
-  /// based on the staring sector and course vector?
-  /// @todo Quadrant.randomCoords() should return a Coords2d, not a list. This
-  /// would remove the need for the spread operator, and allow the
-  /// positionShipInQuadrant() method to be type-checked.
-  void positionShipInQuadrant() {
-    log.info 'Position ship within quadrant {}', ship.position.quadrant
-    assert ship.position.quadrant.valid
-    final Coords2d shipSector = new Coords2d( *(quadrant.randomCoords) )
-    ship.position.sector = shipSector
-    quadrant[shipSector] = Thing.ship
-    log.debug 'Ship positioned at sector {}', shipSector
-    assert quadrant.valid
-    quadrant.dump()
-  }
-
-  @TypeChecked
-  private void updateNumEnemyShipsInQuad() {
-    final Coords2d shipQuad = ship.position.quadrant
-    final QuadrantValue qv = new QuadrantValue( galaxy[shipQuad] )
-    galaxy[shipQuad] -= Thing.enemy.multiplier * qv.enemy
-    galaxy[shipQuad] += Thing.enemy.multiplier * enemyFleet.numKlingonBatCrInQuad
-  }
-
-  private void updateNumInQuad( final Thing thingHit ) {
-    if ( thingHit != Thing.enemy ) {
-      final Coords2d shipQuad = ship.position.quadrant
-      final QuadrantValue qv = new QuadrantValue( galaxy[shipQuad] )
-      int numInQuad = qv.num( thingHit )
-      galaxy[shipQuad] -= thingHit.multiplier * numInQuad--
-      galaxy[shipQuad] += thingHit.multiplier * numInQuad
-    }
-  }
-
-  @TypeChecked
-  @Newify(QuadrantValue)
-  void positionGamePieces() {
-    log.trace( logPositionPieces,
-        galaxy.scan(ship.position.quadrant), ship.position.quadrant)
-
-    final QuadrantValue qVal = QuadrantValue( galaxy[ship.position.quadrant] )
-    QuadrantSetup quadrantSetup = new QuadrantSetup( quadrant, enemyFleet )
-    quadrantSetup.positionEnemy qVal.enemy
-    quadrantSetup.positionBases qVal.bases
-    quadrantSetup.positionStars qVal.stars
+    QuadrantManager qm = new QuadrantManager( quadrant )
+    ship.position.sector = qm.positionShip()
+    qm.positionGamePieces(
+      galaxy[ship.position.quadrant],
+      enemyFleet
+    )
   }
 
   @TypeChecked
@@ -396,15 +349,18 @@ final class Trek extends LoggingBase {
     ).phaserAttackFleet( energy )
   }
 
+  @TypeChecked
   void updateQuadrantAfterSkirmish( final Thing thingDestroyed = Thing.emptySpace ) {
     log.debug 'updateQuadrantAfterSkirmish BEGIN'
     if ( thingDestroyed != Thing.emptySpace ) {
-      log.debug 'Calling updateNumInQuad( {} )', thingDestroyed
-      updateNumInQuad( thingDestroyed )
+      new GalaxyManager( ship.position.quadrant, galaxy ).
+        updateNumInQuad( thingDestroyed )
     } else {
       log.debug 'Destroyed {}, nothing to do. )', thingDestroyed
     }
-    updateNumEnemyShipsInQuad()
+    new GalaxyManager( ship.position.quadrant, galaxy ).
+      updateNumEnemyShips( enemyFleet.numKlingonBatCrInQuad )
+
     new QuadrantSetup( quadrant, enemyFleet ).updateAfterSkirmish()
     log.debug 'updateQuadrantAfterSkirmish END'
   }

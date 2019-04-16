@@ -31,14 +31,14 @@ final class TrekQuadrantSetupTest extends GroovyTestCase {
   private final int currentQuadRow = 1;
   private final int currentQuadCol = 2;
 
-  private MockFor ship;
-  private MockFor galaxy;
+  private MockFor shipMock;
+  private MockFor galaxyMock;
 
   @Newify(MockFor)
   @Override void setUp() {
     super.setUp()
-    ship       = MockFor( FederationShip )
-    galaxy     = MockFor( Galaxy )
+    shipMock   = MockFor( FederationShip )
+    galaxyMock = MockFor( Galaxy )
   }
 
   @Newify([Coords2d,Position])
@@ -57,26 +57,39 @@ final class TrekQuadrantSetupTest extends GroovyTestCase {
     }
   }
 
-  void testPositionGamePieces() {
-    logger.debug 'testPositionGamePieces'
-    MockFor quadrantSetup = new MockFor( QuadrantSetup )
-    quadrantSetup.demand.positionEnemy { int numThings -> }
-    quadrantSetup.demand.positionBases { int numThings -> }
-    quadrantSetup.demand.positionStars { int numThings -> }
+  @Newify([MockFor,Coords2d,Position])
+  void testSetupQuadrant() {
+    MockFor quadMock   = MockFor( Quadrant )
+    MockFor qmMock     = MockFor( QuadrantManager ) // No demands.
+    MockFor fleetMock  = MockFor( EnemyFleet ) // No demands.
 
-    shipSetup()
-    galaxySetup()
+    final Coords2d shipQuad = [currentQuadRow, currentQuadCol]
+    qmMock.demand.positionShip { Coords2d(3, 4) }
+    qmMock.demand.positionGamePieces { int val, EnemyFleet fleet -> }
 
-    quadrantSetup.use {
-      trek = new Trek()
-      ship.use {
-        trek.ship = new FederationShip()
-        galaxy.use {
-          trek.galaxy = new Galaxy()
-          trek.positionGamePieces()
+    galaxyMock.demand.getAt { Coords2d quadCoords ->
+      assert quadCoords == shipQuad
+      123
+    }
+
+    shipMock.demand.getPosition(2) {
+      Position( shipQuad, Coords2d(1, 1) )
+    }
+
+    fleetMock.use {
+      quadMock.use {
+        galaxyMock.use {
+          shipMock.use {
+            qmMock.use {
+              trek = new Trek()
+              trek.enemyFleet = new EnemyFleet()
+              trek.galaxy     = new Galaxy()
+              trek.ship       = new FederationShip()
+              trek.setupQuadrant()
+            }
+          }
         }
       }
     }
-    logger.debug 'testPositionGamePieces -- OK'
   }
 }
