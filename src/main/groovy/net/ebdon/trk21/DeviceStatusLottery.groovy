@@ -48,9 +48,9 @@ final class DeviceStatusLottery {
     final int damageAmount    = randomDamageAmount
     damageControl.inflictDamage systemToDamage, damageAmount
 
-    log.info "Space storm has damaged device No. $systemToDamage"
-    log.info "   damage of $damageAmount units"
-    log.info "   new status: ${damageControl.deviceState(systemToDamage)} units"
+    log.info  "Space storm has damaged device No. $systemToDamage"
+    log.info  "   damage of $damageAmount units"
+    log.debug "   new status: ${damageControl.deviceState(systemToDamage)} units"
     localMsg 'deviceStatusLottery.spaceStorm',
       [ damageControl.deviceName( systemToDamage) ] as Object[]
   }
