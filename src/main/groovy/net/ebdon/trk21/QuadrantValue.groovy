@@ -22,29 +22,41 @@ import static Quadrant.Thing;
 
 @groovy.transform.TypeChecked
 final class QuadrantValue {
-  private final int value;
+  private final int val;
 
   final int enemy;
   final int bases;
   final int stars;
 
-  QuadrantValue( int val ) {
-    value = val
+  QuadrantValue( int newVal ) {
+    val   = newVal
     enemy = calcNumEnemy()
     bases = calcNumBases()
     stars = calcNumStars()
   }
 
+  QuadrantValue( final int enemyNo, final int basesNo, final int starNo ) {
+    enemy = enemyNo
+    bases = basesNo
+    stars = starNo
+  }
+
+  int getValue() {
+    enemy * Thing.enemy.multiplier +
+    bases * Thing.base.multiplier +
+    stars * Thing.star.multiplier
+  }
+
   private int calcNumEnemy() {
-    (value / Thing.enemy.multiplier).toInteger()
+    (val / Thing.enemy.multiplier).toInteger()
   }
 
   private int calcNumBases() {
-    ( (value - enemy * Thing.enemy.multiplier) / Thing.base.multiplier ).toInteger()
+    ( (val - enemy * Thing.enemy.multiplier) / Thing.base.multiplier ).toInteger()
   }
 
   private int calcNumStars() {
-    value - enemy * Thing.enemy.multiplier - bases * Thing.base.multiplier
+    val - enemy * Thing.enemy.multiplier - bases * Thing.base.multiplier
   }
 
   @groovy.transform.TypeChecked( groovy.transform.TypeCheckingMode.SKIP )

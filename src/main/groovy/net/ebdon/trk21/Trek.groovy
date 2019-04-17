@@ -352,15 +352,14 @@ final class Trek extends LoggingBase {
   @TypeChecked
   void updateQuadrantAfterSkirmish( final Thing thingDestroyed = Thing.emptySpace ) {
     log.debug 'updateQuadrantAfterSkirmish BEGIN'
+    final GalaxyManager gm = new GalaxyManager( ship.position.quadrant, galaxy )
+
     if ( thingDestroyed != Thing.emptySpace ) {
-      new GalaxyManager( ship.position.quadrant, galaxy ).
-        updateNumInQuad( thingDestroyed )
+      gm.updateNumInQuad thingDestroyed
     } else {
       log.debug 'Destroyed {}, nothing to do. )', thingDestroyed
     }
-    new GalaxyManager( ship.position.quadrant, galaxy ).
-      updateNumEnemyShips( enemyFleet.numKlingonBatCrInQuad )
-
+    gm.updateNumEnemyShips enemyFleet.numKlingonBatCrInQuad
     new QuadrantSetup( quadrant, enemyFleet ).updateAfterSkirmish()
     log.debug 'updateQuadrantAfterSkirmish END'
   }

@@ -23,11 +23,24 @@ import groovy.transform.TypeChecked;
 abstract class GameSpace {
   static final int minCoord      = 1;
   static final int maxCoord      = 8;
-  static final int boardSize     = (minCoord..maxCoord).size() ** 2;
+
+  static final Range<Integer> coordRange = minCoord..maxCoord;
+
+  static final int boardSize = coordRange.size() ** 2;
   static final Coords2d topLeftCoords     = [minCoord,minCoord];
   static final Coords2d bottomRightCoords = [maxCoord,maxCoord];
 
   Map board = [:];
+
+  @TypeChecked
+  @Newify(Coords2d)
+  void eachCoords2d( final Closure closure ) {
+    for ( int row in coordRange ) {
+      for ( int col in coordRange ) {
+        closure Coords2d( row, col )
+      }
+    }
+  }
 
   static final float maxSectorDistance =
     distanceBetween( topLeftCoords, bottomRightCoords ); /// Sector diagonal
@@ -49,7 +62,7 @@ abstract class GameSpace {
 
   @TypeChecked
   static boolean contains( final int x, final int y ) {
-    (minCoord..maxCoord).containsAll( x, y )
+    coordRange.containsAll( x, y )
   }
 
   @TypeChecked

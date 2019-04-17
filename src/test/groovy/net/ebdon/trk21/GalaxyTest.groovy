@@ -18,7 +18,7 @@ package net.ebdon.trk21;
  * limitations under the License.
  */
 
- @groovy.transform.TypeChecked
+@groovy.transform.TypeChecked
 final class GalaxyTest extends GroovyTestCase {
 
   private Galaxy galaxy;

@@ -27,12 +27,12 @@ final class EnemyFleet {
     in TREK.BAS.
     **/
     static final int maxKlingonEnergy = 200;
+    static final int maxKlingonBCinQuad = 9;
 
     int numKlingonBatCrTotal  = 0; ///< k0% in TREK.BAS
     int numKlingonBatCrRemain = 0; ///< k9% in TREK.BAS
     int numKlingonBatCrInQuad = 0; ///< K3% in TREK.BAS
 
-    final int maxKlingonBCinQuad = 9;
     final int maxPossibleKlingonShips = 64 * maxKlingonBCinQuad;
 
     private final int[][] klingons = new int[maxKlingonBCinQuad + 1][4]; ///< k%[] in TREK.BAS
@@ -62,6 +62,12 @@ final class EnemyFleet {
       /// hit the target with more energy than was fired at it.
       float rnd = new Random().nextFloat()
       ( ( ( energyReleased / distanceToTarget ) * ( 2 + rnd ) ) + 1 ).toInteger()
+    }
+
+    static eachShipNo( final Closure closure ) {
+      for ( int shipNo in 1..maxKlingonBCinQuad ) {
+        closure shipNo
+      }
     }
 
     boolean isValid() {
@@ -179,7 +185,7 @@ final class EnemyFleet {
         numKlingonBatCrInQuad, maxKlingonBCinQuad
       log.debug "Target is in sector $targetSector"
 
-      for ( int shipNo in 1..maxKlingonBCinQuad ) {
+      eachShipNo { int shipNo ->
         attackWithShip shipNo, targetSector, reportAttack
       }
       log.debug 'Finished attack run.'
