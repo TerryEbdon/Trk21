@@ -18,7 +18,7 @@ import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 @groovy.util.logging.Log4j2
 abstract class LoggingBase {
 
@@ -45,11 +45,11 @@ abstract class LoggingBase {
     }
   }
 
-  private def loadConfig( configFile ) {
+  private loadConfig( final String configFile ) {
      log.trace "Loading config from $configFile"
-     log.trace "Current folder is " + new File('.').absolutePath
-     log.trace "package:  " + getClass().packageName
-     log.trace "Class is: " + getClass().name
+     log.trace 'Current folder is ' + new File('.').absolutePath
+     log.trace 'package:  ' + getClass().packageName
+     log.trace 'Class is: ' + getClass().name
 
     ClasspathResourceManager resourceManager = new ClasspathResourceManager()
     def configScript = resourceManager.getReader(configFile)
@@ -67,7 +67,7 @@ abstract class LoggingBase {
 //    System.exit(0)
     retConfig
   }
-  void logException( closure ) {
+  void logException( Closure closure ) {
     try {
       closure.call()
     } catch ( Throwable ex ) {

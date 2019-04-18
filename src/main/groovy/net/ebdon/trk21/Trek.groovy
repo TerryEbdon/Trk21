@@ -7,7 +7,6 @@ import static ShipDevice.*;
 import java.text.MessageFormat;
 import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import groovy.transform.TypeChecked;
-import org.apache.logging.log4j.Level;
 
 /**
  * @file
@@ -34,6 +33,8 @@ import org.apache.logging.log4j.Level;
 */
 @groovy.util.logging.Log4j2
 final class Trek extends LoggingBase {
+  static String logPositionPieces = 'Positioning game pieces {} in quadrant {}'
+
   UiBase ui;
   PropertyResourceBundle rb;
   MessageFormat formatter;
@@ -41,14 +42,12 @@ final class Trek extends LoggingBase {
   /// @todo Rename Trek.game, it's a misleading name for TrekCalendar
   TrekCalendar game;
 
-    static String logPositionPieces = 'Positioning game pieces {} in quadrant {}'
+  Galaxy    galaxy;
+  Quadrant  quadrant  = new Quadrant();
 
-    Galaxy    galaxy;
-    Quadrant  quadrant  = new Quadrant();
-
-    DamageControl   damageControl;
-    EnemyFleet      enemyFleet;
-    FederationShip  ship;
+  DamageControl   damageControl;
+  EnemyFleet      enemyFleet;
+  FederationShip  ship;
 
   @TypeChecked
   boolean isValid() {

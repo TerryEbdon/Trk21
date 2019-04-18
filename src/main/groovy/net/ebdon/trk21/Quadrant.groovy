@@ -58,11 +58,11 @@ final class Quadrant extends GameSpace {
     board.get key
   }
 
-  final def putAt( key, Thing value ) {
+  final putAt( key, Thing value ) {
     board[key] = value
   }
 
-  final def putAt( final Coords2d coords, Thing value ) {
+  final putAt( final Coords2d coords, Thing value ) {
     board[coords.row,coords.col] = value
   }
 

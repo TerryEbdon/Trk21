@@ -34,7 +34,7 @@ abstract class GameSpace {
 
   @TypeChecked
   @Newify(Coords2d)
-  void eachCoords2d( final Closure closure ) {
+  static void eachCoords2d( final Closure closure ) {
     for ( int row in coordRange ) {
       for ( int col in coordRange ) {
         closure Coords2d( row, col )
@@ -127,11 +127,6 @@ abstract class GameSpace {
     } // sparse = false
     // assert null == badQuadrant
     log.debug "badQuadrant: $badQuadrant, $this"
-    String diag = ''
-    minCoord.upto(maxCoord) {
-      diag += "[$it, $it]=${board[it,it]}, "
-    }
-    log.debug diag
     badQuadrant == null && board.size() == boardSize
   }
 
@@ -147,10 +142,11 @@ abstract class GameSpace {
   //   board[key] = value
   // }
 
+  @TypeChecked
   final void clear() {
-    minCoord.upto(maxCoord) { r1 ->
-      minCoord.upto(maxCoord) { r2 ->
-        clearSquare r1, r2
+    for ( int row in coordRange ) {
+      for ( int col in coordRange ) {
+        clearSquare row, col
       }
     }
   }
@@ -159,11 +155,12 @@ abstract class GameSpace {
   abstract int getCellPadding();
   abstract String symbol( final List<Integer> key );
 
+  @TypeChecked
   void dump() {
-    minCoord.upto(maxCoord) { i ->
-      def boardRow = ''
-      minCoord.upto(maxCoord) { j ->
-        boardRow += "${symbol([i,j]).padLeft(cellPadding,'0')} "
+    for ( int row in coordRange ) {
+      String boardRow = ''
+      for ( int col in coordRange ) {
+        boardRow += "${symbol([row, col]).padLeft(cellPadding,'0')} "
       }
       log.info boardRow
     }
