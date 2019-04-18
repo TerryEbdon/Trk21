@@ -111,9 +111,9 @@ final class EnemyFleet {
     }
 
     // @TypeChecked
-    boolean isShipAt( List<Integer> key ) {
+    boolean isShipAt( final Coords2d key ) {
       klingons.find {
-        key.first() == it[rowIdx] && key.last() == it[colIdx]
+        key.row == it[rowIdx] && key.col == it[colIdx]
       }
     }
 

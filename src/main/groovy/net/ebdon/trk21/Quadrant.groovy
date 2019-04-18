@@ -67,8 +67,8 @@ final class Quadrant extends GameSpace {
   }
 
   @groovy.transform.TypeChecked
-  final void clearSquare( final int row, final int col ) {
-    board[row,col] = Thing.emptySpace //.ordinal()
+  final void clearSquare( final Coords2d squareCoords ) {
+    board[squareCoords.toList()] = Thing.emptySpace
   }
 
   /// @bug Infinite loop is possible.
@@ -79,7 +79,7 @@ final class Quadrant extends GameSpace {
     (r1,r2) = getRandomCoords()
     log.trace "getEmptySector() starts with r1:$r1, r2:$r2 = ${board[r1,r2]} board size is ${board.size()}"
     while ( isOccupied(r1,r2) ) {
-       (r1,r2) = getRandomCoords()
+       (r1,r2) = randomCoords
        log.trace "Is ${[r1,r2]} empty?"
     }
     log.trace "getEmptySector() ends with r1:$r1, r2:$r2 = ${board[r1,r2]}"
@@ -95,26 +95,33 @@ final class Quadrant extends GameSpace {
     @arg linePrinter - A closure that will be called to output each line of the
     sector display.
   */
-  def displayOn( Closure linePrinter ) {
-    1.upto(8) { i ->
+  @groovy.transform.TypeChecked
+  void displayOn( Closure linePrinter ) {
+    eachCoord { int row ->
       String scanLine = ''
-      1.upto(8) { j ->
-        scanLine += "${symbol([i,j])} "
+      eachCoord { int col ->
+        scanLine += "${symbol([row, col])} "
       }
       linePrinter( scanLine )
     }
   }
 
-  Map<List<Integer>,Thing> findEnemies() {
-    board.findAll { it.value == Thing.enemy }
+  List<Coords2d> findEnemies() {
+    board.findAll { Map.Entry candidate ->
+      candidate.value == Thing.enemy
+    }?.collect { Map.Entry foundEntry ->
+      new Coords2d( foundEntry.key.first(), foundEntry.key.last() )
+    }
   }
 
-  def removeEnemy( key ) {
-    assert board[key] == Thing.enemy || board[key] == Thing.torpedo
+  @groovy.transform.TypeChecked
+  void removeEnemy( final Coords2d key ) {
+    assert this[key] == Thing.enemy
     clearSquare key
   }
 
+  @groovy.transform.TypeChecked
   int count( Closure closure ) {
-    board.count closure
+    board.count( closure ).toInteger()
   }
 }

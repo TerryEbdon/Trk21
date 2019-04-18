@@ -35,10 +35,17 @@ abstract class GameSpace {
   @TypeChecked
   @Newify(Coords2d)
   static void eachCoords2d( final Closure closure ) {
-    for ( int row in coordRange ) {
-      for ( int col in coordRange ) {
-        closure Coords2d( row, col )
+    eachCoord { int row ->
+      eachCoord { int col ->
+        closure( Coords2d( row, col ) )
       }
+    }
+  }
+
+  @TypeChecked
+  static void eachCoord( final Closure closure ) {
+    for ( int coord in coordRange ) {
+      closure coord
     }
   }
 
@@ -47,7 +54,7 @@ abstract class GameSpace {
 
   @TypeChecked
   static boolean insideGalaxy( final Coords2d coords ) {
-    insideGalaxy( coords.first(), coords.last() )
+    insideGalaxy( coords.row, coords.col )
   }
 
   @TypeChecked
@@ -121,9 +128,10 @@ abstract class GameSpace {
     board.keySet().contains( [row, col] )
   }
 
+  @Newify(Coords2d)
   boolean isValid() {
-    def badQuadrant = board.keySet().find {
-      !insideGalaxy( *(it[0..1]) )
+    def badQuadrant = board.keySet().find { key ->
+      !insideGalaxy( Coords2d( key.first(), key.last() ) )
     } // sparse = false
     // assert null == badQuadrant
     log.debug "badQuadrant: $badQuadrant, $this"
@@ -144,14 +152,12 @@ abstract class GameSpace {
 
   @TypeChecked
   final void clear() {
-    for ( int row in coordRange ) {
-      for ( int col in coordRange ) {
-        clearSquare row, col
-      }
+    eachCoords2d { Coords2d squareCoords ->
+      clearSquare squareCoords
     }
   }
 
-  abstract void clearSquare( final int row, final int col );
+  abstract void clearSquare( final Coords2d squareCoords );
   abstract int getCellPadding();
   abstract String symbol( final List<Integer> key );
 

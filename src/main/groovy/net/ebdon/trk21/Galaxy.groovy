@@ -43,7 +43,7 @@ final class Galaxy extends GameSpace {
 
   @TypeChecked
   final List<Integer>putAt( final Coords2d c2dKey, value ) {
-    final List<Integer> key = [c2dKey.row,c2dKey.col]
+    final List<Integer> key = c2dKey.toList()
     board[key] = value
     key
   }
@@ -55,8 +55,8 @@ final class Galaxy extends GameSpace {
     key
   }
 
-  final void clearSquare( final int row, final int col ) {
-    board[row,col] = 0
+  final void clearSquare( final Coords2d squareCoords ) {
+    this[squareCoords] = 0
   }
 
   @TypeChecked

@@ -74,17 +74,15 @@ class QuadrantSetup {
 
   void updateAfterSkirmish() {
     assert enemyFleet.valid
-    Map<List<Integer>,Quadrant.Thing> enemiesAtStart = quadrant.findEnemies()
+    List<Coords2d> enemiesAtStart = quadrant.findEnemies()
     log.debug "enemiesAtStart: $enemiesAtStart"
     log.debug 'Found {} possibly dead enemies.',
       enemiesAtStart ? enemiesAtStart.size() : 'no'
 
-    enemiesAtStart.each { List<Integer>sectorCoords, Quadrant.Thing thing ->
+    enemiesAtStart.each { Coords2d sectorCoords ->
       if ( !enemyFleet.isShipAt( sectorCoords ) ) {
-        assert thing == Quadrant.Thing.enemy
-        assert sectorCoords.size() == 2
-        log.info "Removing vanquished $thing from sector $sectorCoords"
-        quadrant.removeEnemy( sectorCoords )
+        log.info "Removing vanquished enemy from sector $sectorCoords"
+        quadrant.removeEnemy sectorCoords
       }
     }
   }

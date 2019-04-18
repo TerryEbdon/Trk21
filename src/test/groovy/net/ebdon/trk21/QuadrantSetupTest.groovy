@@ -115,27 +115,24 @@ final class QuadrantSetupTest extends GroovyTestCase {
     enemyFleet.demand.getValid { true }
     quadrantSetup = new QuadrantSetup()
     quadrant.demand.findEnemies {
-      [:] // Weapons fired when enemy not present.
+      [] // Weapons fired when enemy not present.
     }
     afterSkirmish()
   }
 
+  @Newify(Coords2d)
   void testUpdateAfterSkirmishWithEnemies() {
     log.info 'testUpdateAfterSkirmishWithEnemies -- Begin'
     enemyFleet.demand.getValid { true }
-    enemyFleet.demand.isShipAt(numEnemy) { List<Integer> coords ->
+    enemyFleet.demand.isShipAt(numEnemy) { Coords2d coords ->
       logger.debug 'Asked if an enemy ship is at {}', coords
-      assert coords.size() == 2
-      assert (1..8).containsAll( coords )
+      assert (1..8).containsAll( coords.toList() )
       false
     }
     quadrant.demand.findEnemies {
-      Map<List<Integer>,Quadrant.Thing> map = [:]
-      map[rowToPositionIn,1] = Quadrant.Thing.enemy
-      map[rowToPositionIn,2] = Quadrant.Thing.enemy
-      map
+      [ Coords2d(rowToPositionIn, 1), Coords2d(rowToPositionIn, 2) ]
     }
-    quadrant.demand.removeEnemy(numEnemy) { sectorCoords ->
+    quadrant.demand.removeEnemy(numEnemy) { Coords2d sectorCoords ->
       logger.debug sectorCoords
     }
     quadrantSetup = new QuadrantSetup()
