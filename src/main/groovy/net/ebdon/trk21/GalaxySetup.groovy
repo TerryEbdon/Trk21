@@ -50,8 +50,6 @@ final class GalaxySetup {
   }
 
   void addGamePieces() {
-    int starsInQuad = 0
-
     galaxy.eachCoords2d { Coords2d c2d ->
       currentQuadrant = c2d
       addEnemy()
@@ -63,7 +61,7 @@ final class GalaxySetup {
   }
 
   private void addEnemy() {
-    log.debug 'Adding Enemy to {}', currentQuadrant
+    log.trace 'Adding Enemy to {}', currentQuadrant
     enemyInQuad = 0
     final float c1 = new Random().nextFloat() * galaxy.boardSize
     enemyFleet.eachShipNo { int shipNo ->
@@ -72,24 +70,24 @@ final class GalaxySetup {
   }
 
   private void addShip( final int shipNo, final float c1 ) {
-    log.debug 'addShip() called with args {}', [shipNo, c1]
+    log.trace 'addShip() called with args {}', [shipNo, c1]
     if ( c1 < softProbs[ shipNo ] ) {
       ++enemyFleet.numKlingonBatCrTotal
       ++enemyFleet.numKlingonBatCrRemain
       ++enemyInQuad
-      log.debug 'Enemy craft added to quadrant {}, now {} in this quadrant.',
+      log.trace 'Enemy craft added to quadrant {}, now {} in this quadrant.',
           currentQuadrant, enemyInQuad
     }
   }
 
   private void addBases() {
-    log.debug 'Adding Bases to {}', currentQuadrant
+    log.trace 'Adding Bases to {}', currentQuadrant
     basesInQuad = numBasesToBirth()
-    log.debug 'Bases in {}: {}.', currentQuadrant, basesInQuad
+    log.trace 'Bases in {}: {}.', currentQuadrant, basesInQuad
   }
 
   private void addStars() {
-    log.debug 'Adding Stars to {}', currentQuadrant
     starsInQuad = numStarsToBirth()
+    log.trace 'Adding {} stars to {}', starsInQuad, currentQuadrant
   }
 }

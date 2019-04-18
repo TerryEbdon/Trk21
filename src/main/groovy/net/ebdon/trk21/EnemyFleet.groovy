@@ -44,10 +44,6 @@ final class EnemyFleet {
 
     private final List<Integer> scrapHeap = [];
 
-    /// @bug A private array was being accessed from in Trek.distributeKlingons()
-    final float[] softProbs = ///< r[0..9] in TREK.BAS
-        [ 0, 0.0001, 0.01, 0.03, 0.08, 0.28, 1.28, 3.28, 6.28, 13.28 ];
-
     /// @todo Move energyHittingTarget() into a new Galaxy or GamePhysics class?
     @SuppressWarnings('InsecureRandom')
     @TypeChecked

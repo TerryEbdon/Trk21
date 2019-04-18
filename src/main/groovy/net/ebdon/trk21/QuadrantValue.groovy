@@ -20,7 +20,9 @@ import static Quadrant.Thing;
  * limitations under the License.
  */
 
+@groovy.transform.ToString(includePackage=false,includeNames=true,includeFields=true,excludes='value')
 @groovy.transform.TypeChecked
+@groovy.util.logging.Log4j2
 final class QuadrantValue {
   private final int val;
 
@@ -42,6 +44,7 @@ final class QuadrantValue {
   }
 
   int getValue() {
+    log.trace this
     enemy * Thing.enemy.multiplier +
     bases * Thing.base.multiplier +
     stars * Thing.star.multiplier

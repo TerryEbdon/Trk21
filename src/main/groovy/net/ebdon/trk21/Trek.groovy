@@ -46,11 +46,9 @@ final class Trek extends LoggingBase {
     Galaxy    galaxy;
     Quadrant  quadrant  = new Quadrant();
 
-    DamageControl damageControl;
-
-    EnemyFleet enemyFleet;
-    FederationShip ship;
-    int numStarBasesTotal = 0; ///< b9% in TREK.BAS
+    DamageControl   damageControl;
+    EnemyFleet      enemyFleet;
+    FederationShip  ship;
 
   @TypeChecked
   boolean isValid() {
@@ -86,7 +84,7 @@ final class Trek extends LoggingBase {
   void setupGalaxy() {
     galaxy = new Galaxy()
     setEntStartPosition()
-    distributeKlingons()
+    new GalaxySetup( galaxy, enemyFleet ).addGamePieces()
     dumpGalaxy()
     setupQuadrant()
   }
@@ -96,7 +94,7 @@ final class Trek extends LoggingBase {
     ship.position.quadrant = new Coords2d( *(galaxy.randomCoords) )
   }
 
-  // @TypeChecked
+  @TypeChecked
   void setupQuadrant() {
     QuadrantManager qm = new QuadrantManager( quadrant )
     ship.position.sector = qm.positionShip()
@@ -104,52 +102,6 @@ final class Trek extends LoggingBase {
       galaxy[ship.position.quadrant],
       enemyFleet
     )
-  }
-
-  @TypeChecked
-  @SuppressWarnings('InsecureRandom')
-  private int numberOfStarsToBirth() { // fnr%()
-    new Random().nextInt(8) + 1
-  }
-
-  @SuppressWarnings('InsecureRandom')
-  void distributeKlingons() {
-    int totalStars = 0
-    int starsInQuad = 0
-    // int numBasesInQuad = 0 //b3%
-
-    log.info 'Distributing Klingon battle cruisers.'
-    minCoord.upto(maxCoord) { i ->
-      minCoord.upto(maxCoord) { j ->
-        enemyFleet.numKlingonBatCrInQuad = 0 // k3%
-        // int b9 = 0 //b9%
-        final float c1 = new java.util.Random().nextFloat() * 64
-
-        1.upto( enemyFleet.maxKlingonBCinQuad ) {
-          if ( c1 < enemyFleet.softProbs[ it ] ) {
-            ++enemyFleet.numKlingonBatCrTotal   // line 1200
-            ++enemyFleet.numKlingonBatCrRemain  // line 1180
-            ++enemyFleet.numKlingonBatCrInQuad  // line 1180
-            log.trace "Enemy craft added to quadrant ${i} - ${j}, " +
-                      "there's now ${enemyFleet.numKlingonBatCrInQuad} in this quadrant."
-          }
-        }
-
-        final int numBasesInQuad = new Random().nextFloat() > 0.9 ? 1 : 0 // b3%
-        numStarBasesTotal += numBasesInQuad // 1210 B9%=B9%+B3%
-        starsInQuad = numberOfStarsToBirth()
-        totalStars += starsInQuad
-        galaxy[i,j] =
-          enemyFleet.numKlingonBatCrInQuad * 100 +
-          numBasesInQuad * 10 +
-          starsInQuad //G%(I%,J%)=K3%*100%+B3%*10%+FNR%
-        log.trace 'galaxy[{},{}] = {}', i, j, galaxy.scan(i,j)
-      }
-    }
-    log.printf Level.INFO, 'Total number of Klingon BC: %3d', enemyFleet.numKlingonBatCrRemain
-    log.printf Level.INFO, 'Total number of star bases: %3d', numStarBasesTotal
-    log.printf Level.INFO, 'Total number stars:         %3d', totalStars
-    log.info enemyFleet.toString()
   }
 
   @TypeChecked
