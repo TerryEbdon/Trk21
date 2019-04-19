@@ -106,16 +106,7 @@ final class Trek extends LoggingBase {
   @TypeChecked
   void dumpGalaxy() {
     galaxy.dump()
-    reportEntPosition()
-  }
-
-  void reportEntPosition() {
-    log.info "Enterprise is in quadrant ${currentQuadrant()}"
-  }
-
-  @TypeChecked
-  String currentQuadrant() {
-    "${ship.position.quadrant.col} - ${ship.position.quadrant.row}"
+    log.info "Enterprise is in quadrant ${ship.position.quadrant.row}"
   }
 
   @TypeChecked
