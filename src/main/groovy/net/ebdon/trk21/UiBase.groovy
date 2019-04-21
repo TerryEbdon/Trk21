@@ -24,7 +24,7 @@ abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for c
   abstract void run();
   abstract void outln( final String str );
   abstract void setConditionText( final String displayableCondition );
-  abstract Float getFloatInput( final String prompt );
+  abstract Float getFloatInput( final String promptId );
   /// @deprecated Not needed with new font config.
   final String btnText( final String text ) {
     // "<html><font size=+3>$text</font></html>"

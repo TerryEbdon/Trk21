@@ -66,6 +66,7 @@ final class TestUi extends UiBase {
 
   Float getFloatInput( final String prompt ) {
     assert prompt.length()
+    assert !prompt.contains( ' ' )
     inputValues.pop()
   }
 

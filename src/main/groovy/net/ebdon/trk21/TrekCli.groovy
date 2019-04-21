@@ -85,10 +85,10 @@ class TrekCli extends UiBase {
     //outln "Condition: $displayableCondition" /// @todo localise setConditionText
   }
 
-  @Override Float getFloatInput( final String prompt ) {
+  @Override Float getFloatInput( final String promptId ) {
     String rv = ''
     while ( !rv.isFloat() ) {
-      rv = getLine( "  ${prompt}: " ) - '\r' ?: 0
+      rv = getLine( "  ${getPrompt(promptId)}: " ) - '\r' ?: 0
       if ( !rv.isFloat() ) {
         outln pleaseEnterNumber()
       }

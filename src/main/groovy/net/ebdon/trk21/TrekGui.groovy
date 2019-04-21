@@ -57,10 +57,10 @@ final class TrekGui extends UiBase {
     }
   }
 
-  @Override Float getFloatInput( final String prompt ) {
+  @Override Float getFloatInput( final String promptId ) {
     String rv = ''
     while ( !rv.isFloat() ) {
-      rv = JOptionPane.showInputDialog( swing.trekFrame, btnText( prompt ) )
+      rv = JOptionPane.showInputDialog( swing.trekFrame, btnText( getPrompt(promptId) ) )
       if ( rv ) {
         if ( !rv.isFloat() ) {
           JOptionPane.showMessageDialog( swing.trekFrame, pleaseEnterNumber() )

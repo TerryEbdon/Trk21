@@ -227,7 +227,7 @@ final class Trek extends LoggingBase {
   }
 
   private float requestCourse() {
-    ui.getFloatInput( rb.getString( 'input.course' ) ) // C1
+    ui.getFloatInput( 'input.course' ) // C1
   }
 
   /// @todo Test needed for getShipCourse()
@@ -242,7 +242,7 @@ final class Trek extends LoggingBase {
     course = requestCourse()
     if ( ShipVector.isValidCourse( course ) ) {
       sv.course = course
-      warpFactor = ui.getFloatInput( rb.getString( 'input.speed' ) ) // W1
+      warpFactor = ui.getFloatInput( 'input.speed' ) // W1
       if ( ShipVector.isValidWarpFactor( warpFactor ) ) {
         sv.warpFactor = warpFactor
       } else {
@@ -316,7 +316,7 @@ final class Trek extends LoggingBase {
   }
 
   final int uiIntegerInput( final String propertyKey ) {
-    ui.getFloatInput( rb.getString( propertyKey ) ).toInteger()
+    ui.getFloatInput( propertyKey ).toInteger()
   }
 
   @TypeChecked
