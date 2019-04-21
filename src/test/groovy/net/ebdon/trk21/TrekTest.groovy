@@ -2,7 +2,7 @@ package net.ebdon.trk21;
 
 import groovy.mock.interceptor.MockFor;
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
-
+import net.ebdon.trk21.battle_management.AfterSkirmish
 /**
  * @file
  * @author      Terry Ebdon
@@ -36,31 +36,17 @@ final class TrekTest extends GroovyTestCase {
     trek = new Trek()
   }
 
-  @SuppressWarnings('ExplicitCallToGetAtMethod')
+  // @SuppressWarnings('ExplicitCallToGetAtMethod')
   @Newify([Position,Coords2d])
   void testUpdateQuadrantAfterSkirmish() {
     MockFor shipMock      = MockFor( FederationShip )
     MockFor galaxy        = MockFor( Galaxy )
-    MockFor quadrantSetup = MockFor( QuadrantSetup )
     MockFor enemyFleet    = MockFor( EnemyFleet )
+    MockFor afterSkirmish = MockFor( AfterSkirmish )
 
-    // Start of demand required for updateNumEnemyShipsInQuad
+    afterSkirmish.demand.
+      updateQuadrant { Quadrant.Thing thingDestroyed, EnemyFleet fleet -> }
     shipMock.demand.getPosition { Position( Coords2d(1,2), Coords2d(3,4) ) }
-    enemyFleet.demand.getNumKlingonBatCrInQuad { 3 }
-    galaxy.demand.with {
-      getAt { Coords2d c2d ->
-        assert c2d == Coords2d(1,2)
-        919
-      }
-
-      getAt { Coords2d c2d -> assert c2d == Coords2d(1,2); 919 } // enemy @ start
-      putAt { Coords2d c2d, int newVal -> assert newVal ==  19 } // remove them
-      getAt { Coords2d c2d -> assert c2d == Coords2d(1,2);  19 }
-      putAt { Coords2d c2d, int newVal -> assert newVal == 319 } // sync with fleet
-    }
-    // end of demand required for updateNumEnemyShipsInQuad
-
-    quadrantSetup.demand.updateAfterSkirmish { }
 
     shipMock.use {
       trek.ship = new FederationShip()
@@ -68,7 +54,7 @@ final class TrekTest extends GroovyTestCase {
         trek.galaxy = new Galaxy()
         enemyFleet.use {
           trek.enemyFleet = new EnemyFleet()
-          quadrantSetup.use {
+          afterSkirmish.use {
             trek.updateQuadrantAfterSkirmish()
           }
         }

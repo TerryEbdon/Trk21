@@ -7,7 +7,7 @@ import static ShipDevice.*;
 import java.text.MessageFormat;
 import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import groovy.transform.TypeChecked;
-
+import net.ebdon.trk21.battle_management.AfterSkirmish;
 /**
  * @file
  * @author      Terry Ebdon
@@ -293,17 +293,8 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   void updateQuadrantAfterSkirmish( final Thing thingDestroyed = Thing.emptySpace ) {
-    log.debug 'updateQuadrantAfterSkirmish BEGIN'
-    final GalaxyManager gm = new GalaxyManager( ship.position.quadrant, galaxy )
-
-    if ( thingDestroyed != Thing.emptySpace ) {
-      gm.updateNumInQuad thingDestroyed
-    } else {
-      log.debug 'Destroyed {}, nothing to do. )', thingDestroyed
-    }
-    gm.updateNumEnemyShips enemyFleet.numKlingonBatCrInQuad
-    new QuadrantSetup( quadrant, enemyFleet ).updateAfterSkirmish()
-    log.debug 'updateQuadrantAfterSkirmish END'
+    new AfterSkirmish( quadrant, galaxy, ship.position.quadrant ).
+      updateQuadrant( thingDestroyed, enemyFleet )
   }
 
   final void fireTorpedo() {
