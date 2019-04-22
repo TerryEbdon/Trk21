@@ -226,10 +226,6 @@ final class Trek extends LoggingBase {
     }
   }
 
-  private float requestCourse() {
-    ui.getFloatInput( 'input.course' ) // C1
-  }
-
   /// @todo Test needed for getShipCourse()
   Tuple2<Boolean,ShipVector> getShipCourse() {
     boolean rejected = false
@@ -239,7 +235,7 @@ final class Trek extends LoggingBase {
 
     log.trace '''Getting ship's course'''
 
-    course = requestCourse()
+    course = ui.requestCourse()
     if ( ShipVector.isValidCourse( course ) ) {
       sv.course = course
       warpFactor = ui.getFloatInput( 'input.speed' ) // W1
@@ -291,29 +287,17 @@ final class Trek extends LoggingBase {
   }
 
   final void fireTorpedo() {
-    log.info "Fire torpedo - available: ${ship.numTorpedoes}"
-
-    float course = requestCourse()
-    if ( course ) {
-      if ( ship.numTorpedoes ) {
-        Battle battle = new Battle(
-          enemyFleet, ship, damageControl, ui
-        )
-        battle.fireTorpedo course, quadrant
-        updateQuadrantAfterSkirmish battle.thingDestroyed
-      } else {
-        ui.fmtMsg 'torpedo.unavailable'
-      }
+    TorpedoManager tm = new TorpedoManager( ui, enemyFleet, ship, damageControl )
+    if ( tm.fire( quadrant ) ) {
+      updateQuadrantAfterSkirmish tm.thingDestroyed
     }
-    log.info "Fire torpedo completed - available: ${ship.numTorpedoes}"
   }
 
   @TypeChecked
   final void firePhasers() {
-    new PhaserManager( ui, enemyFleet, ship, damageControl).with {
-      if ( fire() ) {
-        updateQuadrantAfterSkirmish()
-      }
+    PhaserManager pm = new PhaserManager( ui, enemyFleet, ship, damageControl)
+    if ( pm.fire() ) {
+      updateQuadrantAfterSkirmish()
     }
   }
 

@@ -2,7 +2,7 @@ package net.ebdon.trk21;
 
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
-
+import net.ebdon.trk21.battle_management.AfterSkirmish
 /**
  * @file
  * @author      Terry Ebdon
@@ -56,7 +56,75 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     quadrantSetupMock = null
   }
 
-  void testFirePhasersCancel() {
+  @Newify(MockFor)
+  void testFirePhasers() {
+    MockFor pmMock = MockFor( PhaserManager )
+    MockFor asMock = MockFor( AfterSkirmish )
+    shipMock.demand.with {
+      getPosition { shipPosition }
+    }
+    pmMock.demand.fire { true }
+    asMock.demand.updateQuadrant { Quadrant.Thing thingDestroyed, EnemyFleet enemyFleet ->
+      assert thingDestroyed == Quadrant.Thing.emptySpace
+    }
+    fleetMock = new MockFor( EnemyFleet )
+
+    shipMock.use {
+      trek.ship = new FederationShip()
+      fleetMock.use {
+        pmMock.use {
+          asMock.use {
+            trek.enemyFleet = new EnemyFleet()
+            trek.firePhasers()
+          }
+        }
+      }
+    }
+
+    assert ui.empty
+  }
+
+  @Newify(MockFor)
+  void testFireTorpedoCancel() {
+
+    MockFor tmMock = MockFor( TorpedoManager )
+    MockFor asMock = MockFor( AfterSkirmish )
+    tmMock.demand.fire{ Quadrant quad ->  false }
+    tmMock.use {
+      asMock.use { // No demands, shouldn't be called.
+        trek.fireTorpedo()
+      }
+    }
+
+    assert ui.empty
+  }
+
+  @Newify(MockFor)
+  void testFireTorpedo() {
+    MockFor tmMock = MockFor( TorpedoManager )
+    MockFor asMock = MockFor( AfterSkirmish )
+    tmMock.demand.fire{ Quadrant quad ->  true }
+    tmMock.demand.getThingDestroyed { Quadrant.Thing.star }
+    asMock.demand.updateQuadrant { Quadrant.Thing thingDestroyed, EnemyFleet enemyFleet ->
+      assert thingDestroyed == Quadrant.Thing.star
+    }
+    shipMock.demand.with {
+      getPosition { shipPosition }
+    }
+
+    tmMock.use {
+      asMock.use {
+        shipMock.use {
+          trek.ship = new FederationShip()
+          trek.fireTorpedo()
+        }
+      }
+    }
+
+    assert ui.empty
+  }
+
+  void testFirePhasersCancelOld() {
     ui.inputValues = [0F]
 
     battleMock.use { // No demands, shouldn't be accessed
@@ -69,7 +137,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     assert ui.empty
   }
 
-  void testFireTorpedoCancel() {
+  void testFireTorpedoCancelOld() {
     ui.inputValues = [0F]
 
     battleMock.use { // No demands, shouldn't be accessed
@@ -134,7 +202,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     assert ui.localMsgLog.empty
   }
 
-  void testFirePhasersWithTooMuchEnergy() {
+  void testFirePhasersWithTooMuchEnergyOld() {
     final float phaserEnergy = 4000F
 
     ui.inputValues = [phaserEnergy]
@@ -153,7 +221,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     assert ui.localMsgLog == [ 'phaser.refused.badEnergy' ]
   }
 
-  void testFirePhasersWithGoodEnergy() {
+  void testFirePhasersWithGoodEnergyOld() {
     final float phaserEnergy = 1F
 
     ui.inputValues = [phaserEnergy]

@@ -26,40 +26,36 @@ import net.ebdon.trk21.Battle;
 
 @groovy.util.logging.Log4j2
 @groovy.transform.TypeChecked
-final class PhaserManager extends WeaponsManager {
+final class TorpedoManager extends WeaponsManager {
+  private Quadrant.Thing thingDestroyed;
 
-  PhaserManager( UiBase uib, EnemyFleet ef, FederationShip fs, DamageControl dc ) {
+  TorpedoManager( UiBase uib, EnemyFleet ef, FederationShip fs, DamageControl dc ) {
     super( uib, ef, fs, dc )
   }
 
-  private int uiIntegerInput( final String propertyKey ) {
-    ui.getFloatInput( propertyKey ).toInteger()
-  }
-
-  private void attackFleetWithPhasers( final int energy ) {
-    new Battle(
-      enemyFleet, ship, damageControl, ui
-    ).phaserAttackFleet( energy )
-  }
-
   boolean fire( Quadrant quadrant = null ) {
-    log.info "Fire phasers - available energy: ${ship.energyNow}"
-    assert quadrant == null
+    log.info "Launch - available: ${ship.numTorpedoes}"
+    assert quadrant != null
     boolean fired = false
-    final int energy = uiIntegerInput( 'input.phaserEnergy' )
 
-    if ( energy > 0 ) {
-      if ( energy <= ship.energyNow ) {
-        attackFleetWithPhasers energy
+    float course = ui.requestCourse()
+    if ( course ) {
+      if ( ship.numTorpedoes ) {
+        Battle battle = new Battle(
+          enemyFleet, ship, damageControl, ui
+        )
+        battle.fireTorpedo course, quadrant
+        thingDestroyed = battle.thingDestroyed
         fired = true
       } else {
-        log.info 'Phaser command refused; user tried to fire too many units.'
-        ui.localMsg 'phaser.refused.badEnergy'
+        ui.localMsg 'torpedo.unavailable'
       }
-    } else {
-      log.info 'Command cancelled by user.'
     }
-    log.info "Fire phasers completed - available energy: ${ship.energyNow}"
+    log.info "Launch completed - available: ${ship.numTorpedoes}"
     fired
+  }
+
+  Quadrant.Thing getThingDestroyed() {
+    this.thingDestroyed
   }
 }

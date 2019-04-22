@@ -32,6 +32,11 @@ abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for c
   }
 
   @groovy.transform.TypeChecked
+  float requestCourse() {
+    getFloatInput( 'input.course' ) // C1
+  }
+
+  @groovy.transform.TypeChecked
   String getPrompt( final String key ) {
     trek.rb.getString key
   }
