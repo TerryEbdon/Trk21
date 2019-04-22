@@ -33,7 +33,7 @@ abstract class WeaponsManager {
 
   abstract boolean fire( Quadrant quadrant = null )
 
-  WeaponsManager( UiBase uib, EnemyFleet ef, FederationShip fs, DamageControl dc ) {
+  protected WeaponsManager( UiBase uib, EnemyFleet ef, FederationShip fs, DamageControl dc ) {
     ui            = uib
     enemyFleet    = ef
     ship          = fs

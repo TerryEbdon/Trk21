@@ -8,6 +8,8 @@ import java.text.MessageFormat;
 import org.codehaus.groovy.tools.groovydoc.ClasspathResourceManager;
 import groovy.transform.TypeChecked;
 import net.ebdon.trk21.battle_management.AfterSkirmish;
+import net.ebdon.trk21.arms_man.TorpedoManager;
+import net.ebdon.trk21.arms_man.PhaserManager;
 /**
  * @file
  * @author      Terry Ebdon

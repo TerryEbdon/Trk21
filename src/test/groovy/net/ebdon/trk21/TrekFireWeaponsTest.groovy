@@ -3,6 +3,8 @@ package net.ebdon.trk21;
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
 import net.ebdon.trk21.battle_management.AfterSkirmish
+import net.ebdon.trk21.arms_man.TorpedoManager;
+import net.ebdon.trk21.arms_man.PhaserManager;
 /**
  * @file
  * @author      Terry Ebdon
@@ -86,10 +88,9 @@ final class TrekFireWeaponsTest extends TrekTestBase {
 
   @Newify(MockFor)
   void testFireTorpedoCancel() {
-
     MockFor tmMock = MockFor( TorpedoManager )
     MockFor asMock = MockFor( AfterSkirmish )
-    tmMock.demand.fire{ Quadrant quad ->  false }
+    tmMock.demand.fire { Quadrant quad ->  false }
     tmMock.use {
       asMock.use { // No demands, shouldn't be called.
         trek.fireTorpedo()
@@ -103,7 +104,7 @@ final class TrekFireWeaponsTest extends TrekTestBase {
   void testFireTorpedo() {
     MockFor tmMock = MockFor( TorpedoManager )
     MockFor asMock = MockFor( AfterSkirmish )
-    tmMock.demand.fire{ Quadrant quad ->  true }
+    tmMock.demand.fire { Quadrant quad ->  true }
     tmMock.demand.getThingDestroyed { Quadrant.Thing.star }
     asMock.demand.updateQuadrant { Quadrant.Thing thingDestroyed, EnemyFleet enemyFleet ->
       assert thingDestroyed == Quadrant.Thing.star
