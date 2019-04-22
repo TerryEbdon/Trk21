@@ -41,22 +41,7 @@ class AfterSkirmishTest extends GroovyTestCase {
   private void initDemands( int get1, int put1, int put2 ) {
     quadrantSetup.demand.updateAfterSkirmish { }
     gmMock.demand.updateNumEnemyShips { }
-    // Start of demand required for updateNumEnemyShipsInQuad
-    // shipMock.demand.getPosition { Position( Coords2d(1,2), Coords2d(3,4) ) }
     fleetMock.demand.getNumKlingonBatCrInQuad { 3 }
-    // gmMock.demand.
-    // galaxyMock.demand.with {
-    //   getAt { Coords2d c2d ->
-    //     assert c2d == Coords2d(1,2)
-    //     get1
-    //   }
-    //
-    //   getAt { Coords2d c2d -> assert c2d == Coords2d(1,2); get1 } // enemy @ start
-    //   putAt { Coords2d c2d, int newVal -> assert newVal == put1 } // remove them
-    //   getAt { Coords2d c2d -> assert c2d == Coords2d(1,2); put1 }
-    //   putAt { Coords2d c2d, int newVal -> assert newVal == put2 } // sync with fleet
-    // }
-    // end of demand required for updateNumEnemyShipsInQuad
   }
 
   private void runAfterSkirmishTest( Quadrant.Thing thing ) {
@@ -78,6 +63,7 @@ class AfterSkirmishTest extends GroovyTestCase {
   }
 
   @Override void setUp() {
+    super.setUp()
     galaxyMock    = MockFor( Galaxy )
     quadrantSetup = MockFor( QuadrantSetup )
     fleetMock     = MockFor( EnemyFleet )
@@ -87,12 +73,7 @@ class AfterSkirmishTest extends GroovyTestCase {
 
   @SuppressWarnings('JUnitTestMethodWithoutAssert')
   void testUpdateQuadrantDeadEnemy() {
-    // MockFor shipMock      = MockFor( FederationShip )
-    // gmMock.demand.updateNumEnemyShips { int n -> }
     initDemands 919, 19, 319
-    // quadrantSetup.demand.updateAfterSkirmish { }
-    // shipMock.use {
-      // trek.ship = new FederationShip()
     runAfterSkirmishTest Quadrant.Thing.emptySpace
   }
 
@@ -104,10 +85,6 @@ class AfterSkirmishTest extends GroovyTestCase {
     }
     initDemands 919, 91, 918
 
-    // quadrantSetup.demand.updateAfterSkirmish { }
-    final Coords2d shipQuadCoords = Coords2d(1,2)
-    // shipMock.use {
-      // trek.ship = new FederationShip()
     runAfterSkirmishTest Quadrant.Thing.star
   }
 }

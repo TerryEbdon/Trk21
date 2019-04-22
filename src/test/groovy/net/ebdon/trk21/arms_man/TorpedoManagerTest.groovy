@@ -37,6 +37,7 @@ final class TorpedoManagerTest extends GroovyTestCase {
   private MockFor dcMock;
 
   @Override void setUp() {
+    super.setUp()
     ui = new TestUi()
     battleMock = MockFor( Battle )
     shipMock   = MockFor( FederationShip )

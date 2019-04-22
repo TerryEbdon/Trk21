@@ -71,6 +71,7 @@ final class TrekSetCourseTest extends TrekTestBase {
     shipMock
   }
 
+  @SuppressWarnings('UnnecessaryPackageReference')
   void testGoodCourseWithDamagedEngines() {
     logger.info '-----'
     logger.info 'testGoodCourseWithDamagedEngines'

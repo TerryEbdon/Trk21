@@ -1,7 +1,6 @@
 package net.ebdon.trk21;
 
 import groovy.mock.interceptor.MockFor;
-import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 import net.ebdon.trk21.battle_management.AfterSkirmish
 /**
  * @file
@@ -36,7 +35,6 @@ final class TrekTest extends GroovyTestCase {
     trek = new Trek()
   }
 
-  // @SuppressWarnings('ExplicitCallToGetAtMethod')
   @Newify([Position,Coords2d])
   void testUpdateQuadrantAfterSkirmish() {
     MockFor shipMock      = MockFor( FederationShip )

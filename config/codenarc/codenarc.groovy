@@ -346,7 +346,7 @@ ruleset {
     MethodName
     ObjectOverrideMisspelledMethodName
     PackageName {
-      regex = [a-z]+[a-z0-9]*(\.[a-z0-9_]+)*
+      regex = /[a-z]+[a-z0-9]*(\.[a-z0-9_]+)*/
       packageNameRequired = true
     }
     PackageNameMatchesFilePath
