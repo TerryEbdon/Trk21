@@ -155,14 +155,6 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
-  void enemyAttacksBeforeShipCanMove() {
-    if ( enemyFleet.canAttack() ) {
-      log.info 'Klingons attack before the ship can move away.'
-      klingonAttack()
-    }
-  }
-
-  @TypeChecked
   void setCourse() {
     final Coords2d oldQuadrant = ship.position.quadrant.clone()
     final GameState gs = new GameState( enemyFleet, ship, game )
