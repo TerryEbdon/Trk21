@@ -163,12 +163,6 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
-  boolean tooFastForDamagedEngine( final ShipVector sv ) {
-    log.trace "tooFastForDamagedEngine called with $sv"
-    sv.warpFactor > 0.2F && damageControl.isDamaged( ShipDevice.DeviceType.engine )
-  }
-
-  @TypeChecked
   void setCourse() {
     final Coords2d oldQuadrant = ship.position.quadrant.clone()
     final GameState gs = new GameState( enemyFleet, ship, game )
@@ -290,19 +284,16 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   boolean gameContinues() {
-    // !gameWon() && !gameLost()
     new GameState( enemyFleet, ship, game ).continues()
   }
 
   @TypeChecked
   boolean gameWon() {
-    // enemyFleet.defeated
     new GameState( enemyFleet, ship, game ).won()
   }
 
   @TypeChecked
   boolean gameLost() {
-    // ship.deadInSpace() || game.outOfTime()
      new GameState( enemyFleet, ship, game ).lost()
   }
 }
