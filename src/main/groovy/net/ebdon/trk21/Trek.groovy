@@ -170,32 +170,6 @@ final class Trek extends LoggingBase {
     }
   }
 
-  /// @todo Test needed for getShipCourse()
-  Tuple2<Boolean,ShipVector> getShipCourse() {
-    boolean rejected = false
-    float course        = 0
-    float warpFactor    = 0
-    ShipVector sv = new ShipVector()
-
-    log.trace '''Getting ship's course'''
-
-    course = ui.requestCourse()
-    if ( ShipVector.isValidCourse( course ) ) {
-      sv.course = course
-      warpFactor = ui.getFloatInput( 'input.speed' ) // W1
-      if ( ShipVector.isValidWarpFactor( warpFactor ) ) {
-        sv.warpFactor = warpFactor
-      } else {
-        rejected = warpFactor
-        log.info "Warp factor $warpFactor is outside of expected range."
-      }
-    } else {
-      log.info "Course value $course is outside of expected range."
-      rejected = course
-    }
-    [rejected,sv]
-  }
-
   /// Perform a @ref TrekLongRangeSensors "long-range sensor scan"
   @TypeChecked
   void longRangeScan() {

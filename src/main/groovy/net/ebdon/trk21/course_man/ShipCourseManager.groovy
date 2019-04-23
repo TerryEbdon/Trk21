@@ -82,7 +82,7 @@ final class ShipCourseManager {
 
   private void enemyAttacksBeforeShipCanMove() {
     if ( enemyFleet.canAttack() ) {
-      log.info 'Klingons attack before the ship can move away.'
+      log.info 'Enemy attacks before the ship can move away.'
       klingonAttack()
     }
   }
