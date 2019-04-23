@@ -10,7 +10,6 @@ import net.ebdon.trk21.EnemyFleet;
 import net.ebdon.trk21.ShipRepositioner;
 import net.ebdon.trk21.Coords2d;
 import net.ebdon.trk21.FederationShip;
-// import net.ebdon.trk21.TrekCalendar;
 import net.ebdon.trk21.UiBase;
 import net.ebdon.trk21.DeviceStatusLottery;
 import net.ebdon.trk21.GameState;
@@ -47,14 +46,11 @@ final class ShipCourseManager {
     damageControl = dc
     ship          = fs
     enemyFleet    = ef
-    // game          = tc
     gameState     = gs
   }
 
-  // @groovy.transform.TypeChecked( groovy.transform.TypeCheckingMode.SKIP )
   private boolean tooFastForDamagedEngine( final ShipVector sv ) {
     log.trace "tooFastForDamagedEngine called with $sv"
-    // sv.warpFactor > 0.2F && damageControl.isDamaged( ShipDevice.DeviceType.engine )
     sv.warpFactor > 0.2F && damageControl.isDamaged( DeviceType.engine )
   }
 
@@ -136,8 +132,6 @@ final class ShipCourseManager {
           )
 
           rp.repositionShip vector
-          // repopulateSector oldQuadrant
-          // shortRangeScan()
         }
       }
     } else {
