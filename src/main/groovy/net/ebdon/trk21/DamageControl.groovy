@@ -1,6 +1,6 @@
 package net.ebdon.trk21;
 
-import static ShipDevice.*;
+import static ShipDevice.DeviceType;
 import groovy.transform.TypeChecked;
 
 /**

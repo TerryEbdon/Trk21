@@ -10,6 +10,7 @@ import groovy.transform.TypeChecked;
 import net.ebdon.trk21.battle_management.AfterSkirmish;
 import net.ebdon.trk21.arms_man.TorpedoManager;
 import net.ebdon.trk21.arms_man.PhaserManager;
+import net.ebdon.trk21.course_man.ShipCourseManager;
 /**
  * @file
  * @author      Terry Ebdon
@@ -168,50 +169,14 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
-  @SuppressWarnings('InsecureRandom')
   void setCourse() {
-    final Tuple2<Boolean, ShipVector> rv = getShipCourse()
-    final ShipVector vector = rv.second
-    final boolean rejected = rv.first
+    final Coords2d oldQuadrant = ship.position.quadrant.clone()
+    final GameState gs = new GameState( enemyFleet, ship, game )
+    final ShipCourseManager scm = new ShipCourseManager( ui, damageControl, ship, enemyFleet, gs )
 
-    if ( vector?.valid ) {
-      log.info "Got a good vector: $vector"
-
-      if ( tooFastForDamagedEngine( vector ) ) {
-        ui.localMsg 'engine.damaged'
-        ui.localMsg 'engine.damaged.max'
-      } else {
-        enemyAttacksBeforeShipCanMove()
-        damageControl.repair( ui.&fmtMsg )
-        /// @todo Is repair() called at the correct point?
-
-        if ( new Random().nextFloat() <= 0.20 ) { // 1750
-          DeviceStatusLottery.run( damageControl, ui.&localMsg )
-        }
-        game.tick() // Line 1830
-        final Coords2d oldQuadrant = ship.position.quadrant.clone()
-        ship.move( vector ) // set course, start engines...
-
-        if ( gameContinues() ) {
-          log.trace 'Ship has moved.'
-          // Continue from line 1840...
-
-          Repositioner rp = new ShipRepositioner(
-            ship:     ship,
-            ui:       ui,
-            quadrant: quadrant
-          )
-
-          rp.repositionShip vector
-          repopulateSector oldQuadrant
-          shortRangeScan()
-        }
-      }
-    } else {
-      log.info "vector is not so good: $vector"
-      if ( rejected ) { // User didn't hit cancel
-        ui.localMsg 'input.vector.bad'
-      }
+    if ( scm.setOffFrom( quadrant ) ) {
+      repopulateSector oldQuadrant
+      shortRangeScan()
     }
   }
 
@@ -325,16 +290,19 @@ final class Trek extends LoggingBase {
 
   @TypeChecked
   boolean gameContinues() {
-    !gameWon() && !gameLost()
+    // !gameWon() && !gameLost()
+    new GameState( enemyFleet, ship, game ).continues()
   }
 
   @TypeChecked
   boolean gameWon() {
-    enemyFleet.defeated
+    // enemyFleet.defeated
+    new GameState( enemyFleet, ship, game ).won()
   }
 
   @TypeChecked
   boolean gameLost() {
-    ship.deadInSpace() || game.outOfTime()
+    // ship.deadInSpace() || game.outOfTime()
+     new GameState( enemyFleet, ship, game ).lost()
   }
 }
