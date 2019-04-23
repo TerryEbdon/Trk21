@@ -146,15 +146,6 @@ final class Trek extends LoggingBase {
   }
 
   @TypeChecked
-  void klingonAttack() {
-    if ( !ship.protectedByStarBase ) {
-      enemyFleet.attack ship.position.sector, ui.&fmtMsg
-    } else {
-      ui.localMsg 'starbase.shields'
-    }
-  }
-
-  @TypeChecked
   void setCourse() {
     final Coords2d oldQuadrant = ship.position.quadrant.clone()
     final GameState gs = new GameState( enemyFleet, ship, game )
