@@ -28,7 +28,7 @@ final class PhaserControl {
   FederationShip ship;  /// @todo Break the dependency on FederationShip
   Battle battle;
 
-  PhaserControl( final DamageControl aDc, final UiBase reporter, aShip, aBattle ) {
+  PhaserControl( final DamageControl aDc, final UiBase reporter, FederationShip aShip, Battle aBattle ) {
     damageControl = aDc
     ui = reporter
     ship = aShip
