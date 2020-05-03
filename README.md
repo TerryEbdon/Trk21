@@ -38,7 +38,7 @@ overwriting the game's output. Without this option the game would be unplayable.
 
 ## App Status
 
-This is a development release, the game is not fully implemented.
+This is a development release, the game is now fully implemented.
 
 | Command                 | Status                                           |
 | :---------------------- | :----------------------------------------------- |
@@ -46,14 +46,10 @@ This is a development release, the game is not fully implemented.
 | **L**ong range scan     | <font color='green'>Fully implemented</font>     |
 | **S**hort range scan    | <font color='green'>Fully implemented</font>     |
 | **D**amage Report       | <font color='green'>Fully implemented</font>     |
-| **T**orpedo firing      | <font color='red'>Not yet implemented</font>     |
-| **P**haser firing       | <font color='orange'>Partially implemented</font>|
+| **T**orpedo firing      | <font color='green'>Fully implemented</font>     |
+| **P**haser firing       | <font color='green'>Fully implemented</font>     |
 | **Q**uit                | <font color='green'>Fully implemented</font>     |
 
-### Partially implemented features
-
-- Phaser attacks - You can fire at enemy ships and see the amount of damage that
-  should be caused, but the enemy ship never receives the damage.
 
 ```
 Command: P
