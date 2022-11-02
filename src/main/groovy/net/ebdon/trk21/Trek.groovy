@@ -77,7 +77,7 @@ final class Trek extends LoggingBase {
       rb = new PropertyResourceBundle( inStream )
       damageControl = new DamageControl()
     } else {
-        log.fatal 'Could not load Language.poperties'
+        log.fatal 'Could not load Language.properties'
         assert inStream
     }
   }
