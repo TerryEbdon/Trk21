@@ -15,3 +15,5 @@ gradle-app.setting
 /src/main/groovy/net/ebdon/trk21/*.old
 logs
 /UpdateWebCoverage.cmd
+txt-stuff
+log.cmd
