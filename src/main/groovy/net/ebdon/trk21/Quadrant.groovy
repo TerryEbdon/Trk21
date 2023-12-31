@@ -48,12 +48,12 @@ final class Quadrant extends GameSpace {
     board[i,j] != Thing.emptySpace
   }
 
-  @groovy.transform.TypeChecked
+  // @groovy.transform.TypeChecked
   final Thing getAt( final Coords2d c2d ) {
     board.get c2d.toList()
   }
 
-  @groovy.transform.TypeChecked
+  // @groovy.transform.TypeChecked
   final Thing getAt( List<Integer> key ) {
     board.get key
   }
