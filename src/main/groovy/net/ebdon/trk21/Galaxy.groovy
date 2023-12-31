@@ -29,12 +29,12 @@ final class Galaxy extends GameSpace {
     board[key]
   }
 
-  @TypeChecked
+  // @TypeChecked
   final int getAt( key ) {
     board.get key
   }
 
-  @TypeChecked
+  // @TypeChecked
   final int getAt( final Coords2d keyCoords) {
     assert size()
     assert keyCoords?.valid
