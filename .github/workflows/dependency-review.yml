@@ -27,6 +27,10 @@ jobs:
   dependency-review:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft' # See 'Supported distributions' for available options
+          java-version: '17'
       - name: 'Checkout repository'
         uses: actions/checkout@v4
       - name: 'Dependency Review'
@@ -37,7 +41,3 @@ jobs:
         #   fail-on-severity: moderate
         #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
         #   retry-on-snapshot-warnings: true
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'microsoft' # See 'Supported distributions' for available options
-          java-version: '17'
