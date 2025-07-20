@@ -37,3 +37,7 @@ jobs:
         #   fail-on-severity: moderate
         #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
         #   retry-on-snapshot-warnings: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft' # See 'Supported distributions' for available options
+          java-version: '17'
