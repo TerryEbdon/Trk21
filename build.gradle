@@ -42,7 +42,7 @@ dependencies {
   testImplementation 'junit:junit:4.13.2'
 
   codenarc('org.codenarc:CodeNarc:3.5.0-groovy-4.0')
-  codenarc('org.apache.groovy:groovy-all:4.0.6') // Required for Java 17
+  codenarc('org.apache.groovy:groovy-all:4.0.27') // Required for Java 17
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
