@@ -2,6 +2,7 @@ package net.ebdon.trk21;
 
 import static ShipDevice.DeviceType;
 
+import groovy.test.GroovyTestCase
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
 /**

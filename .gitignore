@@ -17,3 +17,4 @@ logs
 /UpdateWebCoverage.cmd
 txt-stuff
 log.cmd
+*.bak

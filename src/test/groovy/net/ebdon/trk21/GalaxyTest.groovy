@@ -1,5 +1,6 @@
 package net.ebdon.trk21;
 
+import groovy.test.GroovyTestCase
 /**
  * @file
  * @author      Terry Ebdon

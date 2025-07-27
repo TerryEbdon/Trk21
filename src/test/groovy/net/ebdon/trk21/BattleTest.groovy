@@ -6,6 +6,7 @@ import static ShipDevice.*;
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 import groovy.mock.interceptor.StubFor;
 import groovy.mock.interceptor.MockFor;
+import groovy.test.GroovyTestCase
 /**
  * @file
  * @author      Terry Ebdon

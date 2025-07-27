@@ -2,6 +2,7 @@ package net.ebdon.trk21;
 
 import static Quadrant.Thing;
 import groovy.mock.interceptor.MockFor;
+import groovy.test.GroovyTestCase
 /**
  * @file
  * @author      Terry Ebdon

@@ -21,6 +21,8 @@ import groovy.mock.interceptor.MockFor;
  * limitations under the License.
  */
 
+import groovy.test.GroovyTestCase
+
 class BattleResponseToAttackTest extends GroovyTestCase {
   private Battle battle;
   private EnemyFleet enemyFleet;
