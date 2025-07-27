@@ -1,6 +1,7 @@
 package net.ebdon.trk21;
 
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
+import groovy.test.GroovyTestCase
 /**
  * @file
  * @author      Terry Ebdon

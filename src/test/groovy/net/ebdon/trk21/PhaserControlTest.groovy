@@ -3,6 +3,7 @@ package net.ebdon.trk21;
 import static GameSpace.*;
 import static ShipDevice.*;
 import groovy.mock.interceptor.StubFor;
+import groovy.test.GroovyTestCase
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 /**
  * @file

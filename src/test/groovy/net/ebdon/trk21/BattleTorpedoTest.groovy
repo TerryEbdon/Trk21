@@ -6,6 +6,7 @@ import static Quadrant.Thing;
 
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
+import groovy.test.GroovyTestCase
 
 /**
  * @file

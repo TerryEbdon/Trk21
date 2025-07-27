@@ -2,6 +2,9 @@ package net.ebdon.trk21;
 
 import static GameSpace.*;
 import static Quadrant.*;
+
+import groovy.test.GroovyTestCase
+
 /**
  * @file
  * @author      Terry Ebdon

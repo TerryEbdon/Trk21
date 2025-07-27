@@ -3,6 +3,7 @@ package net.ebdon.trk21;
 import static Quadrant.*;
 import org.apache.logging.log4j.Level;
 import groovy.mock.interceptor.MockFor;
+import groovy.test.GroovyTestCase
 
 /**
  * @file

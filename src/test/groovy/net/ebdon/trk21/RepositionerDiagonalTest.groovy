@@ -3,6 +3,7 @@ package net.ebdon.trk21;
 import static GameSpace.*;
 import static Quadrant.*;
 import groovy.mock.interceptor.MockFor;
+import groovy.test.GroovyTestCase
 
 /**
  * @file

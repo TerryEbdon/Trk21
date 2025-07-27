@@ -2,7 +2,7 @@ package net.ebdon.trk21;
 
 import groovy.mock.interceptor.StubFor;
 import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
-
+import groovy.test.GroovyTestCase
 /**
  * @file
  * @author      Terry Ebdon

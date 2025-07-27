@@ -1,5 +1,6 @@
 package net.ebdon.trk21.arms_man;
 
+import groovy.test.GroovyTestCase;
 import groovy.mock.interceptor.MockFor;
 import net.ebdon.trk21.Quadrant;
 import net.ebdon.trk21.EnemyFleet;

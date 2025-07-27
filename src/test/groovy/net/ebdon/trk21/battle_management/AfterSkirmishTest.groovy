@@ -3,6 +3,7 @@ package net.ebdon.trk21.battle_management;
 import static net.ebdon.trk21.Quadrant.Thing;
 import static net.ebdon.trk21.ShipDevice.*;
 import groovy.mock.interceptor.MockFor;
+import groovy.test.GroovyTestCase
 import net.ebdon.trk21.Coords2d;
 import net.ebdon.trk21.Quadrant;
 import net.ebdon.trk21.QuadrantSetup;

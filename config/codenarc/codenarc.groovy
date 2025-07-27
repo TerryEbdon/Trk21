@@ -156,11 +156,11 @@ ruleset {
     DuplicateNumberLiteral
     DuplicateStringLiteral
 
-    // rulesets/enhanced.xml
-    CloneWithoutCloneable
-    JUnitAssertEqualsConstantActualValue
-    MissingOverrideAnnotation
-    UnsafeImplementationAsMap
+    // rulesets/enhanced.xml -- Enabling these breaks the Codenarc plugin
+    // CloneWithoutCloneable
+    // JUnitAssertEqualsConstantActualValue
+    // MissingOverrideAnnotation
+    // UnsafeImplementationAsMap
 
     // rulesets/exceptions.xml
     CatchArrayIndexOutOfBoundsException
@@ -431,7 +431,7 @@ ruleset {
     // UnnecessarySemicolon
     UnnecessarySetter
     UnnecessaryStringInstantiation
-    UnnecessarySubstring
+    // UnnecessarySubstring
     UnnecessaryTernaryExpression
     UnnecessaryToString
     UnnecessaryTransientModifier
