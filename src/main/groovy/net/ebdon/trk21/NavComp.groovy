@@ -70,12 +70,36 @@ final class NavComp {
       ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${repos(courseDegrees)} (repos)"]
       ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${courseDegrees} (normal)"]
       ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${invertCourse(courseDegrees)} (inverse)"]
+      ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${invertCourse(courseDegrees)} (New Version)"]
     }
+  }
+
+  /**
+   * Convert course in degrees to Trek21 course courseDegrees : degrees
+   * clockwise from North (0 = North)
+   * @return units anticlockwise from East (double), 8 units/circle (45° per
+   * unit).
+   * <p>
+   * Examples: 0->2, 45->1, 90->0, 135->7, 180->6, 225->5, 270->4, 315->3
+   * </p>
+   */
+  static Double degreesToCourse(final Double courseDegrees) {
+    final double normalized = ((courseDegrees % 360d) + 360d) % 360d
+    final double maxCourse = 8d
+    double units = (90d - normalized) / 45d
+    // wrap into 0..7
+    units = ((units % maxCourse) + maxCourse) % maxCourse
+    // snap exact integers to avoid floating point rounding issues
+    final double snapped = Math.rint(units)
+    if (Math.abs(units - snapped) < 1e-9) {
+      units = snapped
+    }
+    units
   }
 
   // change 1..8 to 8..1
   static int invertCoord(final int coord) {
-    Math.round(Math.abs( ((coord-8)%9)-1) )
+    Math.round(Math.abs( ((coord - 8)%9) - 1) )
   }
 
   // change 1..8 to 8..1

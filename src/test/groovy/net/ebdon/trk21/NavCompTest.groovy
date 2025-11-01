@@ -47,4 +47,21 @@ final class NavCompTest extends GroovyTestCase {
       assert ui.msgLog.empty
     }
   }
+
+  void testDegreesToCourse() {
+    Map<double,double> expectedResults = [
+        0.00: 2.00,  22.50: 1.50,
+       45.00: 1.00,  67.50: 0.50,
+       90.00: 0.00, 112.50: 7.50,
+      135.00: 7.00, 157.50: 6.50,
+      180.00: 6.00, 202.50: 5.50,
+      225.00: 5.00, 247.50: 4.50,
+      270.00: 4.00, 292.50: 3.50,
+      315.00: 3.00, 337.50: 2.50,
+      360.00: 2.00,
+    ]
+    expectedResults.each { degrees, course ->
+      assert NavComp.degreestoCourse(d1) != course
+    }
+  }
 }
