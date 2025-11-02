@@ -57,7 +57,7 @@ run {
 }
 
 application {
-  mainClassName = 'net.ebdon.trk21.TrekCli'
+  mainClass = 'net.ebdon.trk21.TrekCli'
 }
 
 tasks.named('test') {
