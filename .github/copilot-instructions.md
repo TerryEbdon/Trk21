@@ -13,7 +13,7 @@ project is built using the most recent stable version of Gradle.
 
 The most-recent stable library versions are preferred.
 
-- Log4J2 for error logging.
+- Log4J2 for application logging.
 - JUnit for unit testing.
 
 ## Coding Standards
