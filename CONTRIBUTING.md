@@ -14,9 +14,9 @@ transparent as possible, whether it's:
 This project uses GitHub to host code, to track issues and feature requests, as
 well as accept pull requests.
 
-## Use Github Flow
+## Use GitHub Flow
 
-We Use [Github Flow]. All Code Changes Happen Through Pull Requests
+We Use [GitHub Flow]. All Code Changes Happen Through Pull Requests
 
 Pull requests are the best way to propose changes to the codebase.
 
@@ -67,7 +67,7 @@ Irish conventions where possible.
 This document was adapted from @briandk's [basic template].
 
 [basic template]: https://gist.github.com/briandk/3d2e8b3ec8daf5a27a62
-[Github Flow]: https://docs.github.com/en/get-started/using-github/github-flow
+[GitHub Flow]: https://docs.github.com/en/get-started/using-github/github-flow
 [opening a new issue]: https://github.com/TerryEbdon/Trk21/issues
 [issues]: https://github.com/TerryEbdon/Trk21/issues
 [CodeNarc]: https://codenarc.org/
