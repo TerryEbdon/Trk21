@@ -176,7 +176,12 @@ final class TrekFireWeaponsTest extends TrekTestBase {
     }
 
     MockFor qvMock = MockFor( QuadrantValue )
-    qvMock.demand.getEnemy { 2 }
+    qvMock.demand.with {
+      calcNumEnemy { 2 }
+      calcNumBases { 0 }
+      calcNumStars { 0 }
+      getEnemy { 2 }
+    }
 
     quadrantSetupMock.demand.updateAfterSkirmish { }
 
