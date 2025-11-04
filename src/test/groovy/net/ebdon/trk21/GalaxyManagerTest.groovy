@@ -53,7 +53,7 @@ final class GalaxyManagerTest extends GroovyTestCase {
     qvMock.use {
       galaxyMock.use {
         manager = new GalaxyManager( quadCoords, new Galaxy() )
-        // Change No. enemies from 7 to fleetSize
+        // Change number of enemies from 7 to fleetSize
         manager.updateNumEnemyShips fleetSize
       }
     }
