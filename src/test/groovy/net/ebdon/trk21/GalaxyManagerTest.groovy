@@ -45,14 +45,15 @@ final class GalaxyManagerTest extends GroovyTestCase {
       putAt(1) { Coords2d c2d, int val -> assert c2d == quadCoords; assert val == 717 }
     }
     qvMock.demand.with {
-      calcNumEnemy { 9 }
-      calcNumBases { 9 }
-      calcNumStars { 9 }
+      calcNumEnemy { fleetSize }
+      calcNumBases { 1 }
+      calcNumStars { 7 }
       getEnemy { 9 }
     }
     qvMock.use {
       galaxyMock.use {
         manager = new GalaxyManager( quadCoords, new Galaxy() )
+        // Change No. enemies from 7 to fleetSize
         manager.updateNumEnemyShips fleetSize
       }
     }
