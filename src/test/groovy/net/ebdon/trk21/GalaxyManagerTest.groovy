@@ -60,9 +60,19 @@ final class GalaxyManagerTest extends GroovyTestCase {
   }
 
   void testUpdateNumStars() {
-    qvMock.demand.num { Thing thingHit ->
-      assert thingHit == Thing.star
-      7
+    final int numEnemy = 9
+    final int numBases = 1
+    final int numStars = 7
+
+    qvMock.demand.with {
+      calcNumEnemy { numEnemy }
+      calcNumBases { numBases }
+      calcNumStars { numStars }
+
+      num { Thing thingHit ->
+        assert thingHit == Thing.star
+        numStars
+      }
     }
     galaxyMock.demand.getAt(2) { Coords2d c2d ->
       assert c2d == quadCoords
