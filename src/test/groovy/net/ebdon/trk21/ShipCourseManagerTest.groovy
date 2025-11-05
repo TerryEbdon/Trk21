@@ -27,14 +27,17 @@ final class ShipCourseManagerTest extends TrekTestBase {
 
   private MockFor shipMock
   private MockFor fleetMock
-  private MockFor dcMock = new MockFor( DamageControl )
-  private MockFor gsMock = new MockFor( GameState )
-  private MockFor gameMock = new MockFor( TrekCalendar )
+  private MockFor dcMock
+  private MockFor gsMock
+  private MockFor gameMock
 
   @TypeChecked
   @Override void setUp() {
     super.setUp()
     fleetMock = new MockFor( EnemyFleet )
+    dcMock = new MockFor( DamageControl )
+    gsMock = new MockFor( GameState )
+    gameMock = new MockFor( TrekCalendar )
   }
 
   private void resetShip( final boolean shielded ) {
