@@ -3,7 +3,6 @@ package net.ebdon.trk21;
 import groovy.test.GroovyTestCase
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
-import net.ebdon.trk21.course_man.ShipCourseManager
 /**
  * @file
  * @author      Terry Ebdon
