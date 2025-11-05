@@ -27,11 +27,17 @@ final class ShipCourseManagerTest extends TrekTestBase {
 
   private MockFor shipMock
   private MockFor fleetMock
+  private MockFor dcMock
+  private MockFor gsMock
+  private MockFor gameMock
 
   @TypeChecked
   @Override void setUp() {
     super.setUp()
     fleetMock = new MockFor( EnemyFleet )
+    dcMock = new MockFor( DamageControl )
+    gsMock = new MockFor( GameState )
+    gameMock = new MockFor( TrekCalendar )
   }
 
   private void resetShip( final boolean shielded ) {
@@ -40,16 +46,35 @@ final class ShipCourseManagerTest extends TrekTestBase {
   }
 
   void testKlingonAttackProtectedByStarBase() {
-    MockFor dcMock = new MockFor( DamageControl )
-    MockFor gsMock = new MockFor( GameState )
-    MockFor gameMock = new MockFor( TrekCalendar )
     resetShip true
+    klingonAttack()
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['starbase.shields']
+  }
+
+  @Newify(Coords2d)
+  void testKlingonAttack() {
+    resetShip false
+    Coords2d shipSector = [3,4]
+
+    shipMock.demand.getPosition { new Position(Coords2d(1,2), shipSector.clone() ) }
+    fleetMock.demand.attack { Coords2d sector, Closure closure ->
+      assert sector == shipSector
+      closure 'enemyFleet.hitOnFedShip', shipSector.toList()
+    }
+    klingonAttack()
+    assert ui.msgLog.empty
+    assert ui.localMsgLog == ['enemyFleet.hitOnFedShip']
+    assert ui.argsLog == [ shipSector.toList() ]
+  }
+
+  void klingonAttack() {
     shipMock.use {
+      FederationShip ship = new FederationShip()
       fleetMock.use {
         dcMock.use {
           gsMock.use {
             gameMock.use {
-              FederationShip ship = new FederationShip()
               EnemyFleet ef = new EnemyFleet()
               ShipCourseManager scm = new ShipCourseManager(
                 ui,
@@ -64,8 +89,5 @@ final class ShipCourseManagerTest extends TrekTestBase {
         }
       }
     }
-
-    assert ui.msgLog.empty
-    assert ui.localMsgLog == ['starbase.shields']
   }
 }
