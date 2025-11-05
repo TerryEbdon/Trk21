@@ -69,15 +69,21 @@ final class ShipCourseManagerTest extends TrekTestBase {
     shipMock.use {
       FederationShip ship = new FederationShip()
       fleetMock.use {
-        EnemyFleet ef = new EnemyFleet()
-        ShipCourseManager scm = new ShipCourseManager(
-          ui,
-          new DamageControl(),
-          ship,
-          ef,
-          new GameState( ef, ship, new TrekCalendar() )
-        )
-        scm.klingonAttack()
+        dcMock.use {
+          gsMock.use {
+            gameMock.use {
+              EnemyFleet ef = new EnemyFleet()
+              ShipCourseManager scm = new ShipCourseManager(
+                ui,
+                new DamageControl(),
+                ship,
+                ef,
+                new GameState( ef, ship, new TrekCalendar() )
+              )
+              scm.klingonAttack()
+            }
+          }
+        }
       }
     }
   }
