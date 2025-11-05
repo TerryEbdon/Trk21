@@ -32,7 +32,6 @@ final class ShipCourseManagerTest extends TrekTestBase {
   @Override void setUp() {
     super.setUp()
     fleetMock = new MockFor( EnemyFleet )
-    trek = new Trek( ui )
   }
 
   private void resetShip( final boolean shielded ) {
