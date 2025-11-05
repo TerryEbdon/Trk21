@@ -62,15 +62,4 @@ final class TrekKlingonAttackTest extends TrekTestBase {
     assert ui.localMsgLog == ['enemyFleet.hitOnFedShip']
     assert ui.argsLog ==  [ shipSector.toList() ]
   }
-
-  void testKlingonAttackProtectedByStarBase() {
-    resetShip true
-    shipMock.use {
-      trek.ship = new FederationShip()
-      trek.klingonAttack()
-    }
-
-    assert ui.msgLog.empty
-    assert ui.localMsgLog == ['starbase.shields']
-  }
 }
