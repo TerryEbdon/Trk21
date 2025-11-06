@@ -146,7 +146,8 @@ final class TrekSetCourseTest extends TrekTestBase {
 
   void testBadWarpFactor() {
     ui.inputValues = [1,15]
-    MockFor shipMock = resetShip(1).use {
+    MockFor shipMock = resetShip(1)
+    shipMock.use {
       trek.ship = new FederationShip()
       trek.setCourse()
     }
