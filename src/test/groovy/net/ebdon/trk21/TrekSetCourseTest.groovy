@@ -144,10 +144,12 @@ final class TrekSetCourseTest extends TrekTestBase {
     assert ui.localMsgLog == ['input.vector.bad']
   }
 
-  void testBadWarpfactor() {
+  void testBadWarpFactor() {
     ui.inputValues = [1,15]
-
-    trek.setCourse()
+    MockFor shipMock = resetShip(1).use {
+      trek.ship = new FederationShip()
+      trek.setCourse()
+    }
 
     assert ui.inputValues.empty
     assert ui.msgLog.empty
