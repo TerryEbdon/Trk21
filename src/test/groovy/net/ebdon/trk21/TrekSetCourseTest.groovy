@@ -2,7 +2,6 @@ package net.ebdon.trk21;
 
 import static ShipDevice.DeviceType;
 
-import groovy.test.GroovyTestCase
 import groovy.mock.interceptor.MockFor;
 import groovy.transform.TypeChecked;
 /**
@@ -134,26 +133,29 @@ final class TrekSetCourseTest extends TrekTestBase {
     logger.info 'testGoodCourseWithDamagedEngines -- OK'
   }
 
+  @SuppressWarnings('UnnecessarySetter')
   void testBadCourse() {
-    ui.inputValues = [15,1]
-
-    trek.setCourse()
+    setCourseWithNewShip([15,1])
 
     assert ui.inputValues == [1]
     assert ui.msgLog.empty
     assert ui.localMsgLog == ['input.vector.bad']
   }
 
+  @SuppressWarnings('UnnecessarySetter')
   void testBadWarpFactor() {
-    ui.inputValues = [1,15]
-    MockFor shipMock = resetShip(1)
-    shipMock.use {
-      trek.ship = new FederationShip()
-      trek.setCourse()
-    }
+    setCourseWithNewShip([1,15])
 
     assert ui.inputValues.empty
     assert ui.msgLog.empty
     assert ui.localMsgLog == ['input.vector.bad']
+  }
+
+  private void setCourseWithNewShip(List inputValues) {
+    ui.inputValues = inputValues
+    resetShip(1).use {
+      trek.ship = new FederationShip()
+      trek.setCourse()
+    }
   }
 }
