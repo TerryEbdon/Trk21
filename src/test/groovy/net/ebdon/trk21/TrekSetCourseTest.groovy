@@ -46,7 +46,7 @@ final class TrekSetCourseTest extends TrekTestBase {
       logger.trace "Called with correct DeviceType: $dt"
       true
     }
-    resetShip(0).use {
+    resetShip(1).use {
       trek.ship = new FederationShip()
 
       dcMock.use {
