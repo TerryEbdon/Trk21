@@ -90,7 +90,7 @@ final class NavComp {
     double angle = Math.atan2(dx, dy)
     // note: parameters swapped to make 0 = north, clockwise positive
     if (angle < 0) {
-      angle += 2.0 * Math.PI // normalize to [0, 2π)
+      angle += 2.0 * Math.PI // normalise to [0, 2π)
     }
     angle
   }
