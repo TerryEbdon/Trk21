@@ -31,7 +31,7 @@ final class FederationShip implements Moveable {
     int energyNow                = energyAtStart;      ///< E% in TREK.BAS
     String condition             = 'GREEN';            ///< C$ in TREK.BAS
     private Condition condV2 = Condition.green;
-    final int maxTorpedoes       = 100;
+    final int maxTorpedoes       = 10;
     int numTorpedoes             = maxTorpedoes;
     int energyUsedByLastMove     = 0 // N%
     Position position            = new Position();
