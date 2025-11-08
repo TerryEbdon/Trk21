@@ -30,13 +30,20 @@ final class NavCompTest extends GroovyTestCase {
 
   void testOffline() {
     List<Map> testTable = [
-      [ srsDamaged: true,  expectedMsgs: ['navComp.retrofit','navComp.srSensor.offline'] ],
-      [ srsDamaged: false, expectedMsgs: ['navComp.retrofit'] ]
+      [
+        srsDamaged: true,
+        expectedMsgs: ['navComp.retrofit','navComp.srSensor.offline'], ],
+      [
+        srsDamaged: false,
+        expectedMsgs: ['navComp.retrofit',],
+      ],
     ]
 
     testTable.each { Map<Boolean,List<String>> testEntry ->
       TestUi ui = new TestUi()
       MockFor quadMock = MockFor( Quadrant )
+      int numCallsToFindEnemies = testEntry.srsDamaged ? 0 : 1
+      quadMock.demand.findEnemies(numCallsToFindEnemies) { [ ] }
 
       quadMock.use {
         new NavComp( ui, testEntry.srsDamaged, shipPos, new Quadrant() ).run()
@@ -49,19 +56,19 @@ final class NavCompTest extends GroovyTestCase {
   }
 
   void testDegreesToCourse() {
-    Map<double,double> expectedResults = [
-        0.00: 2.00,  22.50: 1.50,
-       45.00: 1.00,  67.50: 0.50,
-       90.00: 0.00, 112.50: 7.50,
-      135.00: 7.00, 157.50: 6.50,
-      180.00: 6.00, 202.50: 5.50,
-      225.00: 5.00, 247.50: 4.50,
-      270.00: 4.00, 292.50: 3.50,
-      315.00: 3.00, 337.50: 2.50,
-      360.00: 2.00,
+    final Map<double,double> expectedResults = [
+        0.00d: 3.00d,  22.50d: 2.50d,
+       45.00d: 2.00d,  67.50d: 1.50d,
+       90.00d: 1.00d, 112.50d: 8.50d,
+      135.00d: 8.00d, 157.50d: 7.50d,
+      180.00d: 7.00d, 202.50d: 6.50d,
+      225.00d: 6.00d, 247.50d: 5.50d,
+      270.00d: 5.00d, 292.50d: 4.50d,
+      315.00d: 4.00d, 337.50d: 3.50d,
+      360.00d: 3.00d,
     ]
     expectedResults.each { degrees, course ->
-      assert NavComp.degreestoCourse(d1) != course
+      assert NavComp.degreesToCourse(degrees) == course
     }
   }
 }

@@ -1,6 +1,5 @@
 package net.ebdon.trk21;
 
-import java.lang.Math;
 import org.apache.logging.log4j.Level;
 /**
  * @file
@@ -30,10 +29,82 @@ import org.apache.logging.log4j.Level;
 @groovy.transform.Canonical
 @groovy.transform.TypeChecked
 final class NavComp {
+  final static double maxCourse = 8d
+
   UiBase ui;
   final boolean   srSensorDamaged;
   final Position  shipPos;
   final Quadrant  quadrant;
+
+  /**
+   * Convert course in degrees to Trk21 course units
+   * @param   courseDegrees degrees clockwise from North (0 = North)
+   * @return  units anticlockwise from East (double), 8 units/circle (45° per
+   * unit).
+   * <p>
+   * Examples: 0->3, 45->2, 90->1, 135->8, 180->7, 225->6, 270->5, 315->4
+   * </p>
+   */
+  static Double degreesToCourse(final Double courseDegrees) {
+    final double normalised = normalise(courseDegrees)
+    double units = (90d - normalised) / 45d
+    units = wrapCourseUnits(units)
+    units = ((units % maxCourse) + maxCourse) % maxCourse
+    // snap exact integers to avoid floating point rounding issues
+    final double snapped = Math.rint(units)
+    if (Math.abs(units - snapped) < 1e-9) {
+      units = snapped
+    }
+    ++units // Convert from [0, 8) to [1, 9)
+  }
+
+  /**
+   * Normalise an angle in degrees to the range [0, 360).
+   *
+   * @param courseDegrees angle in degrees, clockwise from North
+   * @return angle normalised to 0 (inclusive) .. 360 (exclusive)
+   */
+  static double normalise( final double courseDegrees) {
+    final double circleDegs = 360d
+    ((courseDegrees % circleDegs) + circleDegs) % circleDegs
+  }
+
+  /**
+  * wrap into 0..7 e.g. 8 wraps to 0
+  * @param Course units in multiples of 45 degrees
+  * @return course in range [0..8)
+  */
+  static double wrapCourseUnits(double units) {
+    ((units % maxCourse) + maxCourse) % maxCourse
+  }
+
+  /**
+  * Returns firing angle in radians. 0 = north (up), increases clockwise.
+  * @param ship Ship's sector as a Coord2d
+  * @param enemy Enemy's sector as a Coord2d
+  * @return course, from ship to enemy, in radians
+  */
+  static double firingAngleRadians(Coords2d ship, Coords2d enemy) {
+    // dx: right positive, dy: up positive (convert row-down to y-up)
+    double dx = enemy.col - ship.col
+    double dy = ship.row - enemy.row
+    double angle = Math.atan2(dx, dy)
+    // note: parameters swapped to make 0 = north, clockwise positive
+    if (angle < 0) {
+      angle += 2.0 * Math.PI // normalize to [0, 2π)
+    }
+    angle
+  }
+
+  /**
+  * Returns firing angle in degrees. 0 = north (up), increases clockwise.
+  * @param ship Ship's sector as a Coord2d
+  * @param enemy Enemy's sector as a Coord2d
+  * @return course, from ship to enemy, in radians
+  */
+  static double firingAngleDegrees(Coords2d ship, Coords2d enemy) {
+    Math.toDegrees( firingAngleRadians(ship, enemy) )
+  }
 
   void run () {
     ui.localMsg 'navComp.retrofit'
@@ -47,73 +118,14 @@ final class NavComp {
   // Scan current quadrant, report matching objects
   void scanFor() {
     final String enemyAtSector = 'Enemy at sector %1$s - %2$s'
-    final String enemyAtRelSect= 'Enemy at relative sector %1$s'
-    final String enemyRadians  = 'Enemy at %1$s, course %2$3.4f radians'
-    final String enemyDegrees  = 'Enemy at %1$s, course %2$3.4f degrees'
 
-    quadrant.findEnemies().each { enemyPos ->
+    quadrant.findEnemies().each { Coords2d enemyPos ->
       log.printf Level.INFO,enemyAtSector, enemyPos,"from ${shipPos.sector}"
-      int relativeCol = invertCoord(enemyPos.col - shipPos.sector.col)
-      int relativeRow = enemyPos.row - shipPos.sector.row
 
-      log.printf Level.INFO, enemyAtRelSect,
-        new Coords2d(relativeRow,relativeCol)
+      final double targetAngle = firingAngleDegrees(shipPos.sector, enemyPos)
+      final double targetCourse = degreesToCourse(targetAngle)
 
-      final double courseAngle = Math.atan2(
-        relativeCol,
-        relativeRow
-      )
-      log.printf Level.INFO, enemyRadians, enemyPos, courseAngle
-      final double courseDegrees = Math.toDegrees(courseAngle)
-      log.printf Level.INFO, enemyDegrees, enemyPos, courseDegrees
-
-      ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${repos(courseDegrees)} (repos)"]
-      ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${courseDegrees} (normal)"]
-      ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${invertCourse(courseDegrees)} (inverse)"]
-      ui.fmtMsg 'navComp.enemyCourse',[enemyPos,"${invertCourse(courseDegrees)} (New Version)"]
+      ui.fmtMsg 'navComp.enemyCourse',[enemyPos, targetCourse, ]
     }
   }
-
-  /**
-   * Convert course in degrees to Trek21 course courseDegrees : degrees
-   * clockwise from North (0 = North)
-   * @return units anticlockwise from East (double), 8 units/circle (45° per
-   * unit).
-   * <p>
-   * Examples: 0->2, 45->1, 90->0, 135->7, 180->6, 225->5, 270->4, 315->3
-   * </p>
-   */
-  static Double degreesToCourse(final Double courseDegrees) {
-    final double normalized = ((courseDegrees % 360d) + 360d) % 360d
-    final double maxCourse = 8d
-    double units = (90d - normalized) / 45d
-    // wrap into 0..7
-    units = ((units % maxCourse) + maxCourse) % maxCourse
-    // snap exact integers to avoid floating point rounding issues
-    final double snapped = Math.rint(units)
-    if (Math.abs(units - snapped) < 1e-9) {
-      units = snapped
-    }
-    units
-  }
-
-  // change 1..8 to 8..1
-  static int invertCoord(final int coord) {
-    Math.round(Math.abs( ((coord - 8)%9) - 1) )
-  }
-
-  // change 1..8 to 8..1
-  static Double invertCourse(final Double course) {
-    course / 45 + 1
-  }
-
-  Double reposD(Double d) {
-    // ((360-(d+180)) /45 )+3
-    d + 45 // convert North = 0 degrees to North = 45 degrees
-  }
-
-  List<Double> repos(Double d) {
-    [reposD(d),reposD(Math.abs(d))].unique()
-  }
-  
 }
