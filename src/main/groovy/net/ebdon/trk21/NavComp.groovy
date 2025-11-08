@@ -79,8 +79,8 @@ final class NavComp {
 
   /**
   * Returns firing angle in radians. 0 = north (up), increases clockwise.
-  * @param ship Ship's sector as a Coord2d
-  * @param enemy Enemy's sector as a Coord2d
+  * @param ship Ship's sector as a Coords2d
+  * @param enemy Enemy's sector as a Coords2d
   * @return course, from ship to enemy, in radians
   */
   static double firingAngleRadians(Coords2d ship, Coords2d enemy) {
