@@ -49,7 +49,6 @@ final class NavComp {
     final double normalised = normalise(courseDegrees)
     double units = (90d - normalised) / 45d
     units = wrapCourseUnits(units)
-    units = ((units % maxCourse) + maxCourse) % maxCourse
     // snap exact integers to avoid floating point rounding issues
     final double snapped = Math.rint(units)
     if (Math.abs(units - snapped) < 1e-9) {
@@ -70,9 +69,9 @@ final class NavComp {
   }
 
   /**
-  * wrap into 0..7 e.g. 8 wraps to 0
+  * wrap into 0..7 e.g. 9 wraps to 1
   * @param Course units in multiples of 45 degrees
-  * @return course in range [0..8)
+  * @return course in range [0..9)
   */
   static double wrapCourseUnits(double units) {
     ((units % maxCourse) + maxCourse) % maxCourse
