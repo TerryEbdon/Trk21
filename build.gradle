@@ -39,7 +39,11 @@ dependencies {
   implementation 'org.apache.logging.log4j:log4j-core:2.22.1'
   implementation 'org.apache.logging.log4j:log4j-jcl:2.22.1'
 
-  testImplementation 'junit:junit:4.13.2'
+
+  testImplementation("org.junit.jupiter:junit-jupiter-api:4.13.2")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:4.13.2")
+  testCompileOnly("junit:junit:4.13.2")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine:4.13.2")
 
   codenarc('org.codenarc:CodeNarc:3.5.0-groovy-4.0')
   codenarc('org.apache.groovy:groovy-all:4.0.27') // Required for Java 17
@@ -57,7 +61,7 @@ run {
 }
 
 application {
-  mainClassName = 'net.ebdon.trk21.TrekCli'
+  mainClass = 'net.ebdon.trk21.TrekCli'
 }
 
 tasks.named('test') {

@@ -34,12 +34,23 @@ final class QuadrantManagerTest extends GroovyTestCase {
     MockFor fleetMock = MockFor( EnemyFleet ) // pass-through, no demands.
     MockFor qsMock = MockFor( QuadrantSetup )
     MockFor qvMock = MockFor( QuadrantValue )
-    qsMock.demand.positionEnemy { int num -> assert num == 9 }
-    qsMock.demand.positionBases { int num -> assert num == 1 }
-    qsMock.demand.positionStars { int num -> assert num == 8 }
-    qvMock.demand.getEnemy { 9 }
-    qvMock.demand.getBases { 1 }
-    qvMock.demand.getStars { 8 }
+
+    final int enemyCount = 9
+    final int baseCount  = 1
+    final int starCount  = 8
+
+    qsMock.demand.positionEnemy { int num -> assert num == enemyCount }
+    qsMock.demand.positionBases { int num -> assert num == baseCount }
+    qsMock.demand.positionStars { int num -> assert num == starCount }
+
+    qvMock.demand.with {
+      calcNumEnemy { enemyCount }
+      calcNumBases { baseCount }
+      calcNumStars { starCount }
+      getEnemy { enemyCount }
+      getBases { baseCount }
+      getStars { starCount }
+    }
 
     qvMock.use {
       qsMock.use {
