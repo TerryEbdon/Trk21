@@ -110,7 +110,7 @@ final class Quadrant extends GameSpace {
     board.findAll { Map.Entry candidate ->
       candidate.value == Thing.enemy
     }?.collect { Map.Entry foundEntry ->
-      new Coords2d( foundEntry.key.first(), foundEntry.key.last() )
+      new Coords2d( row: foundEntry.key.first(), col: foundEntry.key.last() )
     }
   }
 
