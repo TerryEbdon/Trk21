@@ -99,7 +99,7 @@ final class NavComp {
   * Returns firing angle in degrees. 0 = north (up), increases clockwise.
   * @param ship Ship's sector as a Coord2d
   * @param enemy Enemy's sector as a Coord2d
-  * @return course, from ship to enemy, in radians
+  * @return course, from ship to enemy, in degrees
   */
   static double firingAngleDegrees(Coords2d ship, Coords2d enemy) {
     Math.toDegrees( firingAngleRadians(ship, enemy) )
