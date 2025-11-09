@@ -21,7 +21,8 @@ import groovy.test.GroovyTestCase
  * limitations under the License.
  */
 @groovy.transform.TypeChecked
-@groovy.transform.ToString(includePackage=false)
+@groovy.transform.ToString(includePackage=false,includeNames=true)
+
 final class TestUi extends UiBase {
   List<Float>  inputValues = [];
   List<String> msgLog = [];
