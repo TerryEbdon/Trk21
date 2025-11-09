@@ -125,7 +125,7 @@ final class TorpedoManagerTest extends GroovyTestCase {
     ui.inputValues = [torpedoCourse]
     boolean fired = false
     battleMock.use {
-      shipMock.demand.getNumTorpedoes(0) { }
+
       shipMock.use {
         quadMock.use {
           TorpedoManager tm = new TorpedoManager(
