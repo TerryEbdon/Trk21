@@ -2,6 +2,8 @@ package net.ebdon.trk21.arms_man;
 
 import groovy.test.GroovyTestCase;
 import groovy.mock.interceptor.MockFor;
+import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
+
 import net.ebdon.trk21.Quadrant;
 import net.ebdon.trk21.EnemyFleet;
 import net.ebdon.trk21.FederationShip;
@@ -30,6 +32,8 @@ import net.ebdon.trk21.Battle;
 @Newify(MockFor)
 // @groovy.transform.TypeChecked
 final class TorpedoManagerTest extends GroovyTestCase {
+  private static final float minTorpedoCourse = 1.0F
+  private static final float maxTorpedoCourse = 9.0F
   private TestUi ui;
   private MockFor battleMock;
   private MockFor shipMock;
@@ -63,8 +67,80 @@ final class TorpedoManagerTest extends GroovyTestCase {
         }
       }
     }
-
     assert ui.empty
+    assert fired == false
+  }
+
+  void testFireNoTorpedoes() {
+    ui.inputValues = [1F]
+    boolean fired = false
+    battleMock.use { // No demands, shouldn't be accessed
+      shipMock.demand.getNumTorpedoes { 0 }
+      shipMock.use {
+        quadMock.use {
+          TorpedoManager tm = new TorpedoManager(
+            ui,
+            new EnemyFleet(),
+            new FederationShip(),
+            new DamageControl()
+          )
+          fired = tm.fire( new Quadrant() )
+        }
+      }
+    }
+    assert ui.localMsgLog == [ 'torpedo.unavailable' ]
+    assert fired == false
+  }
+
+  void testFireGood() {
+    ui.inputValues = [1F]
+    boolean fired = false
+    battleMock.demand.with {
+      fireTorpedo { course, quadrant ->
+        assert course >= minTorpedoCourse && course < maxTorpedoCourse
+        assert quadrant != null
+      }
+      getThingDestroyed { Quadrant.Thing.emptySpace }
+    }
+    battleMock.use {
+      shipMock.demand.getNumTorpedoes { 1 }
+      shipMock.use {
+        quadMock.use {
+          TorpedoManager tm = new TorpedoManager(
+            ui,
+            new EnemyFleet(),
+            new FederationShip(),
+            new DamageControl()
+          )
+          fired = tm.fire( new Quadrant() )
+        }
+      }
+    }
+    assert ui.empty
+    assert fired == true
+  }
+
+  void testFireNullQuadrant() {
+    final float torpedoCourse = 1.0F
+    ui.inputValues = [torpedoCourse]
+    boolean fired = false
+    battleMock.use {
+      shipMock.demand.getNumTorpedoes(0) { }
+      shipMock.use {
+        quadMock.use {
+          TorpedoManager tm = new TorpedoManager(
+            ui,
+            new EnemyFleet(),
+            new FederationShip(),
+            new DamageControl()
+          )
+          shouldFail( PowerAssertionError ) {
+            fired = tm.fire( null )
+          }
+        }
+      }
+    }
+    assert ui.inputValues == [torpedoCourse]
     assert fired == false
   }
 }
