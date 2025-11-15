@@ -47,7 +47,7 @@ final class PhaserControl {
 
   @SuppressWarnings('InsecureRandom')
   private float phaserVariance() {
-    2 + new Random().nextFloat()
+    (2f + new Random().nextFloat()) as float
   }
 
   private float rangeTo( final Expando target ) {
