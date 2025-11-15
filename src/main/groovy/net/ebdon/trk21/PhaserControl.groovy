@@ -46,7 +46,7 @@ final class PhaserControl {
   }
 
   @SuppressWarnings('InsecureRandom')
-  private def phaserVariance() {
+  private float phaserVariance() {
     2 + new Random().nextFloat()
   }
 
