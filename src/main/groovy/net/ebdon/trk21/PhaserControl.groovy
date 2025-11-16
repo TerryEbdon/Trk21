@@ -92,8 +92,8 @@ final class PhaserControl {
    *   <li>&diams; If the phasers device is damaged, notifies the user and does
    *   not fire.
    *   <li>&diams; Otherwise notifies the user, reduces the ship's available
-       energy by energyAmount, then iterates over battle.nextTarget calling
-       fireAt(...) for each target.
+   *     energy by energyAmount, then iterates over battle.nextTarget calling
+   *     fireAt(...) for each target.
    * </ul>
    * <h4>Side effects:</h4>
    * <ul>
