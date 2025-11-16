@@ -101,8 +101,8 @@ final class PhaserControl {
    *   <li>&diams; May call Battle.hitOnFleetShip via fireAt().
    *   <li>&diams; Emits UI messages and log entries.
    * </ul>
-   * @param energyAmount  number of energy units to fire; must be >0 and <=
-   * ship.energyNow
+   * @param energyAmount  number of energy units to fire; not null,
+   * must be >0 and <= ship.energyNow
    * @throws AssertionError if damageControl is null or energyAmount is out of
    * range
    */
