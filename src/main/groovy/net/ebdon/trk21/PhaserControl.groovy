@@ -78,6 +78,35 @@ final class PhaserControl {
     battle.hitOnFleetShip target, energyHit
   }
 
+  /**
+   * Fire phasers at the current battle targets.
+   * <p>
+   * <h4>Implementation notes</h4>
+   * {@code AssignmentInConditional} suppressed due to CodeNarc false positive.
+   * See <a href="https://github.com/TerryEbdon/Trk21/issues/158">Trk21 issue
+   * &#35;158</a> and <a href="https://github.com/CodeNarc/CodeNarc/issues/447">
+   * CodeNarc issue &#35;447</a>
+   * <p>
+   * <h4>Behaviour</h4>
+   * <ul style="list-style-type:disc;">
+   *   <li>&diams; If the phasers device is damaged, notifies the user and does
+   *   not fire.
+   *   <li>&diams; Otherwise notifies the user, reduces the ship's available
+   *     energy by energyAmount, then iterates over battle.nextTarget calling
+   *     fireAt(...) for each target.
+   * </ul>
+   * <h4>Side effects:</h4>
+   * <ul>
+   *   <li>&diams; Reduces ship energy by energyAmount.
+   *   <li>&diams; May call Battle.hitOnFleetShip via fireAt().
+   *   <li>&diams; Emits UI messages and log entries.
+   * </ul>
+   * @param energyAmount  number of energy units to fire; not null,
+   * must be >0 and <= ship.energyNow
+   * @throws AssertionError if damageControl is null or energyAmount is out of
+   * range
+   */
+  @SuppressWarnings('AssignmentInConditional')
   void fire( final int energyAmount ) {
     log.info "Firing phasers with $energyAmount units."
     assert damageControl
