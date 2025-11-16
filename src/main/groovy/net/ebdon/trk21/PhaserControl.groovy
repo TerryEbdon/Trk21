@@ -89,7 +89,7 @@ final class PhaserControl {
       phasersOnTarget()
       ship.energyReducedByPhaserUse energyAmount
       Expando target
-      while ( target = battle.getNextTarget() ) {
+      while ( target = battle.nextTarget ) {
         fireAt energyAmount, target
       }
     }
