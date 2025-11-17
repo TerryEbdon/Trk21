@@ -68,7 +68,7 @@ final class ShipCourseManagerTest extends TrekTestBase {
     assert ui.argsLog == [ shipSector.toList() ]
   }
 
-  void klingonAttack() {
+  private void klingonAttack() {
     shipMock.use {
       FederationShip ship = new FederationShip()
       fleetMock.use {
