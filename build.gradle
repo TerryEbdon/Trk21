@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.apache.groovy:groovy-all:4.0.27'
+  implementation 'org.apache.groovy:groovy-all:4.0.28'
 
   // This dependency is used by the application.
   implementation 'com.google.guava:guava:32.0.1-jre'
@@ -47,7 +47,7 @@ dependencies {
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.13.4")
 
   codenarc('org.codenarc:CodeNarc:3.6.0-groovy-4.0')
-  codenarc('org.apache.groovy:groovy-all:4.0.27') // Required for Java 17
+  codenarc('org.apache.groovy:groovy-all:4.0.28') // Required for Java 17
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
