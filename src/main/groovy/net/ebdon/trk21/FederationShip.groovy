@@ -67,7 +67,7 @@ final class FederationShip implements Moveable {
     Torpedo getTorpedo() {
       assert numTorpedoes > 0
       new Torpedo(
-        id: "Torpedo ${Integer.toHexString( numTorpedoes-- )}",
+        id: String.format('Torpedo-%02d',numTorpedoes--),
         position: position.clone()
       )
     }
