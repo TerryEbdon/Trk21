@@ -1,3 +1,5 @@
+[![Dependency review](https://github.com/TerryEbdon/Trk21/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/TerryEbdon/Trk21/actions/workflows/dependency-review.yml)
+
 # Trk21
 
 A Groovy version of the 1973 BASIC-PLUS program TREK.BAS, originally written on
