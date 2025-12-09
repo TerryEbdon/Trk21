@@ -117,7 +117,7 @@ final class Battle {
     quadrant[ shipSector ] = Quadrant.Thing.ship
 
     if ( thingHit == Quadrant.Thing.enemy ) {
-      log.info 'Torpedo {} hit on enemy ship at {} from Fed ship at {}.',
+      log.info '{} hit on enemy ship at {} from Fed ship at {}.',
         torpedoId, torpedoSector, shipSector
       enemyFleet.shipHitByTorpedo torpedoSector
       quadrant[ torpedoSector ] =
