@@ -90,12 +90,12 @@ abstract class GameSpace {
 
     final int rowSeparation = coordsFrom.row - coordsTo.row
     final int colSeparation = coordsFrom.col - coordsTo.col
-    Math.sqrt( squareOf(rowSeparation) + squareOf(colSeparation)).toFloat()
+    Math.sqrt(squareOf(rowSeparation) + squareOf(colSeparation)).toFloat()
   }
 
   @TypeChecked
   static Double squareOf(int num) {
-    Math.pow(num,2).toFloat()
+    Math.pow(num,2)
   }
   
   @TypeChecked
