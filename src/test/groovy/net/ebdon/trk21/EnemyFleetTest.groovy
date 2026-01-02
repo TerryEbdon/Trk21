@@ -130,7 +130,7 @@ final class EnemyFleetTest extends GroovyTestCase {
       logger.info 'testBadFleetSize'
       enemyFleet = new EnemyFleet()
       enemyFleet.with {
-        log.info 'testBadFleetSize'
+        logger.info 'testBadFleetSize'
         shouldFail(PowerAssertionError) {
             numKlingonBatCrRemain = 9 // Fail: 9 remain out of zero total.
         }
@@ -163,7 +163,7 @@ final class EnemyFleetTest extends GroovyTestCase {
         logger.info 'testFleetPosition'
         enemyFleet = new EnemyFleet()
         enemyFleet.with {
-            log.info 'testFleetPosition'
+            logger.info 'testFleetPosition'
             shouldFail(PowerAssertionError) {
                 positionInSector( 1, [1,1] ) // Positioning non-existent assets
             }
