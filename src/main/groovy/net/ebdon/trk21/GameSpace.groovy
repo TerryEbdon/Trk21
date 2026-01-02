@@ -90,9 +90,14 @@ abstract class GameSpace {
 
     final int rowSeparation = coordsFrom.row - coordsTo.row
     final int colSeparation = coordsFrom.col - coordsTo.col
-    Math.sqrt( ( rowSeparation ** 2.0 + colSeparation ** 2.0 ).toDouble() )
+    Math.sqrt(squareOf(rowSeparation) + squareOf(colSeparation)).toFloat()
   }
 
+  @TypeChecked
+  static Double squareOf(int num) {
+    Math.pow(num,2)
+  }
+  
   @TypeChecked
   static boolean sectorIsInsideQuadrant( final Coords2d coords ) {
     insideGalaxy( coords )
