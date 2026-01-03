@@ -161,7 +161,7 @@ class BattleTest extends GroovyTestCase {
     truthTable.each { booleanResult ->
       logger.trace "Stubbing with ${booleanResult}"
       fleetStub.demand.asBoolean  { logger.trace "fleet: ${booleanResult[0]}"; booleanResult[0] }
-      if ( booleanResult[0] ) { // short-circuitnig ensures ship & dc aren't checked
+      if ( booleanResult[0] ) { // short-circuiting ensures ship & dc aren't checked
         shipStub.demand.asBoolean { logger.trace "ship:  ${booleanResult[1]}"; booleanResult[1] }
         if ( booleanResult[1] ) { // short-circuiting ensures dc isn't checked
           dcStub.demand.asBoolean { logger.trace "dc:    ${booleanResult[2]}"; booleanResult[2] }
