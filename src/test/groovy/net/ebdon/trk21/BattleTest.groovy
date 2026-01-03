@@ -7,6 +7,7 @@ import org.codehaus.groovy.runtime.powerassert.PowerAssertionError;
 import groovy.mock.interceptor.StubFor;
 import groovy.mock.interceptor.MockFor;
 import groovy.test.GroovyTestCase
+import groovy.transform.TypeChecked
 /**
  * @file
  * @author      Terry Ebdon
@@ -98,7 +99,7 @@ class BattleTest extends GroovyTestCase {
     assert ui.argsLog[1] == [targetEnergyRemaining]
   }
 
-  @groovy.transform.TypeChecked
+  @TypeChecked
   private void runHitOnFleet( final int hitAmount ) {
     fleetMock.use {
       new Battle(
@@ -139,11 +140,11 @@ class BattleTest extends GroovyTestCase {
           battle.enemyFleet = new EnemyFleet()
           phaserControl.with {
             truthTable.eachWithIndex { List values, int index ->
-              logger.trace beginPreConFailMsg( index, values )
+              logger.info beginPreConFailMsg( index, values )
               shouldFail( PowerAssertionError ) {
                 battle.phaserAttackFleet( 100 )
               }
-              logger.trace "  END Test $index"
+              logger.info "  END Test $index"
             }
           }
         }
@@ -160,9 +161,9 @@ class BattleTest extends GroovyTestCase {
     truthTable.each { booleanResult ->
       logger.trace "Stubbing with ${booleanResult}"
       fleetStub.demand.asBoolean  { logger.trace "fleet: ${booleanResult[0]}"; booleanResult[0] }
-      if ( booleanResult[0] ) { // short-circuitng ensures ship & dc aren't checked
+      if ( booleanResult[0] ) { // short-circuiting ensures ship & dc aren't checked
         shipStub.demand.asBoolean { logger.trace "ship:  ${booleanResult[1]}"; booleanResult[1] }
-        if ( booleanResult[1] ) { // short-circuitng ensures dc isn't checked
+        if ( booleanResult[1] ) { // short-circuiting ensures dc isn't checked
           dcStub.demand.asBoolean { logger.trace "dc:    ${booleanResult[2]}"; booleanResult[2] }
         }
       }
@@ -170,15 +171,17 @@ class BattleTest extends GroovyTestCase {
     truthTable
   }
 
-  @groovy.transform.TypeChecked
-  private List<Boolean> preConTruthTable() {
-    List<Boolean> truthTable = [false,false,true].permutations().
-      combinations().unique().sort() // every variation of three assertions
-    truthTable.pop() // eliminate [true, true, true]
+  @TypeChecked
+  private List<List<Boolean>> preConTruthTable() {
+    List<Boolean> startList = [false,false,true]
+    Set<List<java.lang.Boolean>> permList = startList.permutations()
+    List<List<Boolean>> truthTable = permList.combinations().
+      unique().sort() // every variation of three assertions
+    truthTable.pop()  // eliminate [true, true, true]
     truthTable
   }
 
-  @groovy.transform.TypeChecked
+  @TypeChecked
   private String beginPreConFailMsg( final int index, final List<Boolean> values ) {
     String msg = "BEGIN Test $index "
     values.each { value ->
