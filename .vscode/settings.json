@@ -5,6 +5,8 @@
     "codenarc",
     "diams",
     "Expando",
+    "gradlew",
+    "jacoco",
     "Newify",
     "powerassert",
     "rint",
