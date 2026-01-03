@@ -22,7 +22,7 @@ codenarcTest {
 distributions {
   main {
     contents {
-        from 'src/main/resources'
+      from 'src/main/resources'
     }
   }
 }
@@ -58,7 +58,7 @@ java {
 }
 
 run {
-    standardInput = System.in
+  standardInput = System.in
 }
 
 application {
@@ -66,5 +66,5 @@ application {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+  useJUnitPlatform()
 }
