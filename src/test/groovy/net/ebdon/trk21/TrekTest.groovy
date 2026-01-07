@@ -34,6 +34,7 @@ final class TrekTest extends GroovyTestCase {
     logger.info 'setUp'
     Trek.config = true
     trek = new Trek()
+    trek.trackLog.clear()
   }
 
   @Newify([Position,Coords2d])
@@ -100,15 +101,89 @@ final class TrekTest extends GroovyTestCase {
     }
   }
 
+  void testShowHistory() {
+    logger.info '> testShowHistory'
+    final String lastQuadrantString = 'F - U'
+    final String historyFormatId = 'trek.historyEntry'
+    final int numQuadrantsToVisit = 6
+    final int numQuadrantsPerLine = 5
+    final int numQuadrantCoordToStrings = (1..numQuadrantsToVisit).sum()
+
+    char row
+    char col
+
+    UiBase ui            = new TestUi()
+    MockFor coords2dMock = MockFor( Coords2d )
+    coords2dMock.demand.toString(numQuadrantCoordToStrings) {
+      String rv = "${row++} - ${col--}"
+      logger.info "Coords2dMock.toString() returning $rv"
+      rv
+    }
+
+    trek.ui = ui
+    coords2dMock.use {
+      1.upto(numQuadrantsToVisit) { int numQuadrantsVisited ->
+        ui.msgLog = [ ]
+        ui.localMsgLog = [ ]
+        logger.debug sprintf( 'Visit %1d: %2d messages, %1d quadrants.%n',
+          numQuadrantsVisited, ui.msgLog.size(), trek.trackLog.size()
+        )
+        trek.trackLog << new Coords2d()
+        row = 'A'
+        col = 'Z'
+        trek.showHistory()
+        assert ui.localMsgLog.size() == numQuadrantsVisited
+        assert ui.localMsgLog.last() == historyFormatId
+        assert numQuadrantsVisited in 1..numQuadrantsToVisit
+
+        switch (numQuadrantsVisited) {
+          case 1.. numQuadrantsPerLine - 1 -> {
+            assert ui.msgLog.size() == 0
+          }
+          case numQuadrantsPerLine -> {
+            assert ui.msgLog.size() == 1
+            assert ui.msgLog.first() == '\n'
+          }
+          case numQuadrantsPerLine..numQuadrantsToVisit -> {
+            assert ui.msgLog.size() == 1
+            assert ui.msgLog.first() == '\n'
+          }
+        }
+      }
+    }
+    assert ui.localMsgLog.last() == historyFormatId
+    assert ui.argsLog.last() == [ lastQuadrantString, ]
+    logger.info '< testShowHistory'
+  }
+
   void testStartGame() {
-    UiBase ui = new TestUi()
+    UiBase ui             = new TestUi()
+    MockFor shipMock      = MockFor( FederationShip )
+    MockFor coords2dMock  = MockFor( Coords2d )
+    MockFor positionMock  = MockFor( Position)
     MockFor damageControl = MockFor( DamageControl )
+
     damageControl.demand.isDamaged { true }
 
-    damageControl.use {
-      trek.damageControl = new DamageControl()
-      trek.ui = ui
-      trek.startGame()
+    coords2dMock.demand.with {
+      clone { }
+    }
+
+    coords2dMock.use {
+      positionMock.demand.getQuadrant { new Coords2d() }
+
+      positionMock.use {
+        shipMock.demand.getPosition { new Position() }
+
+        shipMock.use {
+          damageControl.use {
+            trek.ship = new FederationShip()
+            trek.damageControl = new DamageControl()
+            trek.ui = ui
+            trek.startGame()
+          }
+        }
+      }
     }
 
     assert ui.localMsgLog == ['sensors.shortRange.offline']
@@ -163,5 +238,39 @@ final class TrekTest extends GroovyTestCase {
 
     assert ui.localMsgLog == ['trek.funeral']
     assert ui.argsLog.first() == [solarYear, timePlayed, numEnemyNotDestroyed]
+  }
+
+  @Newify(Coords2d)
+  void testUpdateTrackLog() {
+    logger.info '> testUpdateTrackLog'
+
+    MockFor shipMock = MockFor(FederationShip)
+    final int move1QuadRow = 3
+    final int move1QuadCol = 5
+
+    final Coords2d mockQuadrant = Coords2d(move1QuadRow,move1QuadCol)
+    final Position mockPosition = new Position(mockQuadrant, Coords2d(2, 4))
+
+    shipMock.demand.getPosition(2) { mockPosition }
+
+    shipMock.use {
+      trek.ship = new FederationShip()
+
+      // There will be one entry at game start
+      trek.trackLog = [ Coords2d(1, 1) ]
+      assert trek.trackLog.size() == 1
+
+      trek.updateTrackLog() // Log move to different quadrant
+      assert trek.trackLog.size() == 2
+
+      final Coords2d loggedQuadrant = trek.trackLog.last()
+      assert loggedQuadrant.row == move1QuadRow
+      assert loggedQuadrant.col == move1QuadCol
+
+      trek.updateTrackLog() // Add duplicate, i.e. ship has not changed quadrant
+      assert trek.trackLog.size() == 2 // Duplicate rejected
+    }
+
+    logger.info '< testUpdateTrackLog'
   }
 }

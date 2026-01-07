@@ -22,6 +22,7 @@ import groovy.test.GroovyTestCase
 
 @Newify( [MockFor,Coords2d] )
 final class LongRangeScanTest extends GroovyTestCase {
+  private final String quadScanResult = '!!!'
   private MockFor dcMock;
   private MockFor galaxyMock;
   private Coords2d shipQuad;
@@ -52,7 +53,8 @@ final class LongRangeScanTest extends GroovyTestCase {
   }
 
   void testOnline() {
-    galaxyMock.demand.scan(9) { int row, int col -> 'scan' }
+    final String scanLine = "  $quadScanResult" * 3 + '\n'
+    galaxyMock.demand.scan(9) { int row, int col -> quadScanResult }
 
     dcMock.demand.isDamaged { false }
 
@@ -65,6 +67,6 @@ final class LongRangeScanTest extends GroovyTestCase {
 
     assert ui.localMsgLog == ['sensors.longRange.scanQuadrant']
     assert ui.argsLog     == [ [1,1] ]
-    assert ui.msgLog      == ['  scan' * 3] * 3
+    assert ui.msgLog      == [ scanLine ] * 3
   }
 }

@@ -102,7 +102,7 @@ final class ShortRangeScanTest extends TrekTestBase {
         assert localMsgLog[it] == "sensors.shipStatus.${it - 1}"
       }
 
-      assert msgLog == [dummyQuadRow] * rowsInQuad
+      assert msgLog == ["$dummyQuadRow\n"] * rowsInQuad
     }
   }
 }

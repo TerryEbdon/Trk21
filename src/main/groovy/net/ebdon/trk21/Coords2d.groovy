@@ -18,7 +18,6 @@ import groovy.transform.*;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@ToString(includePackage=false,includeNames=true,excludes='valid')
 @AutoClone
 @Canonical @TypeChecked
 final class Coords2d {
@@ -27,6 +26,10 @@ final class Coords2d {
 
   boolean isValid() {
     row > 0 && col > 0
+  }
+
+  String toString() {
+    "$col - $row"
   }
 
   List<Integer> toList() {

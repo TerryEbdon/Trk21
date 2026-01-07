@@ -45,6 +45,11 @@ abstract class UiBase extends LoggingBase { /// @todo LoggingBase required for c
     outln String.format( getPrompt( formatId ), *args )
   }
 
+  @groovy.transform.TypeChecked
+  void fmtMsgNoln( final String formatId, final List<Object> args ) {
+    print String.format( getPrompt( formatId ), *args )
+  }
+
   final String pleaseEnterNumber() {
     getPrompt( 'input.err.enterNumber' )
   }
