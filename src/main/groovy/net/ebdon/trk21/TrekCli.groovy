@@ -57,6 +57,7 @@ class TrekCli extends UiBase {
         case 'p': trek.firePhasers(); break
         case 'd': trek.reportDamage();  break
         case 'n': trek.navComp();  break
+        case 'h': trek.showHistory();  break
         case 'q': outln '\nBye!\n'; finished = true; trek = null; break
         default: println 'What?'
       }

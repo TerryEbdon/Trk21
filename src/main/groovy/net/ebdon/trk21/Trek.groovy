@@ -38,6 +38,8 @@ import net.ebdon.trk21.course_man.ShipCourseManager;
 final class Trek extends LoggingBase {
   static String logPositionPieces = 'Positioning game pieces {} in quadrant {}'
 
+  static List<Coords2d> trackLog = [ ]
+
   UiBase ui;
   PropertyResourceBundle rb;
   MessageFormat formatter;
@@ -131,6 +133,7 @@ final class Trek extends LoggingBase {
   @TypeChecked
   void startGame() {
     shortRangeScan()
+    trackLog << ship.position.quadrant.clone()
   }
 
   /// @deprecated Not needed with new font config.
@@ -154,8 +157,35 @@ final class Trek extends LoggingBase {
     if ( scm.setOffFrom( quadrant ) ) {
       repopulateSector oldQuadrant
       shortRangeScan()
+      updateTrackLog()
     }
   }
+
+  void updateTrackLog() {
+    Coords2d newQuadrant = ship.position.quadrant
+    log.trace "Before if: $trackLog"
+    log.trace "newQuadrant is: $newQuadrant"
+    if (newQuadrant != trackLog.last() ) {
+      log.trace 'HAVE moved quadrant, about to clone and log'
+      trackLog << newQuadrant.clone()
+    } else {
+      log.trace 'Have NOT moved quadrant'
+    }
+    log.trace "After if: $trackLog"
+  }
+
+  @TypeChecked
+  void showHistory() {
+    final int maxReportCols = 5
+    log.trace "Showing history for ${trackLog.size()} trackLog entries"
+    trackLog.eachWithIndex { Coords2d quadrantCoords, int index ->
+      ui.fmtMsgNoln 'trek.historyEntry', [ quadrantCoords.toString(), ]
+
+      if (index % maxReportCols == maxReportCols - 1) { // -1 as index starts at 0
+        ui.outln ''
+      }
+    }
+   }
 
   @TypeChecked
   private void repopulateSector( final Coords2d oldQuadrant ) {

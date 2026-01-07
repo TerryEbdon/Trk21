@@ -8,8 +8,11 @@
     "gradlew",
     "jacoco",
     "Newify",
+    "Noln",
+    "outln",
     "powerassert",
     "rint",
+    "sprintf",
     "starbase"
   ]
 }

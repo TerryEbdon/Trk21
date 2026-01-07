@@ -47,8 +47,9 @@ final class TestUi extends UiBase {
     key
   }
 
-  void outln( String str ) {
-    msgLog << str
+  @groovy.transform.TypeChecked
+  @Override void outln( String str ) {
+    msgLog << str + '\n'
   }
 
   void localMsg( final String msgId ) {
@@ -60,6 +61,11 @@ final class TestUi extends UiBase {
     assert args
     localMsgLog << formatId
     argsLog << args
+  }
+
+  @groovy.transform.TypeChecked
+  @Override void fmtMsgNoln( final String formatId, final List<Object> args ) {
+    fmtMsg formatId, args
   }
 
   @SuppressWarnings('UnusedMethodParameter')
