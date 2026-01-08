@@ -161,6 +161,7 @@ final class Trek extends LoggingBase {
     }
   }
 
+  @TypeChecked
   void updateTrackLog() {
     Coords2d newQuadrant = ship.position.quadrant
     log.trace "Before if: $trackLog"
